@@ -1,11 +1,79 @@
 ---
-title: "tidymodels-survival-workshop"
+format:
+  html:
+    toc: false
 ---
 
-This is a Quarto website.
+## Welcome
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+These are the materials for workshops on survival analysis with [tidymodels](https://www.tidymodels.org/). The tidymodels framework is a collection of packages for modeling and machine learning using [tidyverse](https://www.tidyverse.org/) principles. 
+
+This course will teach you core tidymodels packages and their uses: data splitting/resampling with rsample, model fitting with parsnip, measuring model performance with yardstick, and basic model optimization with tune. Time permitting, you'll be introduced to pre-processing using the recipes package. You'll learn tidymodels syntax as well as the process of predictive modeling for tabular data.
+
+## Is this workshop for me? <img src="slides/images/parsnip-flagger.jpg" align="right" height="150"/>
+
+This workshop is for you if you:
+
+-   are familiar with basic survival analysis such as censoring of time-to-event data, Kaplan-Meier curves, proportional hazards models
+-   are familiar with the basic predictive modeling workflow such as split in train and test set, resampling, tuning via grid search
+-   want to learn how to leverage the tidymodels framework for survival analysis
+
+Intermediate or expert familiarity with modeling or machine learning is not required. 
+
+## Preparation
+
+The process to set up your computer for either workshop will look the same. Please join the workshop with a computer that has the following installed (all available for free):
+
+-   A recent version of R, available at <https://cran.r-project.org/>
+-   A recent version of RStudio Desktop (RStudio Desktop Open Source License, at least v2022.02), available at <https://posit.co/download/rstudio-desktop/>
+-   The following R packages, which you can install from the R console:
 
 ```{r}
-1 + 1
+#| label: installs
+#| eval: false
+#| echo: true
+
+# Install the packages for the workshop
+pkgs <- 
+  c("bonsai", "doParallel", "embed", "finetune", "lightgbm", "lme4",
+    "plumber", "probably", "ranger", "rpart", "rpart.plot", "rules",
+    "splines2", "stacks", "text2vec", "textrecipes", "tidymodels", 
+    "vetiver", "remotes")
+
+install.packages(pkgs)
 ```
+
+If you're a Windows user and encounter an error message during installation noting a missing Rtools installation, install Rtools using the installer linked [here](https://cran.r-project.org/bin/windows/Rtools/).
+
+## Slides
+
+These slides are designed to use with live teaching and are published for workshop participants' convenience. There are not meant as standalone learning materials. For that, we recommend [tidymodels.org](https://www.tidymodels.org/start/) and [*Tidy Modeling with R*](https://www.tmwr.org/).
+
+### Introduction to tidymodels
+
+-   01: [Introduction](slides/intro-01-introduction.html){target="_blank"}
+-   02: [Your data budget](slides/intro-02-data-budget.html){target="_blank"}
+-   03: [What makes a model?](slides/intro-03-what-makes-a-model.html){target="_blank"}
+-   04: [Evaluating models](slides/intro-04-evaluating-models.html){target="_blank"}
+-   05: [Tuning models](slides/intro-05-tuning-models.html){target="_blank"}
+-   06: [Wrapping up](slides/intro-06-wrapping-up.html){target="_blank"}
+
+### Extra content (time permitting)
+
+-   [Intro: Time-based splitting](slides/intro-extra-time-splits.html){target="_blank"}
+-   [Intro: Using workflowsets](slides/intro-extra-workflowsets.html){target="_blank"}
+-   [Intro: Using recipes](slides/intro-extra-recipes.html){target="_blank"}
+
+There's also a page for [slide annotations](slides/annotations.html){target="_blank"}; these are extra notes for selected slides.
+
+## Code
+
+Quarto files for working along [are available on GitHub](https://github.com/tidymodels/workshops/tree/main/classwork). (Don't worry if you haven't used Quarto before; it will feel familiar to R Markdown users.)
+
+## Acknowledgments {.appendix}
+
+This website, including the slides, is made with [Quarto](https://quarto.org/). Please [submit an issue](https://github.com/tidymodels/workshops/issues) on the GitHub repo for this workshop if you find something that could be fixed or improved.
+
+## Reuse and licensing {.appendix}
+
+Unless otherwise noted (i.e. not an original creation and reused from another source), these educational materials are licensed under Creative Commons Attribution [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).

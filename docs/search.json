@@ -2,8 +2,57 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "tidymodels-survival-workshop",
+    "title": "Survival analysis with tidymodels",
     "section": "",
-    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\n1 + 1\n\n[1] 2"
+    "text": "These are the materials for workshops on survival analysis with tidymodels. The tidymodels framework is a collection of packages for modeling and machine learning using tidyverse principles.\nThis course will teach you core tidymodels packages and their uses: data splitting/resampling with rsample, model fitting with parsnip, measuring model performance with yardstick, and basic model optimization with tune. Time permitting, you’ll be introduced to pre-processing using the recipes package. You’ll learn tidymodels syntax as well as the process of predictive modeling for tabular data."
+  },
+  {
+    "objectID": "index.html#welcome",
+    "href": "index.html#welcome",
+    "title": "Survival analysis with tidymodels",
+    "section": "",
+    "text": "These are the materials for workshops on survival analysis with tidymodels. The tidymodels framework is a collection of packages for modeling and machine learning using tidyverse principles.\nThis course will teach you core tidymodels packages and their uses: data splitting/resampling with rsample, model fitting with parsnip, measuring model performance with yardstick, and basic model optimization with tune. Time permitting, you’ll be introduced to pre-processing using the recipes package. You’ll learn tidymodels syntax as well as the process of predictive modeling for tabular data."
+  },
+  {
+    "objectID": "index.html#is-this-workshop-for-me",
+    "href": "index.html#is-this-workshop-for-me",
+    "title": "Survival analysis with tidymodels",
+    "section": "Is this workshop for me? ",
+    "text": "Is this workshop for me? \nThis workshop is for you if you:\n\nare familiar with basic survival analysis such as censoring of time-to-event data, Kaplan-Meier curves, proportional hazards models\nare familiar with the basic predictive modeling workflow such as split in train and test set, resampling, tuning via grid search\nwant to learn how to leverage the tidymodels framework for survival analysis\n\nIntermediate or expert familiarity with modeling or machine learning is not required."
+  },
+  {
+    "objectID": "index.html#preparation",
+    "href": "index.html#preparation",
+    "title": "Survival analysis with tidymodels",
+    "section": "Preparation",
+    "text": "Preparation\nThe process to set up your computer for either workshop will look the same. Please join the workshop with a computer that has the following installed (all available for free):\n\nA recent version of R, available at https://cran.r-project.org/\nA recent version of RStudio Desktop (RStudio Desktop Open Source License, at least v2022.02), available at https://posit.co/download/rstudio-desktop/\nThe following R packages, which you can install from the R console:\n\n\n# Install the packages for the workshop\npkgs &lt;- \n  c(\"bonsai\", \"doParallel\", \"embed\", \"finetune\", \"lightgbm\", \"lme4\",\n    \"plumber\", \"probably\", \"ranger\", \"rpart\", \"rpart.plot\", \"rules\",\n    \"splines2\", \"stacks\", \"text2vec\", \"textrecipes\", \"tidymodels\", \n    \"vetiver\", \"remotes\")\n\ninstall.packages(pkgs)\n\nIf you’re a Windows user and encounter an error message during installation noting a missing Rtools installation, install Rtools using the installer linked here."
+  },
+  {
+    "objectID": "index.html#slides",
+    "href": "index.html#slides",
+    "title": "Survival analysis with tidymodels",
+    "section": "Slides",
+    "text": "Slides\nThese slides are designed to use with live teaching and are published for workshop participants’ convenience. There are not meant as standalone learning materials. For that, we recommend tidymodels.org and Tidy Modeling with R.\n\nIntroduction to tidymodels\n\n01: Introduction\n02: Your data budget\n03: What makes a model?\n04: Evaluating models\n05: Tuning models\n06: Wrapping up\n\n\n\nExtra content (time permitting)\n\nIntro: Time-based splitting\nIntro: Using workflowsets\nIntro: Using recipes\n\nThere’s also a page for slide annotations; these are extra notes for selected slides."
+  },
+  {
+    "objectID": "index.html#code",
+    "href": "index.html#code",
+    "title": "Survival analysis with tidymodels",
+    "section": "Code",
+    "text": "Code\nQuarto files for working along are available on GitHub. (Don’t worry if you haven’t used Quarto before; it will feel familiar to R Markdown users.)"
+  },
+  {
+    "objectID": "index.html#acknowledgments",
+    "href": "index.html#acknowledgments",
+    "title": "Survival analysis with tidymodels",
+    "section": "Acknowledgments",
+    "text": "Acknowledgments\n\nThis website, including the slides, is made with Quarto. Please submit an issue on the GitHub repo for this workshop if you find something that could be fixed or improved."
+  },
+  {
+    "objectID": "index.html#reuse-and-licensing",
+    "href": "index.html#reuse-and-licensing",
+    "title": "Survival analysis with tidymodels",
+    "section": "Reuse and licensing",
+    "text": "Reuse and licensing\n\nUnless otherwise noted (i.e. not an original creation and reused from another source), these educational materials are licensed under Creative Commons Attribution CC BY-SA 4.0."
   }
 ]
