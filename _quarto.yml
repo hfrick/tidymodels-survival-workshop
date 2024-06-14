@@ -1,14 +1,35 @@
 project:
   type: website
+  render:
+    - "index.qmd"
+    - "slides/*qmd"
+    - "!classwork/"
+    - "!CODE_OF_CONDUCT.md"
   output-dir: docs
 
 website:
-  title: "tidymodels-survival-workshop"
+  title: "Survival analysis with tidymodels"
+  description: "This workshop provides an introduction to predictive survival analysis with R using the tidymodels framework, a collection of packages for modeling and machine learning using tidyverse principles."
+  open-graph: true
+  twitter-card: true
+  site-url: https://hfrick.github.io/tidymodels-survival-workshop
+  repo-url: https://github.com/hfrick/tidymodels-survival-workshop
+  repo-actions: [edit, issue]
+  favicon: "favicon.ico"
+
   navbar:
-    left:
-      - href: index.qmd
-        text: Home
-      - about.qmd
+    background: "#CA225E"
+    pinned: true
+    logo: tidymodels.png
+    right:
+      - text: Learn more
+        menu:
+          - href: https://www.tidymodels.org/start/
+            text: "Get started at tidymodels.org"
+          - href: https://www.tmwr.org/
+            text: "Tidy Modeling with R"
+          - href: https://www.tidymodels.org/learn/index.html#category=survival%20analysis
+            text: "Survival analysis at tidymodels.org"
 
 format:
   html:
@@ -16,5 +37,4 @@ format:
     css: styles.css
     toc: true
 
-
-
+fig-format: svg
