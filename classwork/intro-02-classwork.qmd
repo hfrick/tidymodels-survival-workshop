@@ -1,6 +1,6 @@
 ---
 title: "2 - Your data budget - Classwork"
-subtitle: "Introduction to tidymodels"
+subtitle: "Survival analysis with tidymodels"
 editor_options: 
   chunk_output_type: console
 ---
