@@ -1,6 +1,6 @@
 ---
 title: "3 - What makes a model?"
-subtitle: "Introduction to tidymodels"
+subtitle: "Survival analysis with tidymodels"
 format:
   revealjs: 
     slide-number: true
@@ -28,6 +28,7 @@ knitr:
 ![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
 
 *How do you fit a linear model in R?*
+<!-- FIXME: switch this to a proportional hazards model? -->
 
 *How many different ways can you think of?*
 
@@ -55,15 +56,19 @@ countdown::countdown(minutes = 3, id = "how-to-fit-linear-model")
 . . .
 
 ::: columns
-::: {.column width="40%"}
+::: {.column width="55%"}
 -   Choose a [model]{.underline}
 -   Specify an engine
 -   Set the mode
 :::
 
-::: {.column width="60%"}
-![](images/taxi_spinning.svg)
+::: {.column width="45%"}
+<img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%">
 :::
+:::
+
+::: footer
+Credit: <https://www.svgrepo.com/svg/481270/cat-5>
 :::
 
 ## To specify a model `r hexes("parsnip")`
@@ -71,16 +76,21 @@ countdown::countdown(minutes = 3, id = "how-to-fit-linear-model")
 ```{r setup-previous}
 #| echo: false
 library(tidymodels)
+library(censored)
+library(modeldata)
+
+cat_adoption <- cat_adoption %>% 
+  mutate(event_time = Surv(time, event), .keep = "unused")
 
 set.seed(123)
 
-taxi_split <- initial_split(taxi, prop = 0.8, strata = tip)
-taxi_train <- training(taxi_split)
-taxi_test <- testing(taxi_split)
+cat_split <- initial_split(cat_adoption, prop = 0.8)
+cat_train <- training(cat_split)
+cat_test <- testing(cat_split)
 ```
 
-```{r logistic-reg}
-logistic_reg()
+```{r proportional-hazards}
+proportional_hazards()
 ```
 
 
@@ -91,42 +101,42 @@ Models have default engines
 ## To specify a model `r hexes("parsnip")`
 
 ::: columns
-::: {.column width="40%"}
+::: {.column width="55%"}
 -   Choose a model
 -   Specify an [engine]{.underline}
 -   Set the mode
 :::
 
-::: {.column width="60%"}
-![](images/taxi_spinning.svg)
+::: {.column width="45%"}
+<img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%">
 :::
 :::
 
 ## To specify a model `r hexes("parsnip")`
 
-```{r logistic-reg-glmnet}
-logistic_reg() %>%
+```{r proportional-hazards-again}
+proportional_hazards()
+```
+
+## To specify a model `r hexes("parsnip")`
+
+```{r proportional-hazards-glmnet}
+proportional_hazards() %>%
   set_engine("glmnet")
 ```
 
-## To specify a model `r hexes("parsnip")`
-
-```{r logistic-reg-stan}
-logistic_reg() %>%
-  set_engine("stan")
-```
 
 ## To specify a model `r hexes("parsnip")`
 
 ::: columns
-::: {.column width="40%"}
+::: {.column width="55%"}
 -   Choose a model
 -   Specify an engine
 -   Set the [mode]{.underline}
 :::
 
-::: {.column width="60%"}
-![](images/taxi_spinning.svg)
+::: {.column width="45%"}
+<img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%">
 :::
 :::
 
@@ -143,9 +153,9 @@ Some models have a default mode
 
 ## To specify a model `r hexes("parsnip")`
 
-```{r decision-tree-classification}
+```{r decision-tree-censored-reg}
 decision_tree() %>% 
-  set_mode("classification")
+  set_mode("censored regression")
 ```
 
 . . .
@@ -164,14 +174,14 @@ All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 ## To specify a model `r hexes("parsnip")`
 
 ::: columns
-::: {.column width="40%"}
+::: {.column width="55%"}
 -   Choose a [model]{.underline}
 -   Specify an [engine]{.underline}
 -   Set the [mode]{.underline}
 :::
 
-::: {.column width="60%"}
-![](images/taxi_spinning.svg)
+::: {.column width="45%"}
+<img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%">
 :::
 :::
 
@@ -179,9 +189,9 @@ All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 
 ![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
 
-*Run the `tree_spec` chunk in your `.qmd`.*
+*Write the specification for a proportional hazards model.*
 
-*Edit this code to use a logistic regression model.*<br></br>
+*Choose your engine.*<br></br>
 
 ::: r-fit-text
 All available models are listed at <https://www.tidymodels.org/find/parsnip/>
@@ -189,7 +199,7 @@ All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 
 <br></br>
 
-*Extension/Challenge: Edit this code to use a different model. For example, try using a conditional inference tree as implemented in the partykit package by changing the engine - or try an entirely different model type!*
+*Extension/Challenge: Edit this code to use a different model. For example, try using a conditional inference tree as implemented in the partykit package - or try an entirely different model type!*
 
 ```{r ex-explore-tree-spec}
 #| echo: false
@@ -199,7 +209,7 @@ countdown::countdown(minutes = 5, id = "explore-tree-spec")
 
 ## Models we'll be using today
 
-* Logistic regression
+* Proportional hazards model
 * Decision trees
 
 ```{r sim-model-viz}
@@ -444,7 +454,7 @@ knitr::include_graphics("images/bad_workflow.png")
 
 . . .
 
--   You can use other preprocessors besides formulas (more on feature engineering in Advanced tidymodels!)
+-   You can use other preprocessors besides formulas (more on feature engineering if time permits!)
 
 . . .
 
@@ -466,44 +476,42 @@ Two ways workflows handle levels better than base R:
 
 ```{r tree-spec}
 tree_spec <-
-  decision_tree(cost_complexity = 0.002) %>% 
-  set_mode("classification")
+  decision_tree() %>% 
+  set_mode("censored regression")
 
 tree_spec %>% 
-  fit(tip ~ ., data = taxi_train) 
+  fit(event_time ~ ., data = cat_train) 
 ```
 
 ## A model workflow `r hexes("parsnip", "workflows")`
 
 ```{r tree-wflow}
 tree_spec <-
-  decision_tree(cost_complexity = 0.002) %>% 
-  set_mode("classification")
+  decision_tree() %>% 
+  set_mode("censored regression")
 
 workflow() %>%
-  add_formula(tip ~ .) %>%
+  add_formula(event_time ~ .) %>%
   add_model(tree_spec) %>%
-  fit(data = taxi_train) 
+  fit(data = cat_train) 
 ```
 
 ## A model workflow `r hexes("parsnip", "workflows")`
 
 ```{r tree-wflow-fit}
 tree_spec <-
-  decision_tree(cost_complexity = 0.002) %>% 
-  set_mode("classification")
+  decision_tree() %>% 
+  set_mode("censored regression")
 
-workflow(tip ~ ., tree_spec) %>% 
-  fit(data = taxi_train) 
+workflow(event_time ~ ., tree_spec) %>% 
+  fit(data = cat_train) 
 ```
 
 ## Your turn {transition="slide-in"}
 
 ![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
 
-*Run the `tree_wflow` chunk in your `.qmd`.*
-
-*Edit this code to make a workflow with your own model of choice.*
+*Make a workflow with your own model of choice.*
 
 <br></br>
 
@@ -520,12 +528,12 @@ How do you use your new `tree_fit` model?
 
 ```{r tree-wflow-fit-2}
 tree_spec <-
-  decision_tree(cost_complexity = 0.002) %>% 
-  set_mode("classification")
+  decision_tree() %>% 
+  set_mode("censored regression")
 
 tree_fit <-
-  workflow(tip ~ ., tree_spec) %>% 
-  fit(data = taxi_train) 
+  workflow(event_time ~ ., tree_spec) %>% 
+  fit(data = cat_train) 
 ```
 
 ## Your turn {transition="slide-in"}
@@ -534,7 +542,7 @@ tree_fit <-
 
 *Run:*
 
-`predict(tree_fit, new_data = taxi_test)`
+`predict(tree_fit, new_data = cat_test)`
 
 *What do you get?*
 
@@ -549,7 +557,7 @@ countdown::countdown(minutes = 3, id = "predict-tree-fit")
 
 *Run:*
 
-`augment(tree_fit, new_data = taxi_test)`
+`augment(tree_fit, new_data = cat_test)`
 
 *What do you get?*
 
@@ -566,24 +574,13 @@ countdown::countdown(minutes = 3, id = "augment-tree-fit")
 -   The column names and types are **unsurprising** and **predictable**
 -   The number of rows in `new_data` and the output **are the same**
 
-## Understand your model `r hexes("parsnip", "workflows")`
+<!-- ## Understand your model `r hexes("parsnip", "workflows")`
 
 How do you **understand** your new `tree_fit` model?
 
 ```{r plot-tree-fit-4}
 #| echo: false
 #| fig-align: center
-library(rpart.plot)
-tree_fit %>%
-  extract_fit_engine() %>%
-  rpart.plot(roundint = FALSE)
-```
-
-## Understand your model `r hexes("parsnip", "workflows")`
-
-How do you **understand** your new `tree_fit` model?
-
-```{r plot-tree-fit-5}
 #| eval: false
 library(rpart.plot)
 tree_fit %>%
@@ -591,6 +588,20 @@ tree_fit %>%
   rpart.plot(roundint = FALSE)
 ```
 
+## Understand your model `r hexes("parsnip", "workflows")`
+
+How do you **understand** your new `tree_fit` model? -->
+
+<!-- 
+```{r plot-tree-fit-5}
+#| eval: false
+library(rpart.plot)
+tree_fit %>%
+  extract_fit_engine() %>%
+  rpart.plot(roundint = FALSE)
+```
+ -->
+<!-- 
 You can `extract_*()` several components of your fitted workflow.
 
 . . .
@@ -633,16 +644,17 @@ Learn more at <https://www.tmwr.org/explain.html>
 
 <br>
 
-*Extract the model engine object from your fitted workflow and check it out.*
+*Extract the model engine object from your fitted workflow and check it out.* -->
 
 ```{r ex-extract-methods}
 #| echo: false
+#| eval: false
 countdown::countdown(minutes = 5, id = "extract-methods")
 ```
 
-:::notes
+<!-- :::notes
 Afterward, ask what kind of object people got from the extraction, and what they did with it (e.g. give it to `summary()`, `plot()`, `broom::tidy()` ). Live code along
-:::
+::: -->
 
 ## The whole game - status update
 
