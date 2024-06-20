@@ -34,6 +34,7 @@ data_color  <- "#767381"
 assess_color <- "#84cae1"
 splits_pal <- c(data_color, train_color, test_color)
 
+# https://gist.github.com/topepo/778eff2590df87702e1c82c9ba09af7d
 smooth_ph_linear_pred <- function(formula, data, deg_free = 5, grid_size = 500) {
   require(rlang)
   rlang::is_installed("survival")
