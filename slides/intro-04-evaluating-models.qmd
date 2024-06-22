@@ -48,45 +48,60 @@ tree_fit <-
   decision_tree(mode = "censored regression") %>%
   set_engine("partykit") %>% 
   fit(event_time ~ ., data = cat_train)
+```
 
-set.seed(12)
-franken_cats <- map_dfc(cat_test, ~ sample(.x, 500))
+Let's also create some random data that we'll use for demonstrations: 
+
+```{r}
+#| label: franken-start
+set.seed(827)
+franken_cats <- map_dfc(cat_test, ~ sample(.x, 200))
+```
+
+## Types of Predictions
+
+```{r}
+#| label: franken-cat-preds
+franken_cat_preds <- augment(tree_fit, franken_cats, eval_time = 8:360)
+franken_cat_preds %>% select(1:3) %>% slice(1:5)
 ```
 
 
 ## Types of Predictions
 
 ```{r}
-#| label: franken-cat-preds
-franken_cat_preds <- augment(tree_fit, franken_cats, eval_time = 1:360)
-franken_cat_preds %>% select(1:3)
+#| label: franken-cat-dot-pred
 franken_cat_preds$.pred[[1]]
 ```
 
-## Survival Probabilities
+
+## Predicted Survival Probabilities
 
 
 ```{r}
 #| label: franked-probs
-
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4
+#| out-width: 80%
+#| fig-align: center
 franken_cat_preds %>% 
   slice(1:4) %>% 
   add_rowindex() %>% 
-  mutate(cat = paste0(.row, " (", format(event_time), ")")) %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
   unnest(.pred) %>% 
   ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
   geom_step() +
   labs(x = "Evaluation Time", y = "Pr[Not Adopted Yet]")
-
 ```
 
 ## Concordance
 
-The concordance statistic (“c-index”) is a metric that quantifies that the rank order of the times is consistent with some model score (e.g., a survival probability). 
+The concordance statistic (“c-index”, [Harrell _et al_ (1996)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22multivariable+prognostic+models%3A+issues+in+developing+models%2C+evaluating+assumptions+and+adequacy%2C+and+measuring+and+reducing+errors%22&btnG=)) is a metric that quantifies that the rank order of the times is consistent with some model score (e.g., a survival probability). 
 
 It takes into account censoring and does not depend on a specific evaluation time. 
 
-It has some weaknesses (see ref and ref) and is used less than it originally was. 
+It has some weaknesses (see [Uno _et al_ (2011)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22On+the+C-statistics+for+evaluating+overall+adequacy+of+risk+prediction+procedures+with+censored+survival+data&btnG=) for example) and is used less than it originally was. 
 
 ## Concordance
 
@@ -101,7 +116,26 @@ The other metrics that we will discuss are dynamic in the sense that they evalua
 
 ## Time-dependent metrics
 
-show some survival probabilities
+We pick specific time points to evaluate the model (depending on our problem) such as every 30 days: 
+
+```{r}
+#| label: franked-probs-again
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4
+#| out-width: 80%
+#| fig-align: center
+franken_cat_preds %>% 
+  slice(1:4) %>% 
+  add_rowindex() %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
+  unnest(.pred) %>% 
+  ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
+  geom_step() +
+  geom_vline(xintercept = (1:12) * 30, col = "blue", lty = 3, alpha = 7 / 10) +
+  labs(x = "Evaluation Time", y = "Pr[Survival]")
+```
+
 
 ## Classification(ish) Metrics
 
@@ -114,7 +148,13 @@ From there, we can apply existing classification metrics, such as
 
 We’ll talk about both of these. 
 
-First, how do we handle cases where the observed time is censored before the evaluation time? 
+## Using the Right Evaluation Strategy
+
+There are _a lot_ of papers with different methods of evaluating survival data with dynamic metrics. Almost all of these are created to help score/screen predictors. 
+
+The problem is that these metrics are not derived for estimated model probabilities. Statistically, this is a very different problem (and not applicable here).
+
+Instead, tidymodels uses an approach similar to causal inference called _inverse probability of censoring weights_ (IPCW). The main reference is [Graf _et al_ (1999)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=graf+1999+%22Assessment+and+comparison+of+prognostic+classification+schemes+for+survival+data%22&btnG=).
 
 ## Converting to Events
 
@@ -129,31 +169,33 @@ N/A & \text{if } t_{i} \leq \tau\text{ and censored }
 \end{cases}
 $$
 
+
+In actuality, we use $\tau - \epsilon$ for some _very_ small $\epsilon$ since we can't see the future. 
+
+## Class Probability Estimates
+
 The predicted class probabilities are then: 
 
 $$
 \begin{align}
-Pr[y_{i\tau} = 1] &= 1- \hat{S}_i(\tau; x_{i})\notag \\
-Pr[y_{i\tau} = 0] &= \hat{S}_i(\tau; x_{i}) \notag 
+Pr[y_{i\tau} = 1] &= 1- \hat{S}(\tau; \boldsymbol{x}_{i})\notag \\
+Pr[y_{i\tau} = 0] &= \hat{S}(\tau; \boldsymbol{x}_{i}) \notag 
 \end{align}
 $$
 
-
-
-
-(mention $\epsilon$)
-
-## Strong Opinions
-
-There are _a lot_ of papers with different methods of evaluating survival data with dynamic metrics. Almost all of these are created to help score/screen predictors. 
-
-The problem is that these metrics are not derived for estimated model probabilities. Statistically, this is a very different problem. 
-
-Our (rather strong) opinion is that most methods are not applicable for evaluating predictive event time models. 
-
-tidymodels uses an approach similar to causal inference called _inverse probability of censoring weights_ (IPCW). We feel that this is the best approach that we know of. 
-
 ## Inverse Probability Weighting
+
+Without censored data points, this conversion would yield appropriate performance estimates. 
+
+<br>
+
+Otherwise, there is the potential for bias due to missingness. 
+
+<br>
+
+One approach is to weight observations based on the likelihood that _each sample_ is censored (regardless of their actual status).
+
+
 
 ## Probability of Censoring
 
@@ -162,23 +204,24 @@ $\hat{C}(T;x_i)$ is the probability that sample $i$ is censored at some generic 
 $$
 Pr[censored] = 
 \begin{cases}
-\hat{C}(t_i;x_i) & \text{if } y_{i\tau} = 1 \\ \notag
-\hat{C}(\tau;x_i)  & \text{if } y_{i\tau} = 0  \notag 
+\hat{C}(t_i;\boldsymbol{x}_{i}) & \text{if } y_{i\tau} = 1 \\ \notag
+\hat{C}(\tau;\boldsymbol{x}_{i})  & \text{if } y_{i\tau} = 0  \notag 
 \end{cases}
 $$
 (note the time of censoring)
 
+Case weights $w_i(\tau)$ are the inverse of these probabilities and $W(\tau)$ is their sum.
 
-$w_i$ is the inverse of this probability. 
-
-## Probability of Censoring
+## Probability of Censoring Model
 
 We currently only estimate the probability of non-informative censoring (i.e. the predictors $x_i$ are ignored). 
 
- - Our estimator $\hat{C}(T;x_i)$ is the “reverse Kaplan-Meier” (RKM) curve that inverts the event indicator. 
+ - Our estimator $\hat{C}(T;x_i)$ is the “reverse Kaplan-Meier” (RKM, [Korn (1986)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Korn+1986+%22Censoring+distributions+as+a+measure+of+follow-up+in+survival+analysis%22&btnG=)) curve that inverts the event indicator. 
  - This is the same for each sample at time $\tau$. 
 
-This curve is attached to the parsnip model object. For our data set...
+(We may expand this API in the future)
+
+The RKM curve is attached to the parsnip model object. For our data set...
 
 ## Reverse Kaplan-Meier Curve
 
@@ -194,15 +237,25 @@ rkm_data <-
   as_tibble() %>% 
   set_names(c(".eval_time", ".pred_censored"))
 
+max_wt_time <- 
+  franken_cat_preds %>% 
+  slice(1:4) %>% 
+  add_rowindex() %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
+  unnest(.pred) %>% 
+  summarize(max_weight_time = max(.weight_time, na.rm = TRUE), .by = c(cat))
+
 franken_cat_preds %>% 
   slice(1:4) %>% 
   add_rowindex() %>% 
-  mutate(cat = paste0("cat ", .row, " (", format(event_time), ")")) %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
   unnest(.pred) %>% 
-  ggplot(aes(.weight_time, .pred_censored)) + 
+  ggplot(aes(.weight_time, .pred_censored)) +
+  geom_vline(data = max_wt_time, aes(xintercept = max_weight_time, col = cat), 
+             lty = 3, show.legend = FALSE) + 
   geom_step(data = rkm_data, aes(x = .eval_time), alpha = 1 / 5, linewidth = 1 / 2) +
   geom_step(aes(group = cat, col = cat), show.legend = FALSE, linewidth = 1) +
-  labs(x = "Evaluation Time", y = "Prob Cesnored") + 
+  labs(x = "Evaluation Time", y = "Prob Censored") + 
   lims(y = 0:1) +
   facet_wrap(~ cat)
 ```
@@ -217,35 +270,160 @@ franken_cat_preds %>%
 #| fig-height: 4
 #| out-width: 80%
 #| fig-align: center
-max_wt_time <- 
-  franken_cat_preds %>% 
-  slice(1:4) %>% 
-  add_rowindex() %>% 
-  mutate(cat = paste0("cat ", .row, " (", format(event_time), ")")) %>%   
-  unnest(.pred) %>% 
-  summarize(max_weight_time = max(.weight_time, na.rm = TRUE), .by = c(cat))
 
 franken_cat_preds %>% 
   slice(1:4) %>% 
   add_rowindex() %>% 
-  mutate(cat = paste0("cat ", .row, " (", format(event_time), ")")) %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
   unnest(.pred) %>% 
   ggplot(aes(.eval_time, .weight_censored)) + 
   geom_step(aes(group = cat, col = cat), show.legend = FALSE) +
   geom_vline(data = max_wt_time, aes(xintercept = max_weight_time, col = cat), 
              lty = 3, show.legend = FALSE) +
-  labs(x = "Evaluation Time", y = "Prob Cesnored") + 
+  labs(x = "Evaluation Time", y = "IPCW") + 
   facet_wrap(~ cat)
 ```
 
+## Weights Over Time
+
+```{r}
+#| label: weight-sum
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4.25
+#| out-width: 60%
+#| fig-align: center
+
+franken_cat_preds %>% 
+  unnest(.pred) %>% 
+  summarize(
+    weight_sum = sum(.weight_censored, na.rm = TRUE),
+    .by = c(.eval_time)) %>% 
+  ggplot(aes(.eval_time, weight_sum)) + 
+  geom_line() +
+  labs(x = "Evaluation Time", y = "Sum of Weights")
+```
+
+## Number of Usable Samples
+
+```{r}
+#| label: num-active
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4.25
+#| out-width: 60%
+#| fig-align: center
+
+franken_cat_preds %>% 
+  unnest(.pred) %>% 
+  summarize(
+    num_active = sum(!is.na(.weight_censored)),
+    .by = c(.eval_time)) %>% 
+  ggplot(aes(.eval_time, num_active)) + 
+  geom_line() +
+  labs(x = "Evaluation Time", y = "# Usable Samples")
+```
+
+
+
+
 ## Brier Score
 
-The Brier score is a measure of calibration originally meant for classification models. 
-
-
-
-
+The Brier score is a measure of calibration originally meant for classification models:
 
 $$
-Brier = \frac{1}{N}\sum_{i=1}^Nw_i\left[\hat{S}_i(\tau; x_{i})^2 + \left(y_{i\tau} - \hat{S}_i(\tau; x_{i})\right)^2 \right]
+Brier = \frac{1}{N}\sum_{i=1}^N\sum_{k=1}^C (y_{ik} - \hat{\pi}_{ik})^2
 $$
+
+For our application, we have two classes (event and non-event) and case weights
+
+$$
+Brier(\tau) = \frac{1}{W}\sum_{i=1}^N \sum_{k=0}^1w_i(\tau)I(y_{i\tau} = k)(y_{i\tau} - \hat{\pi}_{i\tau})^2
+$$
+
+## Franken Cat Brier Scores
+
+Remember that these are randomly assembled data...
+
+```{r}
+#| label: brier-ex
+franken_brier <- brier_survival(franken_cat_preds, truth = event_time, .pred)
+franken_brier %>% slice(1:5)
+```
+
+and also
+
+```{r}
+#| label: brier-int-ex
+brier_survival_integrated(franken_cat_preds, truth = event_time, .pred)
+```
+
+
+
+## Brier Scores Over Time
+
+```{r}
+#| label: brier-time
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4.25
+#| out-width: 60%
+#| fig-align: center
+franken_brier %>% 
+  ggplot(aes(.eval_time, .estimate)) + 
+  geom_line() + 
+  geom_hline(yintercept = 0, col = "green")+
+  labs(x = "Evaluation Time", y = "Brier Score")
+```
+
+
+## Area Under the ROC Curve
+
+This is more straightforward. 
+
+<br>
+
+We can use the standard ROC curve machinery once we have the indicators, probabilities, and censoring weights at time $\tau$ ([Hung and Chiang (2010)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Optimal+Composite+Markers+for+Time-Dependent+Receiver+Operating+Characteristic+Curves+with+Censored+Survival+Data%22&btnG=)). 
+
+<br>
+
+ROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are.  
+
+
+## Franken Cat ROC AUC 
+
+```{r}
+franken_row_auc <- roc_auc_survival(franken_cat_preds, truth = event_time, .pred)
+franken_row_auc
+```
+
+## ROC AUC Over Time
+
+```{r}
+#| label: auc-time
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4.25
+#| out-width: 60%
+#| fig-align: center
+franken_row_auc %>% 
+  ggplot(aes(.eval_time, .estimate)) + 
+  geom_line() + 
+  geom_hline(yintercept = 1, col = "green")+
+  geom_hline(yintercept = 1/2, col = "red")+
+  labs(x = "Evaluation Time", y = "ROC AUC")
+```
+
+## Using Evaluation Times
+
+When predicting, you can get predictions at any values of $\tau$. 
+
+<br>
+
+During model development, we suggest picking a more focused set of evaluation times (for computational time). 
+
+<br>
+
+You should also pick a time to perform your optimizations/comparisons and list that value first in the vector. 
+
+
