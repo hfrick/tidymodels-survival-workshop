@@ -9,7 +9,7 @@
 <link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
 <link href="../site_libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.4.552">
+  <meta name="generator" content="quarto-1.4.555">
 
   <title>Survival analysis with tidymodels - 3 - What makes a model?</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -388,10 +388,10 @@
   <link href="../site_libs/countdown-0.4.0/countdown.css" rel="stylesheet">
   <script src="../site_libs/countdown-0.4.0/countdown.js"></script>
 <meta property="og:title" content="Survival analysis with tidymodels - 3 - What makes a model?">
-<meta property="og:description" content="Introduction to tidymodels">
+<meta property="og:description" content="Survival analysis with tidymodels">
 <meta property="og:site_name" content="Survival analysis with tidymodels">
 <meta name="twitter:title" content="Survival analysis with tidymodels - 3 - What makes a model?">
-<meta name="twitter:description" content="Introduction to tidymodels">
+<meta name="twitter:description" content="Survival analysis with tidymodels">
 <meta name="twitter:card" content="summary">
 </head>
 <body class="quarto-light">
@@ -401,7 +401,7 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">3 - What makes a model?</h1>
-  <p class="subtitle">Introduction to tidymodels</p>
+  <p class="subtitle">Survival analysis with tidymodels</p>
 
 <div class="quarto-title-authors">
 </div>
@@ -410,7 +410,7 @@
 <section id="your-turn" class="slide level2" data-transition="slide-in">
 <h2>Your turn</h2>
 <p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
-<p><em>How do you fit a linear model in R?</em></p>
+<p><em>How do you fit a linear model in R?</em> <!-- FIXME: switch this to a proportional hazards model? --></p>
 <p><em>How many different ways can you think of?</em></p>
 <div class="cell">
 <div class="cell-output-display">
@@ -435,25 +435,28 @@
 <h2>To specify a model <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="fragment">
 <div class="columns">
-<div class="column" style="width:40%;">
+<div class="column" style="width:55%;">
 <ul>
 <li>Choose a <u>model</u></li>
 <li>Specify an engine</li>
 <li>Set the mode</li>
 </ul>
-</div><div class="column" style="width:60%;">
-<p><img data-src="images/taxi_spinning.svg"></p>
+</div><div class="column" style="width:45%;">
+<p><img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%"></p>
 </div>
+</div>
+<div class="footer">
+<p>Credit: <a href="https://www.svgrepo.com/svg/481270/cat-5" class="uri">https://www.svgrepo.com/svg/481270/cat-5</a></p>
 </div>
 </div>
 </section>
 <section id="to-specify-a-model-1" class="slide level2">
 <h2>To specify a model <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">logistic_reg</span>()</span>
-<span id="cb1-2"><a></a><span class="co">#&gt; Logistic Regression Model Specification (classification)</span></span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">proportional_hazards</span>()</span>
+<span id="cb1-2"><a></a><span class="co">#&gt; Proportional Hazards Model Specification (censored regression)</span></span>
 <span id="cb1-3"><a></a><span class="co">#&gt; </span></span>
-<span id="cb1-4"><a></a><span class="co">#&gt; Computational engine: glm</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a></a><span class="co">#&gt; Computational engine: survival</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <aside class="notes">
 <p>Models have default engines</p>
@@ -472,48 +475,47 @@
 <section id="to-specify-a-model-2" class="slide level2">
 <h2>To specify a model <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="columns">
-<div class="column" style="width:40%;">
+<div class="column" style="width:55%;">
 <ul>
 <li>Choose a model</li>
 <li>Specify an <u>engine</u></li>
 <li>Set the mode</li>
 </ul>
-</div><div class="column" style="width:60%;">
-<p><img data-src="images/taxi_spinning.svg"></p>
+</div><div class="column" style="width:45%;">
+<p><img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%"></p>
 </div>
 </div>
 </section>
 <section id="to-specify-a-model-3" class="slide level2">
 <h2>To specify a model <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">logistic_reg</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb2-2"><a></a>  <span class="fu">set_engine</span>(<span class="st">"glmnet"</span>)</span>
-<span id="cb2-3"><a></a><span class="co">#&gt; Logistic Regression Model Specification (classification)</span></span>
-<span id="cb2-4"><a></a><span class="co">#&gt; </span></span>
-<span id="cb2-5"><a></a><span class="co">#&gt; Computational engine: glmnet</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">proportional_hazards</span>()</span>
+<span id="cb2-2"><a></a><span class="co">#&gt; Proportional Hazards Model Specification (censored regression)</span></span>
+<span id="cb2-3"><a></a><span class="co">#&gt; </span></span>
+<span id="cb2-4"><a></a><span class="co">#&gt; Computational engine: survival</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="to-specify-a-model-4" class="slide level2">
 <h2>To specify a model <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">logistic_reg</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a></a>  <span class="fu">set_engine</span>(<span class="st">"stan"</span>)</span>
-<span id="cb3-3"><a></a><span class="co">#&gt; Logistic Regression Model Specification (classification)</span></span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">proportional_hazards</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a></a>  <span class="fu">set_engine</span>(<span class="st">"glmnet"</span>)</span>
+<span id="cb3-3"><a></a><span class="co">#&gt; Proportional Hazards Model Specification (censored regression)</span></span>
 <span id="cb3-4"><a></a><span class="co">#&gt; </span></span>
-<span id="cb3-5"><a></a><span class="co">#&gt; Computational engine: stan</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-5"><a></a><span class="co">#&gt; Computational engine: glmnet</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="to-specify-a-model-5" class="slide level2">
 <h2>To specify a model <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="columns">
-<div class="column" style="width:40%;">
+<div class="column" style="width:55%;">
 <ul>
 <li>Choose a model</li>
 <li>Specify an engine</li>
 <li>Set the <u>mode</u></li>
 </ul>
-</div><div class="column" style="width:60%;">
-<p><img data-src="images/taxi_spinning.svg"></p>
+</div><div class="column" style="width:45%;">
+<p><img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%"></p>
 </div>
 </div>
 </section>
@@ -543,8 +545,8 @@
 <h2>To specify a model <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="fu">decision_tree</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb5-2"><a></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
-<span id="cb5-3"><a></a><span class="co">#&gt; Decision Tree Model Specification (classification)</span></span>
+<span id="cb5-2"><a></a>  <span class="fu">set_mode</span>(<span class="st">"censored regression"</span>)</span>
+<span id="cb5-3"><a></a><span class="co">#&gt; Decision Tree Model Specification (censored regression)</span></span>
 <span id="cb5-4"><a></a><span class="co">#&gt; </span></span>
 <span id="cb5-5"><a></a><span class="co">#&gt; Computational engine: rpart</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -564,27 +566,27 @@
 <section id="to-specify-a-model-8" class="slide level2">
 <h2>To specify a model <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="columns">
-<div class="column" style="width:40%;">
+<div class="column" style="width:55%;">
 <ul>
 <li>Choose a <u>model</u></li>
 <li>Specify an <u>engine</u></li>
 <li>Set the <u>mode</u></li>
 </ul>
-</div><div class="column" style="width:60%;">
-<p><img data-src="images/taxi_spinning.svg"></p>
+</div><div class="column" style="width:45%;">
+<p><img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%"></p>
 </div>
 </div>
 </section>
 <section id="your-turn-1" class="slide level2" data-transition="slide-in">
 <h2>Your turn</h2>
 <p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
-<p><em>Run the <code>tree_spec</code> chunk in your <code>.qmd</code>.</em></p>
-<p><em>Edit this code to use a logistic regression model.</em><br><br></p>
+<p><em>Write the specification for a proportional hazards model.</em></p>
+<p><em>Choose your engine.</em><br><br></p>
 <div class="r-fit-text">
 <p>All available models are listed at <a href="https://www.tidymodels.org/find/parsnip/" class="uri">https://www.tidymodels.org/find/parsnip/</a></p>
 </div>
 <p><br><br></p>
-<p><em>Extension/Challenge: Edit this code to use a different model. For example, try using a conditional inference tree as implemented in the partykit package by changing the engine - or try an entirely different model type!</em></p>
+<p><em>Extension/Challenge: Edit this code to use a different model. For example, try using a conditional inference tree as implemented in the partykit package - or try an entirely different model type!</em></p>
 <div class="cell">
 <div class="cell-output-display">
 <div class="countdown" id="explore-tree-spec" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
@@ -597,19 +599,19 @@
 <section id="models-well-be-using-today" class="slide level2">
 <h2>Models we’ll be using today</h2>
 <ul>
-<li>Logistic regression</li>
-<li>Decision trees</li>
+<li>Proportional hazards (PH) model</li>
+<li>Decision tree</li>
 </ul>
 </section>
-<section id="logistic-regression" class="slide level2">
-<h2>Logistic regression</h2>
+<section id="proportional-hazards-model" class="slide level2">
+<h2>Proportional hazards model</h2>
 <div class="columns">
-<div class="column" style="width:60%;">
+<div class="column" style="width:50%;">
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="figures/plot-rates-1.svg"></p>
+<p><img data-src="figures/plot-baseline-1.svg"></p>
 </figure>
 </div>
 </div>
@@ -619,50 +621,50 @@
 </div>
 </div>
 </section>
-<section id="logistic-regression-1" class="slide level2">
-<h2>Logistic regression</h2>
+<section id="proportional-hazards-model-1" class="slide level2">
+<h2>Proportional hazards model</h2>
 <div class="columns">
-<div class="column" style="width:60%;">
+<div class="column" style="width:50%;">
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="figures/plot-logistic-reg-1.svg"></p>
+<p><img data-src="figures/plot-ph-1.svg"></p>
 </figure>
 </div>
 </div>
 </div>
-</div><div class="column" style="width:40%;">
+</div><div class="column" style="width:50%;">
 
 </div>
 </div>
 </section>
-<section id="logistic-regression-2" class="slide level2">
-<h2>Logistic regression</h2>
+<section id="proportional-hazards-model-2" class="slide level2">
+<h2>Proportional hazards model</h2>
 <div class="columns">
-<div class="column" style="width:60%;">
+<div class="column" style="width:50%;">
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="figures/plot-logistic-reg-2-1.svg"></p>
+<p><img data-src="figures/plot-ph-2-1.svg"></p>
 </figure>
 </div>
 </div>
 </div>
-</div><div class="column" style="width:40%;">
+</div><div class="column" style="width:50%;">
 <ul>
-<li>Logit of outcome probability modeled as linear combination of predictors:</li>
+<li>Hazard modeled via a baseline hazard and a linear combination of predictors:</li>
 </ul>
-<p><span class="math inline">\(log(\frac{p}{1 - p}) = \beta_0 + \beta_1\cdot \text{A}\)</span></p>
+<p><span class="math inline">\(\lambda(t | x_i) = \lambda_0(t) \cdot \exp (x_i^T \beta)\)</span></p>
 <ul>
-<li>Find a sigmoid line that separates the two classes</li>
+<li>The hazard is proportional over all time <span class="math inline">\(t\)</span>, and thus also the probability of survival is proportional.</li>
 </ul>
 </div>
 </div>
 </section>
-<section id="decision-trees" class="slide level2">
-<h2>Decision trees</h2>
+<section id="decision-tree" class="slide level2">
+<h2>Decision tree</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
@@ -679,8 +681,8 @@
 </div>
 </div>
 </section>
-<section id="decision-trees-1" class="slide level2">
-<h2>Decision trees</h2>
+<section id="decision-tree-1" class="slide level2">
+<h2>Decision tree</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
@@ -692,7 +694,7 @@
 </div>
 </div>
 </div>
-</div><div class="column" style="width:50%;">
+</div><div class="column" style="width:40%;">
 <ul>
 <li><p>Series of splits or if/then statements based on predictors</p></li>
 <li><p>First the tree <em>grows</em> until some condition is met (maximum depth, no more data)</p></li>
@@ -701,7 +703,7 @@
 </div>
 </div>
 </section>
-<section id="decision-trees-2" class="slide level2">
+<section id="decision-trees" class="slide level2">
 <h2>Decision trees</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
@@ -731,18 +733,18 @@
 <h2>All models are wrong, but some are useful!</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
-<h3 id="logistic-regression-3">Logistic regression</h3>
+<h3 id="ph-model">PH model</h3>
 <div class="cell">
 <div class="cell-output-display">
 <div>
 <figure>
-<p><img data-src="figures/plot-logistic-reg-3-1.svg"></p>
+<p><img data-src="figures/plot-ph-3-1.svg"></p>
 </figure>
 </div>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
-<h3 id="decision-trees-3">Decision trees</h3>
+<h3 id="decision-tree-2">Decision tree</h3>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -790,7 +792,7 @@
 </div>
 <div class="fragment">
 <ul>
-<li>You can use other preprocessors besides formulas (more on feature engineering in Advanced tidymodels!)</li>
+<li>You can use other preprocessors besides formulas (more on feature engineering if time permits!)</li>
 </ul>
 </div>
 <div class="fragment">
@@ -825,108 +827,155 @@
 <h2>A model workflow <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>tree_spec <span class="ot">&lt;-</span></span>
-<span id="cb6-2"><a></a>  <span class="fu">decision_tree</span>(<span class="at">cost_complexity =</span> <span class="fl">0.002</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-3"><a></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb6-2"><a></a>  <span class="fu">decision_tree</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a></a>  <span class="fu">set_mode</span>(<span class="st">"censored regression"</span>)</span>
 <span id="cb6-4"><a></a></span>
 <span id="cb6-5"><a></a>tree_spec <span class="sc">%&gt;%</span> </span>
-<span id="cb6-6"><a></a>  <span class="fu">fit</span>(tip <span class="sc">~</span> ., <span class="at">data =</span> taxi_train) </span>
+<span id="cb6-6"><a></a>  <span class="fu">fit</span>(event_time <span class="sc">~</span> ., <span class="at">data =</span> cat_train) </span>
 <span id="cb6-7"><a></a><span class="co">#&gt; parsnip model object</span></span>
 <span id="cb6-8"><a></a><span class="co">#&gt; </span></span>
-<span id="cb6-9"><a></a><span class="co">#&gt; n= 8000 </span></span>
-<span id="cb6-10"><a></a><span class="co">#&gt; </span></span>
-<span id="cb6-11"><a></a><span class="co">#&gt; node), split, n, loss, yval, (yprob)</span></span>
-<span id="cb6-12"><a></a><span class="co">#&gt;       * denotes terminal node</span></span>
-<span id="cb6-13"><a></a><span class="co">#&gt; </span></span>
-<span id="cb6-14"><a></a><span class="co">#&gt;  1) root 8000 616 yes (0.92300000 0.07700000)  </span></span>
-<span id="cb6-15"><a></a><span class="co">#&gt;    2) distance&gt;=14.12 2041  68 yes (0.96668300 0.03331700) *</span></span>
-<span id="cb6-16"><a></a><span class="co">#&gt;    3) distance&lt; 14.12 5959 548 yes (0.90803826 0.09196174)  </span></span>
-<span id="cb6-17"><a></a><span class="co">#&gt;      6) distance&lt; 5.275 5419 450 yes (0.91695885 0.08304115) *</span></span>
-<span id="cb6-18"><a></a><span class="co">#&gt;      7) distance&gt;=5.275 540  98 yes (0.81851852 0.18148148)  </span></span>
-<span id="cb6-19"><a></a><span class="co">#&gt;       14) company=Chicago Independents,City Service,Sun Taxi,Taxi Affiliation Services,Taxicab Insurance Agency Llc,other 478  68 yes (0.85774059 0.14225941) *</span></span>
-<span id="cb6-20"><a></a><span class="co">#&gt;       15) company=Flash Cab 62  30 yes (0.51612903 0.48387097)  </span></span>
-<span id="cb6-21"><a></a><span class="co">#&gt;         30) dow=Thu 12   2 yes (0.83333333 0.16666667) *</span></span>
-<span id="cb6-22"><a></a><span class="co">#&gt;         31) dow=Sun,Mon,Tue,Wed,Fri,Sat 50  22 no (0.44000000 0.56000000)  </span></span>
-<span id="cb6-23"><a></a><span class="co">#&gt;           62) distance&gt;=11.77 14   4 yes (0.71428571 0.28571429) *</span></span>
-<span id="cb6-24"><a></a><span class="co">#&gt;           63) distance&lt; 11.77 36  12 no (0.33333333 0.66666667) *</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-9"><a></a><span class="co">#&gt; $rpart</span></span>
+<span id="cb6-10"><a></a><span class="co">#&gt; n= 1805 </span></span>
+<span id="cb6-11"><a></a><span class="co">#&gt; </span></span>
+<span id="cb6-12"><a></a><span class="co">#&gt; node), split, n, deviance, yval</span></span>
+<span id="cb6-13"><a></a><span class="co">#&gt;       * denotes terminal node</span></span>
+<span id="cb6-14"><a></a><span class="co">#&gt; </span></span>
+<span id="cb6-15"><a></a><span class="co">#&gt; 1) root 1805 2025.6490 1.0000000  </span></span>
+<span id="cb6-16"><a></a><span class="co">#&gt;   2) neutered=no,unknown 724  601.9346 0.5563459 *</span></span>
+<span id="cb6-17"><a></a><span class="co">#&gt;   3) neutered=yes 1081 1309.8090 1.2024000  </span></span>
+<span id="cb6-18"><a></a><span class="co">#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 934 1067.3560 1.1130980 *</span></span>
+<span id="cb6-19"><a></a><span class="co">#&gt;     7) intake_condition=feral,fractious 147  186.0952 2.4153980 *</span></span>
+<span id="cb6-20"><a></a><span class="co">#&gt; </span></span>
+<span id="cb6-21"><a></a><span class="co">#&gt; $survfit</span></span>
+<span id="cb6-22"><a></a><span class="co">#&gt; </span></span>
+<span id="cb6-23"><a></a><span class="co">#&gt; Call: prodlim::prodlim(formula = form, data = data)</span></span>
+<span id="cb6-24"><a></a><span class="co">#&gt; </span></span>
+<span id="cb6-25"><a></a><span class="co">#&gt; </span></span>
+<span id="cb6-26"><a></a><span class="co">#&gt; </span></span>
+<span id="cb6-27"><a></a><span class="co">#&gt; Right-censored response of a survival model</span></span>
+<span id="cb6-28"><a></a><span class="co">#&gt; </span></span>
+<span id="cb6-29"><a></a><span class="co">#&gt; No.Observations: 1805 </span></span>
+<span id="cb6-30"><a></a><span class="co">#&gt; </span></span>
+<span id="cb6-31"><a></a><span class="co">#&gt; Pattern:</span></span>
+<span id="cb6-32"><a></a><span class="co">#&gt;                 Freq</span></span>
+<span id="cb6-33"><a></a><span class="co">#&gt;  event          1134</span></span>
+<span id="cb6-34"><a></a><span class="co">#&gt;  right.censored 671 </span></span>
+<span id="cb6-35"><a></a><span class="co">#&gt; </span></span>
+<span id="cb6-36"><a></a><span class="co">#&gt; $levels</span></span>
+<span id="cb6-37"><a></a><span class="co">#&gt; [1] "0.556345939526915" "1.11309762791995"  "2.41539768185841" </span></span>
+<span id="cb6-38"><a></a><span class="co">#&gt; </span></span>
+<span id="cb6-39"><a></a><span class="co">#&gt; attr(,"class")</span></span>
+<span id="cb6-40"><a></a><span class="co">#&gt; [1] "pecRpart"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="a-model-workflow-2" class="slide level2">
 <h2>A model workflow <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a>tree_spec <span class="ot">&lt;-</span></span>
-<span id="cb7-2"><a></a>  <span class="fu">decision_tree</span>(<span class="at">cost_complexity =</span> <span class="fl">0.002</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb7-3"><a></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb7-2"><a></a>  <span class="fu">decision_tree</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb7-3"><a></a>  <span class="fu">set_mode</span>(<span class="st">"censored regression"</span>)</span>
 <span id="cb7-4"><a></a></span>
 <span id="cb7-5"><a></a><span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb7-6"><a></a>  <span class="fu">add_formula</span>(tip <span class="sc">~</span> .) <span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a></a>  <span class="fu">add_formula</span>(event_time <span class="sc">~</span> .) <span class="sc">%&gt;%</span></span>
 <span id="cb7-7"><a></a>  <span class="fu">add_model</span>(tree_spec) <span class="sc">%&gt;%</span></span>
-<span id="cb7-8"><a></a>  <span class="fu">fit</span>(<span class="at">data =</span> taxi_train) </span>
+<span id="cb7-8"><a></a>  <span class="fu">fit</span>(<span class="at">data =</span> cat_train) </span>
 <span id="cb7-9"><a></a><span class="co">#&gt; ══ Workflow [trained] ════════════════════════════════════════════════</span></span>
 <span id="cb7-10"><a></a><span class="co">#&gt; Preprocessor: Formula</span></span>
 <span id="cb7-11"><a></a><span class="co">#&gt; Model: decision_tree()</span></span>
 <span id="cb7-12"><a></a><span class="co">#&gt; </span></span>
 <span id="cb7-13"><a></a><span class="co">#&gt; ── Preprocessor ──────────────────────────────────────────────────────</span></span>
-<span id="cb7-14"><a></a><span class="co">#&gt; tip ~ .</span></span>
+<span id="cb7-14"><a></a><span class="co">#&gt; event_time ~ .</span></span>
 <span id="cb7-15"><a></a><span class="co">#&gt; </span></span>
 <span id="cb7-16"><a></a><span class="co">#&gt; ── Model ─────────────────────────────────────────────────────────────</span></span>
-<span id="cb7-17"><a></a><span class="co">#&gt; n= 8000 </span></span>
-<span id="cb7-18"><a></a><span class="co">#&gt; </span></span>
-<span id="cb7-19"><a></a><span class="co">#&gt; node), split, n, loss, yval, (yprob)</span></span>
-<span id="cb7-20"><a></a><span class="co">#&gt;       * denotes terminal node</span></span>
-<span id="cb7-21"><a></a><span class="co">#&gt; </span></span>
-<span id="cb7-22"><a></a><span class="co">#&gt;  1) root 8000 616 yes (0.92300000 0.07700000)  </span></span>
-<span id="cb7-23"><a></a><span class="co">#&gt;    2) distance&gt;=14.12 2041  68 yes (0.96668300 0.03331700) *</span></span>
-<span id="cb7-24"><a></a><span class="co">#&gt;    3) distance&lt; 14.12 5959 548 yes (0.90803826 0.09196174)  </span></span>
-<span id="cb7-25"><a></a><span class="co">#&gt;      6) distance&lt; 5.275 5419 450 yes (0.91695885 0.08304115) *</span></span>
-<span id="cb7-26"><a></a><span class="co">#&gt;      7) distance&gt;=5.275 540  98 yes (0.81851852 0.18148148)  </span></span>
-<span id="cb7-27"><a></a><span class="co">#&gt;       14) company=Chicago Independents,City Service,Sun Taxi,Taxi Affiliation Services,Taxicab Insurance Agency Llc,other 478  68 yes (0.85774059 0.14225941) *</span></span>
-<span id="cb7-28"><a></a><span class="co">#&gt;       15) company=Flash Cab 62  30 yes (0.51612903 0.48387097)  </span></span>
-<span id="cb7-29"><a></a><span class="co">#&gt;         30) dow=Thu 12   2 yes (0.83333333 0.16666667) *</span></span>
-<span id="cb7-30"><a></a><span class="co">#&gt;         31) dow=Sun,Mon,Tue,Wed,Fri,Sat 50  22 no (0.44000000 0.56000000)  </span></span>
-<span id="cb7-31"><a></a><span class="co">#&gt;           62) distance&gt;=11.77 14   4 yes (0.71428571 0.28571429) *</span></span>
-<span id="cb7-32"><a></a><span class="co">#&gt;           63) distance&lt; 11.77 36  12 no (0.33333333 0.66666667) *</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-17"><a></a><span class="co">#&gt; $rpart</span></span>
+<span id="cb7-18"><a></a><span class="co">#&gt; n= 1805 </span></span>
+<span id="cb7-19"><a></a><span class="co">#&gt; </span></span>
+<span id="cb7-20"><a></a><span class="co">#&gt; node), split, n, deviance, yval</span></span>
+<span id="cb7-21"><a></a><span class="co">#&gt;       * denotes terminal node</span></span>
+<span id="cb7-22"><a></a><span class="co">#&gt; </span></span>
+<span id="cb7-23"><a></a><span class="co">#&gt; 1) root 1805 2025.6490 1.0000000  </span></span>
+<span id="cb7-24"><a></a><span class="co">#&gt;   2) neutered=no,unknown 724  601.9346 0.5563459 *</span></span>
+<span id="cb7-25"><a></a><span class="co">#&gt;   3) neutered=yes 1081 1309.8090 1.2024000  </span></span>
+<span id="cb7-26"><a></a><span class="co">#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 934 1067.3560 1.1130980 *</span></span>
+<span id="cb7-27"><a></a><span class="co">#&gt;     7) intake_condition=feral,fractious 147  186.0952 2.4153980 *</span></span>
+<span id="cb7-28"><a></a><span class="co">#&gt; </span></span>
+<span id="cb7-29"><a></a><span class="co">#&gt; $survfit</span></span>
+<span id="cb7-30"><a></a><span class="co">#&gt; </span></span>
+<span id="cb7-31"><a></a><span class="co">#&gt; Call: prodlim::prodlim(formula = form, data = data)</span></span>
+<span id="cb7-32"><a></a><span class="co">#&gt; </span></span>
+<span id="cb7-33"><a></a><span class="co">#&gt; </span></span>
+<span id="cb7-34"><a></a><span class="co">#&gt; </span></span>
+<span id="cb7-35"><a></a><span class="co">#&gt; Right-censored response of a survival model</span></span>
+<span id="cb7-36"><a></a><span class="co">#&gt; </span></span>
+<span id="cb7-37"><a></a><span class="co">#&gt; No.Observations: 1805 </span></span>
+<span id="cb7-38"><a></a><span class="co">#&gt; </span></span>
+<span id="cb7-39"><a></a><span class="co">#&gt; Pattern:</span></span>
+<span id="cb7-40"><a></a><span class="co">#&gt;                 Freq</span></span>
+<span id="cb7-41"><a></a><span class="co">#&gt;  event          1134</span></span>
+<span id="cb7-42"><a></a><span class="co">#&gt;  right.censored 671 </span></span>
+<span id="cb7-43"><a></a><span class="co">#&gt; </span></span>
+<span id="cb7-44"><a></a><span class="co">#&gt; $levels</span></span>
+<span id="cb7-45"><a></a><span class="co">#&gt; [1] "0.556345939526914" "1.11309762791995"  "2.41539768185841" </span></span>
+<span id="cb7-46"><a></a><span class="co">#&gt; </span></span>
+<span id="cb7-47"><a></a><span class="co">#&gt; attr(,"class")</span></span>
+<span id="cb7-48"><a></a><span class="co">#&gt; [1] "pecRpart"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="a-model-workflow-3" class="slide level2">
 <h2>A model workflow <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>tree_spec <span class="ot">&lt;-</span></span>
-<span id="cb8-2"><a></a>  <span class="fu">decision_tree</span>(<span class="at">cost_complexity =</span> <span class="fl">0.002</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-3"><a></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb8-2"><a></a>  <span class="fu">decision_tree</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb8-3"><a></a>  <span class="fu">set_mode</span>(<span class="st">"censored regression"</span>)</span>
 <span id="cb8-4"><a></a></span>
-<span id="cb8-5"><a></a><span class="fu">workflow</span>(tip <span class="sc">~</span> ., tree_spec) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-6"><a></a>  <span class="fu">fit</span>(<span class="at">data =</span> taxi_train) </span>
+<span id="cb8-5"><a></a><span class="fu">workflow</span>(event_time <span class="sc">~</span> ., tree_spec) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-6"><a></a>  <span class="fu">fit</span>(<span class="at">data =</span> cat_train) </span>
 <span id="cb8-7"><a></a><span class="co">#&gt; ══ Workflow [trained] ════════════════════════════════════════════════</span></span>
 <span id="cb8-8"><a></a><span class="co">#&gt; Preprocessor: Formula</span></span>
 <span id="cb8-9"><a></a><span class="co">#&gt; Model: decision_tree()</span></span>
 <span id="cb8-10"><a></a><span class="co">#&gt; </span></span>
 <span id="cb8-11"><a></a><span class="co">#&gt; ── Preprocessor ──────────────────────────────────────────────────────</span></span>
-<span id="cb8-12"><a></a><span class="co">#&gt; tip ~ .</span></span>
+<span id="cb8-12"><a></a><span class="co">#&gt; event_time ~ .</span></span>
 <span id="cb8-13"><a></a><span class="co">#&gt; </span></span>
 <span id="cb8-14"><a></a><span class="co">#&gt; ── Model ─────────────────────────────────────────────────────────────</span></span>
-<span id="cb8-15"><a></a><span class="co">#&gt; n= 8000 </span></span>
-<span id="cb8-16"><a></a><span class="co">#&gt; </span></span>
-<span id="cb8-17"><a></a><span class="co">#&gt; node), split, n, loss, yval, (yprob)</span></span>
-<span id="cb8-18"><a></a><span class="co">#&gt;       * denotes terminal node</span></span>
-<span id="cb8-19"><a></a><span class="co">#&gt; </span></span>
-<span id="cb8-20"><a></a><span class="co">#&gt;  1) root 8000 616 yes (0.92300000 0.07700000)  </span></span>
-<span id="cb8-21"><a></a><span class="co">#&gt;    2) distance&gt;=14.12 2041  68 yes (0.96668300 0.03331700) *</span></span>
-<span id="cb8-22"><a></a><span class="co">#&gt;    3) distance&lt; 14.12 5959 548 yes (0.90803826 0.09196174)  </span></span>
-<span id="cb8-23"><a></a><span class="co">#&gt;      6) distance&lt; 5.275 5419 450 yes (0.91695885 0.08304115) *</span></span>
-<span id="cb8-24"><a></a><span class="co">#&gt;      7) distance&gt;=5.275 540  98 yes (0.81851852 0.18148148)  </span></span>
-<span id="cb8-25"><a></a><span class="co">#&gt;       14) company=Chicago Independents,City Service,Sun Taxi,Taxi Affiliation Services,Taxicab Insurance Agency Llc,other 478  68 yes (0.85774059 0.14225941) *</span></span>
-<span id="cb8-26"><a></a><span class="co">#&gt;       15) company=Flash Cab 62  30 yes (0.51612903 0.48387097)  </span></span>
-<span id="cb8-27"><a></a><span class="co">#&gt;         30) dow=Thu 12   2 yes (0.83333333 0.16666667) *</span></span>
-<span id="cb8-28"><a></a><span class="co">#&gt;         31) dow=Sun,Mon,Tue,Wed,Fri,Sat 50  22 no (0.44000000 0.56000000)  </span></span>
-<span id="cb8-29"><a></a><span class="co">#&gt;           62) distance&gt;=11.77 14   4 yes (0.71428571 0.28571429) *</span></span>
-<span id="cb8-30"><a></a><span class="co">#&gt;           63) distance&lt; 11.77 36  12 no (0.33333333 0.66666667) *</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-15"><a></a><span class="co">#&gt; $rpart</span></span>
+<span id="cb8-16"><a></a><span class="co">#&gt; n= 1805 </span></span>
+<span id="cb8-17"><a></a><span class="co">#&gt; </span></span>
+<span id="cb8-18"><a></a><span class="co">#&gt; node), split, n, deviance, yval</span></span>
+<span id="cb8-19"><a></a><span class="co">#&gt;       * denotes terminal node</span></span>
+<span id="cb8-20"><a></a><span class="co">#&gt; </span></span>
+<span id="cb8-21"><a></a><span class="co">#&gt; 1) root 1805 2025.6490 1.0000000  </span></span>
+<span id="cb8-22"><a></a><span class="co">#&gt;   2) neutered=no,unknown 724  601.9346 0.5563459 *</span></span>
+<span id="cb8-23"><a></a><span class="co">#&gt;   3) neutered=yes 1081 1309.8090 1.2024000  </span></span>
+<span id="cb8-24"><a></a><span class="co">#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 934 1067.3560 1.1130980 *</span></span>
+<span id="cb8-25"><a></a><span class="co">#&gt;     7) intake_condition=feral,fractious 147  186.0952 2.4153980 *</span></span>
+<span id="cb8-26"><a></a><span class="co">#&gt; </span></span>
+<span id="cb8-27"><a></a><span class="co">#&gt; $survfit</span></span>
+<span id="cb8-28"><a></a><span class="co">#&gt; </span></span>
+<span id="cb8-29"><a></a><span class="co">#&gt; Call: prodlim::prodlim(formula = form, data = data)</span></span>
+<span id="cb8-30"><a></a><span class="co">#&gt; </span></span>
+<span id="cb8-31"><a></a><span class="co">#&gt; </span></span>
+<span id="cb8-32"><a></a><span class="co">#&gt; </span></span>
+<span id="cb8-33"><a></a><span class="co">#&gt; Right-censored response of a survival model</span></span>
+<span id="cb8-34"><a></a><span class="co">#&gt; </span></span>
+<span id="cb8-35"><a></a><span class="co">#&gt; No.Observations: 1805 </span></span>
+<span id="cb8-36"><a></a><span class="co">#&gt; </span></span>
+<span id="cb8-37"><a></a><span class="co">#&gt; Pattern:</span></span>
+<span id="cb8-38"><a></a><span class="co">#&gt;                 Freq</span></span>
+<span id="cb8-39"><a></a><span class="co">#&gt;  event          1134</span></span>
+<span id="cb8-40"><a></a><span class="co">#&gt;  right.censored 671 </span></span>
+<span id="cb8-41"><a></a><span class="co">#&gt; </span></span>
+<span id="cb8-42"><a></a><span class="co">#&gt; $levels</span></span>
+<span id="cb8-43"><a></a><span class="co">#&gt; [1] "0.556345939526914" "1.11309762791995"  "2.41539768185841" </span></span>
+<span id="cb8-44"><a></a><span class="co">#&gt; </span></span>
+<span id="cb8-45"><a></a><span class="co">#&gt; attr(,"class")</span></span>
+<span id="cb8-46"><a></a><span class="co">#&gt; [1] "pecRpart"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="your-turn-2" class="slide level2" data-transition="slide-in">
 <h2>Your turn</h2>
 <p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
-<p><em>Run the <code>tree_wflow</code> chunk in your <code>.qmd</code>.</em></p>
-<p><em>Edit this code to make a workflow with your own model of choice.</em></p>
+<p><em>Make a workflow with your own model of choice.</em></p>
 <p><br><br></p>
 <p><em>Extension/Challenge: Other than formulas, what kinds of preprocessors are supported?</em></p>
 <div class="cell">
@@ -943,34 +992,98 @@
 <p>How do you use your new <code>tree_fit</code> model?</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a>tree_spec <span class="ot">&lt;-</span></span>
-<span id="cb9-2"><a></a>  <span class="fu">decision_tree</span>(<span class="at">cost_complexity =</span> <span class="fl">0.002</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-3"><a></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb9-2"><a></a>  <span class="fu">decision_tree</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb9-3"><a></a>  <span class="fu">set_mode</span>(<span class="st">"censored regression"</span>)</span>
 <span id="cb9-4"><a></a></span>
 <span id="cb9-5"><a></a>tree_fit <span class="ot">&lt;-</span></span>
-<span id="cb9-6"><a></a>  <span class="fu">workflow</span>(tip <span class="sc">~</span> ., tree_spec) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-7"><a></a>  <span class="fu">fit</span>(<span class="at">data =</span> taxi_train) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-6"><a></a>  <span class="fu">workflow</span>(event_time <span class="sc">~</span> ., tree_spec) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-7"><a></a>  <span class="fu">fit</span>(<span class="at">data =</span> cat_train) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="your-turn-3" class="slide level2" data-transition="slide-in">
-<h2>Your turn</h2>
-<p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
-<p><em>Run:</em></p>
-<p><code>predict(tree_fit, new_data = taxi_test)</code></p>
-<p><em>What do you get?</em></p>
+<section id="predict-with-your-model-1" class="slide level2">
+<h2>Predict with your model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "></h2>
+<p>How do you use your new <code>tree_fit</code> model?</p>
 <div class="cell">
-<div class="cell-output-display">
-<div class="countdown" id="predict-tree-fit" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
-<div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
-<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
-</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">predict</span>(tree_fit, <span class="at">new_data =</span> cat_test)</span>
+<span id="cb10-2"><a></a><span class="co">#&gt; # A tibble: 452 × 1</span></span>
+<span id="cb10-3"><a></a><span class="co">#&gt;    .pred_time</span></span>
+<span id="cb10-4"><a></a><span class="co">#&gt;         &lt;dbl&gt;</span></span>
+<span id="cb10-5"><a></a><span class="co">#&gt;  1      1.11 </span></span>
+<span id="cb10-6"><a></a><span class="co">#&gt;  2      1.11 </span></span>
+<span id="cb10-7"><a></a><span class="co">#&gt;  3      1.11 </span></span>
+<span id="cb10-8"><a></a><span class="co">#&gt;  4      1.11 </span></span>
+<span id="cb10-9"><a></a><span class="co">#&gt;  5      1.11 </span></span>
+<span id="cb10-10"><a></a><span class="co">#&gt;  6      2.42 </span></span>
+<span id="cb10-11"><a></a><span class="co">#&gt;  7      0.556</span></span>
+<span id="cb10-12"><a></a><span class="co">#&gt;  8      2.42 </span></span>
+<span id="cb10-13"><a></a><span class="co">#&gt;  9      1.11 </span></span>
+<span id="cb10-14"><a></a><span class="co">#&gt; 10      2.42 </span></span>
+<span id="cb10-15"><a></a><span class="co">#&gt; # ℹ 442 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="your-turn-4" class="slide level2">
+<section id="predict-with-your-model-2" class="slide level2">
+<h2>Predict with your model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "></h2>
+<p>How do you use your new <code>tree_fit</code> model?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">predict</span>(tree_fit, <span class="at">new_data =</span> cat_test, <span class="at">type =</span> <span class="st">"time"</span>)</span>
+<span id="cb11-2"><a></a><span class="co">#&gt; # A tibble: 452 × 1</span></span>
+<span id="cb11-3"><a></a><span class="co">#&gt;    .pred_time</span></span>
+<span id="cb11-4"><a></a><span class="co">#&gt;         &lt;dbl&gt;</span></span>
+<span id="cb11-5"><a></a><span class="co">#&gt;  1      1.11 </span></span>
+<span id="cb11-6"><a></a><span class="co">#&gt;  2      1.11 </span></span>
+<span id="cb11-7"><a></a><span class="co">#&gt;  3      1.11 </span></span>
+<span id="cb11-8"><a></a><span class="co">#&gt;  4      1.11 </span></span>
+<span id="cb11-9"><a></a><span class="co">#&gt;  5      1.11 </span></span>
+<span id="cb11-10"><a></a><span class="co">#&gt;  6      2.42 </span></span>
+<span id="cb11-11"><a></a><span class="co">#&gt;  7      0.556</span></span>
+<span id="cb11-12"><a></a><span class="co">#&gt;  8      2.42 </span></span>
+<span id="cb11-13"><a></a><span class="co">#&gt;  9      1.11 </span></span>
+<span id="cb11-14"><a></a><span class="co">#&gt; 10      2.42 </span></span>
+<span id="cb11-15"><a></a><span class="co">#&gt; # ℹ 442 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="predict-with-your-model-3" class="slide level2">
+<h2>Predict with your model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(tree_fit, <span class="at">new_data =</span> cat_test, <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">eval_time =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">365</span>))</span>
+<span id="cb12-2"><a></a>preds</span>
+<span id="cb12-3"><a></a><span class="co">#&gt; # A tibble: 452 × 1</span></span>
+<span id="cb12-4"><a></a><span class="co">#&gt;    .pred           </span></span>
+<span id="cb12-5"><a></a><span class="co">#&gt;    &lt;list&gt;          </span></span>
+<span id="cb12-6"><a></a><span class="co">#&gt;  1 &lt;tibble [2 × 2]&gt;</span></span>
+<span id="cb12-7"><a></a><span class="co">#&gt;  2 &lt;tibble [2 × 2]&gt;</span></span>
+<span id="cb12-8"><a></a><span class="co">#&gt;  3 &lt;tibble [2 × 2]&gt;</span></span>
+<span id="cb12-9"><a></a><span class="co">#&gt;  4 &lt;tibble [2 × 2]&gt;</span></span>
+<span id="cb12-10"><a></a><span class="co">#&gt;  5 &lt;tibble [2 × 2]&gt;</span></span>
+<span id="cb12-11"><a></a><span class="co">#&gt;  6 &lt;tibble [2 × 2]&gt;</span></span>
+<span id="cb12-12"><a></a><span class="co">#&gt;  7 &lt;tibble [2 × 2]&gt;</span></span>
+<span id="cb12-13"><a></a><span class="co">#&gt;  8 &lt;tibble [2 × 2]&gt;</span></span>
+<span id="cb12-14"><a></a><span class="co">#&gt;  9 &lt;tibble [2 × 2]&gt;</span></span>
+<span id="cb12-15"><a></a><span class="co">#&gt; 10 &lt;tibble [2 × 2]&gt;</span></span>
+<span id="cb12-16"><a></a><span class="co">#&gt; # ℹ 442 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="predict-with-your-model-4" class="slide level2">
+<h2>Predict with your model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(tree_fit, <span class="at">new_data =</span> cat_test, <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">eval_time =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">365</span>))</span>
+<span id="cb13-2"><a></a></span>
+<span id="cb13-3"><a></a>preds<span class="sc">$</span>.pred[[<span class="dv">1</span>]]</span>
+<span id="cb13-4"><a></a><span class="co">#&gt; # A tibble: 2 × 2</span></span>
+<span id="cb13-5"><a></a><span class="co">#&gt;   .eval_time .pred_survival</span></span>
+<span id="cb13-6"><a></a><span class="co">#&gt;        &lt;dbl&gt;          &lt;dbl&gt;</span></span>
+<span id="cb13-7"><a></a><span class="co">#&gt; 1         30        0.613  </span></span>
+<span id="cb13-8"><a></a><span class="co">#&gt; 2        365        0.00810</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="section-1" class="slide level2" data-background-iframe="https://censored.tidymodels.org/#available-models-engines-and-prediction-types">
+<h2></h2>
+</section>
+<section id="your-turn-3" class="slide level2">
 <h2>Your turn</h2>
 <p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
 <p><em>Run:</em></p>
-<p><code>augment(tree_fit, new_data = taxi_test)</code></p>
+<p><code>augment(tree_fit, new_data = cat_test)</code></p>
 <p><em>What do you get?</em></p>
 <div class="cell">
 <div class="cell-output-display">
@@ -991,99 +1104,6 @@
 <li>The number of rows in <code>new_data</code> and the output <strong>are the same</strong></li>
 </ul>
 </div>
-</section>
-<section id="understand-your-model" class="slide level2">
-<h2>Understand your model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "></h2>
-<p>How do you <strong>understand</strong> your new <code>tree_fit</code> model?</p>
-<div class="cell" data-layout-align="center">
-<div class="cell-output-display">
-<div class="quarto-figure quarto-figure-center">
-<figure>
-<p><img data-src="figures/plot-tree-fit-4-1.svg" class="quarto-figure quarto-figure-center"></p>
-</figure>
-</div>
-</div>
-</div>
-</section>
-<section id="understand-your-model-1" class="slide level2">
-<h2>Understand your model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "></h2>
-<p>How do you <strong>understand</strong> your new <code>tree_fit</code> model?</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">library</span>(rpart.plot)</span>
-<span id="cb10-2"><a></a>tree_fit <span class="sc">%&gt;%</span></span>
-<span id="cb10-3"><a></a>  <span class="fu">extract_fit_engine</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb10-4"><a></a>  <span class="fu">rpart.plot</span>(<span class="at">roundint =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>You can <code>extract_*()</code> several components of your fitted workflow.</p>
-<div class="fragment">
-<p>⚠️ <em>Never <code>predict()</code> with any extracted components!</em></p>
-<aside class="notes">
-<p><code>roundint = FALSE</code> is only to quiet a warning</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="understand-your-model-2" class="slide level2">
-<h2>Understand your model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "></h2>
-<p>How do you <strong>understand</strong> your new <code>tree_fit</code> model?</p>
-<div class="fragment">
-<p>You can use your fitted workflow for model and/or prediction explanations:</p>
-</div>
-<div class="fragment">
-<ul>
-<li>overall variable importance, such as with the <a href="https://koalaverse.github.io/vip/">vip</a> package</li>
-</ul>
-</div>
-<div class="fragment">
-<ul>
-<li>flexible model explainers, such as with the <a href="https://dalex.drwhy.ai/">DALEXtra</a> package</li>
-</ul>
-</div>
-<div class="fragment">
-<p>Learn more at <a href="https://www.tmwr.org/explain.html" class="uri">https://www.tmwr.org/explain.html</a></p>
-</div>
-</section>
-<section id="section-1" class="slide level2" data-background-iframe="https://hardhat.tidymodels.org/reference/hardhat-extract.html">
-<h2></h2>
-<div class="footer">
-
-</div>
-</section>
-<section id="your-turn-5" class="slide level2" data-transition="slide-in">
-<h2>Your turn</h2>
-<p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
-<p><br></p>
-<p><em>Extract the model engine object from your fitted workflow and check it out.</em></p>
-<div class="cell">
-<div class="cell-output-display">
-<div class="countdown" id="extract-methods" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
-<div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
-<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
-</div>
-</div>
-<aside class="notes">
-<p>Afterward, ask what kind of object people got from the extraction, and what they did with it (e.g.&nbsp;give it to <code>summary()</code>, <code>plot()</code>, <code>broom::tidy()</code> ). Live code along</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 </section>
 <section id="the-whole-game---status-update" class="slide level2">
 <h2>The whole game - status update</h2>
