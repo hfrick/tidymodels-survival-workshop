@@ -209,127 +209,114 @@ countdown::countdown(minutes = 5, id = "explore-tree-spec")
 
 ## Models we'll be using today
 
-* Proportional hazards model
-* Decision trees
+* Proportional hazards (PH) model
+* Decision tree
 
-```{r sim-model-viz}
+```{r data-model-illustration}
 #| echo: false
+cat_new <- tibble(
+  intake_condition = factor(c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))
+)
+  #theme_bw(base_size = 18)
+```
 
-set.seed(1)
-dat <- sim_logistic(500, ~ .1 + 2 * A)
-dat$bin <- cut(dat$A, breaks = c(seq(-3, 3, by = 1/2)), include.lowest = TRUE)
-bin_midpoints <- data.frame(A = seq(-3, 3, by = 1/2) + 0.25)
+## Proportional hazards model
 
-rates <- 
-  dat %>% 
-  nest(.by = bin) %>% 
-  mutate(
-    probs = map(data, ~ binom.test(sum(.x$class == "one"), nrow(.x))),
-    probs = map(probs, ~ tidy(.x))
-  ) %>% 
-  select(-data) %>% 
-  unnest(cols = probs) %>% 
-  arrange(bin) %>% 
-  mutate(A = seq(-3, 3, by = 1/2) + 0.25) 
+::: columns
+::: {.column width="50%"}
+```{r plot-baseline}
+#| echo: false
+#| fig.width: 8
+#| fig.height: 7
 
-plot_rates <- left_join(rates, bin_midpoints, by = join_by(A)) %>% 
-  filter(-2.5 < A, A < 3) %>% 
-  ggplot() + 
-  geom_point(aes(A, estimate)) +
-  geom_errorbar(aes(A, estimate, ymin = conf.low, ymax = conf.high), width = .25)  +
-  xlim(c(-3, 3.5)) +
+fit(proportional_hazards(), event_time ~ 1, data = cat_train) %>% 
+  augment(new_data = cat_new[1,], eval_time = seq(0, 360, 1)) %>% 
+  tidyr::unnest(cols = .pred) %>% 
+  ggplot() +
+  geom_step(aes(.eval_time, .pred_survival)) +
   theme_bw(base_size = 18)
 ```
-
-## Logistic regression
-
-::: columns
-::: {.column width="60%"}
-```{r plot-rates}
-#| echo: false
-#| fig.width: 8
-#| fig.height: 7
-
-plot_rates
-```
 :::
 
 ::: {.column width="40%"}
 :::
 :::
 
-## Logistic regression
+## Proportional hazards model
 
 ::: columns
-::: {.column width="60%"}
-```{r plot-logistic-reg}
+::: {.column width="50%"}
+```{r plot-ph}
 #| echo: false
 #| fig.width: 8
 #| fig.height: 7
 
-logistic_preds <- logistic_reg() %>% 
-  fit(class ~ A, data = dat) %>% 
-  augment(new_data = bin_midpoints) 
-
-plot_rates +
-  geom_line(aes(A, .pred_one, color = I(test_color)), linewidth = 2, alpha = 0.8, data = logistic_preds)
+p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_train) %>% 
+  augment(new_data = cat_new, eval_time = seq(0, 360, 1)) %>% 
+  mutate(intake_condition = factor(intake_condition, levels = c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))) %>% 
+  tidyr::unnest(cols = .pred) %>% 
+  ggplot() +
+  geom_step(aes(.eval_time, .pred_survival, col = intake_condition)) +
+  theme_bw(base_size = 18) +
+  theme(legend.position = "bottom")
+p_ph
+# plot_rates +
+#   geom_line(aes(A, .pred_one, color = I(test_color)), linewidth = 2, alpha = 0.8, data = logistic_preds)
 ```
 :::
 
-::: {.column width="40%"}
+::: {.column width="50%"}
 :::
 :::
 
-## Logistic regression
+## Proportional hazards model
 
 ::: columns
-::: {.column width="60%"}
-```{r plot-logistic-reg-2}
+::: {.column width="50%"}
+```{r plot-ph-2}
 #| echo: false
 #| fig.width: 8
 #| fig.height: 7
 
-plot_rates +
-  geom_line(aes(A, .pred_one, col = I(test_color)), linewidth = 2, alpha = 0.8, data = logistic_preds)
+p_ph
 ```
 :::
 
-::: {.column width="40%"}
+::: {.column width="50%"}
 
--   Logit of outcome probability modeled as linear combination of predictors:
+-   Hazard modeled via a baseline hazard and a linear combination of predictors:
 
-$log(\frac{p}{1 - p}) = \beta_0 + \beta_1\cdot \text{A}$
+$\lambda(t | x_i) = \lambda_0(t) \cdot \exp (x_i^T \beta)$
 
--   Find a sigmoid line that separates the two classes
+-   The hazard is proportional over all time $t$, and thus also the probability of survival is proportional.
 
 :::
 :::
 
-## Decision trees
+## Decision tree
 
 ::: columns
 ::: {.column width="50%"}
 ```{r tree-fit}
 #| echo: false
-#| fig.width: 8
-#| fig.height: 7
 
-tree_fit <- decision_tree(mode = "classification") %>% 
-  fit(class ~ A, data = mutate(dat, class = forcats::fct_rev(class)))
-
-tree_preds <- augment(tree_fit, new_data = bin_midpoints)
+fit_dt <- decision_tree(cost_complexity = 0.01) %>%
+  set_mode("censored regression") %>% 
+  fit(event_time ~ intake_condition, data = cat_train) 
 ```
 
 ```{r plot-tree-fit}
 #| echo: false
-#| fig.width: 4
-#| fig.height: 3.5
+#| fig.width: 6
+#| fig.height: 5
 #| fig-align: center
 
-library(rpart.plot)
-tree_fit %>%
-  extract_fit_engine() %>%
-  rpart.plot(roundint = FALSE)
+library(partykit)
+fit_pec <- fit_dt %>% extract_fit_engine()
+fit_rpart <- fit_pec$rpart
+fit_rpart %>% 
+  as.party() %>% 
+  plot()
 ```
 
 :::
@@ -338,24 +325,26 @@ tree_fit %>%
 :::
 :::
 
-## Decision trees
+## Decision tree
 
 ::: columns
 ::: {.column width="50%"}
 ```{r plot-tree-fit-2}
 #| echo: false
-#| fig.width: 4
-#| fig.height: 3.5
+#| fig.width: 6
+#| fig.height: 5
 #| fig-align: center
 
-library(rpart.plot)
-tree_fit %>%
-  extract_fit_engine() %>%
-  rpart.plot(roundint = FALSE)
+library(partykit)
+fit_pec <- fit_dt %>% extract_fit_engine()
+fit_rpart <- fit_pec$rpart
+fit_rpart %>% 
+  as.party() %>% 
+  plot()
 ```
 :::
 
-::: {.column width="50%"}
+::: {.column width="40%"}
 -   Series of splits or if/then statements based on predictors
 
 -   First the tree *grows* until some condition is met (maximum depth, no more data)
@@ -370,14 +359,16 @@ tree_fit %>%
 ::: {.column width="50%"}
 ```{r plot-tree-fit-3}
 #| echo: false
-#| fig.width: 4
-#| fig.height: 3.5
+#| fig.width: 6
+#| fig.height: 5
 #| fig-align: center
 
-library(rpart.plot)
-tree_fit %>%
-  extract_fit_engine() %>%
-  rpart.plot(roundint = FALSE)
+library(partykit)
+fit_pec <- fit_dt %>% extract_fit_engine()
+fit_rpart <- fit_pec$rpart
+fit_rpart %>% 
+  as.party() %>% 
+  plot()
 ```
 :::
 
@@ -387,8 +378,14 @@ tree_fit %>%
 #| fig.width: 8
 #| fig.height: 7
 
-plot_rates +
-  geom_step(aes(A, .pred_one, col = I(test_color)), linewidth = 2, alpha = 0.8, data = tree_preds)
+p_dt <- fit_dt %>% 
+  augment(new_data = cat_new, eval_time = seq(0, 360, 1)) %>% 
+  mutate(intake_condition = factor(intake_condition, levels = c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))) %>% tidyr::unnest(cols = .pred) %>% 
+  ggplot() +
+  geom_step(aes(.eval_time, .pred_survival, color = intake_condition)) +
+  theme_bw(base_size = 18) +
+  theme(legend.position = "bottom")
+p_dt
 ```
 :::
 :::
@@ -397,26 +394,24 @@ plot_rates +
 
 ::: columns
 ::: {.column width="50%"}
-### Logistic regression
-```{r plot-logistic-reg-3}
+### PH model
+```{r plot-ph-3}
 #| echo: false
 #| fig.width: 7
 #| fig.height: 6
 
-plot_rates +
-  geom_line(aes(A, .pred_one, col = I(test_color)), linewidth = 2, alpha = 0.8, data = logistic_preds)
+p_ph
 ```
 :::
 
 ::: {.column width="50%"}
-### Decision trees
+### Decision tree
 ```{r plot-tree-preds-2}
 #| echo: false
 #| fig.width: 7
 #| fig.height: 6
 
-plot_rates +
-  geom_step(aes(A, .pred_one, col = I(test_color)), linewidth = 2, alpha = 0.8, data = tree_preds)
+p_dt
 ```
 :::
 :::
