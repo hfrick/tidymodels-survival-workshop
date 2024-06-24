@@ -34,8 +34,8 @@ cat_adoption <-
   cat_adoption %>% 
   mutate(event_time = Surv(time, event), .keep = "unused", .before = everything()) 
 
-set.seed(1)
-cat_split <- initial_split(cat_adoption)
+set.seed(123)
+cat_split <- initial_split(cat_adoption, prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- training(cat_split)
 ```
@@ -44,9 +44,14 @@ cat_test <- training(cat_split)
 
 ```{r}
 #| label: example-fit
+# tree_fit <- 
+#   decision_tree(mode = "censored regression", min_n = 5) %>%
+#   set_engine("partykit") %>% 
+#   fit(event_time ~ ., data = cat_train)
+
 tree_fit <- 
-  decision_tree(mode = "censored regression") %>%
-  set_engine("partykit") %>% 
+  rand_forest(mode = "censored regression", trees = 500) %>%
+  set_engine("aorsf") %>% 
   fit(event_time ~ ., data = cat_train)
 ```
 
@@ -54,7 +59,7 @@ Let's also create some random data that we'll use for demonstrations:
 
 ```{r}
 #| label: franken-start
-set.seed(827)
+set.seed(6081)
 franken_cats <- map_dfc(cat_test, ~ sample(.x, 200))
 ```
 
@@ -99,7 +104,11 @@ franken_cat_preds %>%
 
 The concordance statistic (“c-index”, [Harrell _et al_ (1996)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22multivariable+prognostic+models%3A+issues+in+developing+models%2C+evaluating+assumptions+and+adequacy%2C+and+measuring+and+reducing+errors%22&btnG=)) is a metric that quantifies that the rank order of the times is consistent with some model score (e.g., a survival probability). 
 
-It takes into account censoring and does not depend on a specific evaluation time. 
+<br> 
+
+It takes into account censoring and does not depend on a specific evaluation time. The range of values is $[-1, 1]$. 
+
+<br> 
 
 It has some weaknesses (see [Uno _et al_ (2011)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22On+the+C-statistics+for+evaluating+overall+adequacy+of+risk+prediction+procedures+with+censored+survival+data&btnG=) for example) and is used less than it originally was. 
 
@@ -110,6 +119,8 @@ It has some weaknesses (see [Uno _et al_ (2011)](https://scholar.google.com/scho
 franken_cat_preds %>% 
   concordance_survival(event_time, estimate = .pred_time)
 ```
+
+<br> <br> 
 
 The other metrics that we will discuss are dynamic in the sense that they evaluate the model at specific time points (“evaluation times”). 
 
@@ -132,7 +143,7 @@ franken_cat_preds %>%
   unnest(.pred) %>% 
   ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
   geom_step() +
-  geom_vline(xintercept = (1:12) * 30, col = "blue", lty = 3, alpha = 7 / 10) +
+  geom_vline(xintercept = (1:12) * 30, col = "black", lty = 3, alpha = 7 / 10) +
   labs(x = "Evaluation Time", y = "Pr[Survival]")
 ```
 
@@ -168,9 +179,6 @@ y_{i\tau} =
 N/A & \text{if } t_{i} \leq \tau\text{ and censored }
 \end{cases}
 $$
-
-
-In actuality, we use $\tau - \epsilon$ for some _very_ small $\epsilon$ since we can't see the future. 
 
 ## Class Probability Estimates
 
@@ -211,6 +219,8 @@ $$
 (note the time of censoring)
 
 Case weights $w_i(\tau)$ are the inverse of these probabilities and $W(\tau)$ is their sum.
+
+In actuality, we use $\tau - \epsilon$ for some _very_ small $\epsilon$ since we can't see into the future. 
 
 ## Probability of Censoring Model
 
