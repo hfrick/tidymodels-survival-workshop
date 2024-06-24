@@ -531,20 +531,39 @@ tree_fit <-
   fit(data = cat_train) 
 ```
 
-## Your turn {transition="slide-in"}
+## Predict with your model `r hexes("parsnip", "workflows")`
 
-![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
+How do you use your new `tree_fit` model?
 
-*Run:*
-
-`predict(tree_fit, new_data = cat_test)`
-
-*What do you get?*
-
-```{r ex-predict-tree-fit}
-#| echo: false
-countdown::countdown(minutes = 3, id = "predict-tree-fit")
+```{r tree-wflow-predict}
+predict(tree_fit, new_data = cat_test)
 ```
+
+## Predict with your model `r hexes("parsnip", "workflows")`
+
+How do you use your new `tree_fit` model?
+
+```{r tree-wflow-predict-time}
+predict(tree_fit, new_data = cat_test, type = "time")
+```
+
+## Predict with your model `r hexes("parsnip", "workflows")`
+
+```{r tree-wflow-predict-survival}
+preds <- predict(tree_fit, new_data = cat_test, type = "survival", eval_time = c(30, 365))
+preds
+```
+
+## Predict with your model `r hexes("parsnip", "workflows")`
+
+```{r tree-wflow-predict-survival-2}
+preds <- predict(tree_fit, new_data = cat_test, type = "survival", eval_time = c(30, 365))
+
+preds$.pred[[1]]
+```
+
+##  {background-iframe="https://censored.tidymodels.org/#available-models-engines-and-prediction-types"}
+
 
 ## Your turn
 
