@@ -180,6 +180,72 @@ N/A & \text{if } t_{i} \leq \tau\text{ and censored }
 \end{cases}
 $$
 
+## Converting to Events
+
+```{r}
+#| label: plot-graf-categories
+#| echo: false
+#| warning: false
+#| fig-width: 8
+#| fig-height: 4
+#| out-width: 70%
+#| fig-align: center
+obs_time <- c(4, 2)
+obs_status <- c("censored", "event")
+
+df1 <- tibble::tibble(
+  obs_id = 1:2,
+  obs_time = obs_time,
+  obs_status = obs_status,
+  eval_time = 1,
+  eval_status = c("censored", "censored")
+)
+df2 <- tibble::tibble(
+  obs_id = 1:2,
+  obs_time = obs_time,
+  obs_status = obs_status,
+  eval_time = 3,
+  eval_status = c("censored", "event")
+)
+df3 <- tibble::tibble(
+  obs_id = 1:2,
+  obs_time = obs_time,
+  obs_status = obs_status,
+  eval_time = 5,
+  eval_status = c(NA, "event")
+)
+df <- bind_rows(df1, df2, df3)
+
+pch_dot_empty <- 1
+pch_dot_solid <- 19
+pch_triangle_empty <- 2
+pch_triangle_solid <- 17
+
+df %>% 
+  dplyr::mutate(
+    obs_status = dplyr::if_else(obs_status == "censored", pch_dot_empty, pch_dot_solid),
+    eval_status = dplyr::if_else(eval_status == "censored", pch_triangle_empty, pch_triangle_solid)
+  ) %>% 
+  ggplot() +
+  geom_point(aes(obs_time, obs_id, shape = obs_status, size = I(5))) +
+  geom_segment(aes(x = rep(0, 6), y = obs_id, xend = obs_time, yend = obs_id)) +
+  geom_vline(aes(xintercept = eval_time, col = I("red"), linetype = I("dashed"), linewidth = I(0.8))) +
+  geom_point(aes(eval_time, obs_id, shape = eval_status, col = I("red"), size = I(5))) +
+  scale_shape_identity("Status",
+                       labels = c("Observation: censored", "Observation: event",
+                                  "Evaluation: non-event", "Evaluation: event"),
+                       breaks = c(1, 19, 2, 17),
+                       guide = "legend") +
+  scale_x_continuous(limits = c(0, 7)) +
+  scale_y_continuous(limits = c(0.5, 2.5)) +
+  labs(x = "Time", y = "Sample") +
+  theme_bw() +
+  theme(axis.text.y = element_blank(), legend.position = "top") +
+  facet_grid(~ eval_time) 
+```
+
+
+
 ## Class Probability Estimates
 
 The predicted class probabilities are then: 
