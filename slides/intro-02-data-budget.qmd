@@ -66,10 +66,6 @@ library(modeldata)
 cat_adoption
 ```
 
-:::notes
-FIXME: add decription of each variable?
-:::
-
 ## Make the outcome
 
 ```{r cats-surv-outcome}
