@@ -49,7 +49,7 @@ cat_test <- training(cat_split)
 
 ## An Example Model Fit {.annotation} 
 
-Let's fit another PH and add some nonlinear terms via splines:
+Let's fit another PH and add some nonlinear terms via [splines](https://aml4td.org/chapters/interactions-nonlinear.html#sec-splines) and an [interaction](https://aml4td.org/chapters/interactions-nonlinear.html#sec-interactions):
 
 ```{r}
 #| label: example-fit
@@ -69,7 +69,11 @@ cph_spline_fit <-
 
 
 
-## Types of Predictions
+## Predictions
+
+For our demo data set of n = `r nrow(demo_cats)` cats, the largest event time was `r max(demo_cats$event_time[,1][demo_cats$event_time[,2] ==1])`. 
+
+We'll make predictions from 8 days to 320 days: 
 
 ```{r}
 #| label: demo-cat-preds
@@ -83,7 +87,7 @@ demo_cat_preds %>% select(1:3) %>% slice(1:5)
 save(demo_cat_preds, file = "RData/demo_cat_preds.RData")
 ```
 
-## Types of Predictions
+## Dynamic Predictions
 
 ```{r}
 #| label: demo-cat-dot-pred
@@ -158,6 +162,8 @@ From there, we can apply existing classification metrics, such as
 - Area under the ROC curve (for separation)
 
 We’ll talk about both of these. 
+
+There are more details on dynamics metrics at [tidymodels.org](https://www.tidymodels.org/learn/#category=survival%20analysis). 
 
 ## Using the Right Evaluation Strategy
 
@@ -292,7 +298,7 @@ Case weights $w_i(\tau)$ are the inverse of these probabilities and $W(\tau)$ is
 
 ## Probability of Censoring Model
 
-We currently only estimate the probability of non-informative censoring (i.e. the predictors $x_i$ are ignored). 
+We currently only estimate the probability of non-informative right censoring (i.e. the predictors $x_i$ are ignored). 
 
  - Our estimator $\hat{C}(T;x_i)$ is the “reverse Kaplan-Meier” (RKM, [Korn (1986)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Korn+1986+%22Censoring+distributions+as+a+measure+of+follow-up+in+survival+analysis%22&btnG=)) curve that inverts the event indicator. 
  - This is the same for each sample at time $\tau$. 
@@ -379,8 +385,6 @@ $$
 
 ## Demonstration Cat Brier Scores
 
-Remember that these are randomly assembled data...
-
 ```{r}
 #| label: brier-ex
 demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
@@ -460,6 +464,11 @@ During model development, we suggest picking a more focused set of evaluation ti
 
 <br>
 
-You should also pick a time to perform your optimizations/comparisons and list that value first in the vector. 
+You should also pick a time to perform your optimizations/comparisons and list that value first in the vector. If 90 days was of interest, you might use
+
+```{r}
+#| label: time-example
+times <- c(90, 30, 60, 120)
+```
 
 
