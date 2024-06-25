@@ -349,7 +349,7 @@ fit_rpart %>%
 :::
 :::
 
-## Decision trees
+## Decision tree
 
 ::: columns
 ::: {.column width="50%"}
