@@ -29,54 +29,63 @@ knitr:
 #| label: pref-previous
 library(tidymodels)
 library(censored)
+library(splines)
 
 cat_adoption <- 
   cat_adoption %>% 
   mutate(event_time = Surv(time, event), .keep = "unused", .before = everything()) 
 
+set.seed(27)
+in_demo <- sample.int(nrow(cat_adoption), 50)
+demo_cats <- cat_adoption %>% slice(in_demo)
+
 set.seed(123)
-cat_split <- initial_split(cat_adoption, prop = 0.8)
+cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- training(cat_split)
 ```
 
-## An Example Model Fit
+## An Example Model Fit {.annotation} 
+
+Let's fit another PH and add some nonlinear terms via splines:
 
 ```{r}
 #| label: example-fit
-# tree_fit <- 
-#   decision_tree(mode = "censored regression", min_n = 5) %>%
-#   set_engine("partykit") %>% 
-#   fit(event_time ~ ., data = cat_train)
+# First add all of the predictors...
+f <- event_time ~ . -
+  # Them remove geocoded columns
+  longitude - latitude +
+  # Then add them back as spline terms
+  ns(longitude, df = 5) + ns(latitude, df = 5) +
+  # Add an interaction
+  neutered:sex
 
-tree_fit <- 
-  rand_forest(mode = "censored regression", trees = 500) %>%
-  set_engine("aorsf") %>% 
-  fit(event_time ~ ., data = cat_train)
+cph_spline_fit <- 
+  proportional_hazards() %>%
+  fit(f, data = cat_train)
 ```
 
-Let's also create some random data that we'll use for demonstrations: 
-
-```{r}
-#| label: franken-start
-set.seed(6081)
-franken_cats <- map_dfc(cat_test, ~ sample(.x, 200))
-```
-
-## Types of Predictions
-
-```{r}
-#| label: franken-cat-preds
-franken_cat_preds <- augment(tree_fit, franken_cats, eval_time = 8:360)
-franken_cat_preds %>% select(1:3) %>% slice(1:5)
-```
 
 
 ## Types of Predictions
 
 ```{r}
-#| label: franken-cat-dot-pred
-franken_cat_preds$.pred[[1]]
+#| label: demo-cat-preds
+demo_cat_preds <- augment(cph_spline_fit, demo_cats, eval_time = 8:320)
+demo_cat_preds %>% select(1:3) %>% slice(1:5)
+```
+```{r}
+#| label: save-pred-for-annotations
+#| include: false
+
+save(demo_cat_preds, file = "RData/demo_cat_preds.RData")
+```
+
+## Types of Predictions
+
+```{r}
+#| label: demo-cat-dot-pred
+demo_cat_preds$.pred[[1]]
 ```
 
 
@@ -84,19 +93,19 @@ franken_cat_preds$.pred[[1]]
 
 
 ```{r}
-#| label: franked-probs
+#| label: demo-probs
 #| echo: false
 #| fig-width: 6
 #| fig-height: 4
 #| out-width: 80%
 #| fig-align: center
-franken_cat_preds %>% 
+demo_cat_preds %>% 
   slice(1:4) %>% 
   add_rowindex() %>% 
   mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
   unnest(.pred) %>% 
   ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
-  geom_step() +
+  geom_line() +
   labs(x = "Evaluation Time", y = "Pr[Not Adopted Yet]")
 ```
 
@@ -108,41 +117,30 @@ The concordance statistic (“c-index”, [Harrell _et al_ (1996)](https://schol
 
 It takes into account censoring and does not depend on a specific evaluation time. The range of values is $[-1, 1]$. 
 
-<br> 
-
-It has some weaknesses (see [Uno _et al_ (2011)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22On+the+C-statistics+for+evaluating+overall+adequacy+of+risk+prediction+procedures+with+censored+survival+data&btnG=) for example) and is used less than it originally was. 
-
-## Concordance
-
 ```{r}
 #| label: concordance
-franken_cat_preds %>% 
+demo_cat_preds %>% 
   concordance_survival(event_time, estimate = .pred_time)
 ```
-
-<br> <br> 
-
-The other metrics that we will discuss are dynamic in the sense that they evaluate the model at specific time points (“evaluation times”). 
-
 
 ## Time-dependent metrics
 
 We pick specific time points to evaluate the model (depending on our problem) such as every 30 days: 
 
 ```{r}
-#| label: franked-probs-again
+#| label: demo-probs-again
 #| echo: false
 #| fig-width: 6
 #| fig-height: 4
 #| out-width: 80%
 #| fig-align: center
-franken_cat_preds %>% 
+demo_cat_preds %>% 
   slice(1:4) %>% 
   add_rowindex() %>% 
   mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
   unnest(.pred) %>% 
   ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
-  geom_step() +
+  geom_line() +
   geom_vline(xintercept = (1:12) * 30, col = "black", lty = 3, alpha = 7 / 10) +
   labs(x = "Evaluation Time", y = "Pr[Survival]")
 ```
@@ -243,19 +241,19 @@ The RKM curve is attached to the parsnip model object. For our data set...
 #| out-width: 80%
 #| fig-align: center
 rkm_data <- 
-  tree_fit$censor_probs$fit[c("time", "surv")] %>% 
+  cph_spline_fit$censor_probs$fit[c("time", "surv")] %>% 
   as_tibble() %>% 
   set_names(c(".eval_time", ".pred_censored"))
 
 max_wt_time <- 
-  franken_cat_preds %>% 
+  demo_cat_preds %>% 
   slice(1:4) %>% 
   add_rowindex() %>% 
   mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
   unnest(.pred) %>% 
   summarize(max_weight_time = max(.weight_time, na.rm = TRUE), .by = c(cat))
 
-franken_cat_preds %>% 
+demo_cat_preds %>% 
   slice(1:4) %>% 
   add_rowindex() %>% 
   mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
@@ -263,15 +261,14 @@ franken_cat_preds %>%
   ggplot(aes(.weight_time, .pred_censored)) +
   geom_vline(data = max_wt_time, aes(xintercept = max_weight_time, col = cat), 
              lty = 3, show.legend = FALSE) + 
-  geom_step(data = rkm_data, aes(x = .eval_time), alpha = 1 / 5, linewidth = 1 / 2) +
-  geom_step(aes(group = cat, col = cat), show.legend = FALSE, linewidth = 1) +
+  geom_line(data = rkm_data, aes(x = .eval_time), alpha = 1 / 5, linewidth = 1 / 2) +
+  geom_line(aes(group = cat, col = cat), show.legend = FALSE, linewidth = 1) +
   labs(x = "Evaluation Time", y = "Prob Censored") + 
   lims(y = 0:1) +
   facet_wrap(~ cat)
 ```
 
-
-## Inverse Weights
+## Inverse Weights {.annotation} 
 
 ```{r}
 #| label: ipcw
@@ -281,60 +278,18 @@ franken_cat_preds %>%
 #| out-width: 80%
 #| fig-align: center
 
-franken_cat_preds %>% 
+demo_cat_preds %>% 
   slice(1:4) %>% 
   add_rowindex() %>% 
   mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
   unnest(.pred) %>% 
   ggplot(aes(.eval_time, .weight_censored)) + 
-  geom_step(aes(group = cat, col = cat), show.legend = FALSE) +
+  geom_line(aes(group = cat, col = cat), show.legend = FALSE) +
   geom_vline(data = max_wt_time, aes(xintercept = max_weight_time, col = cat), 
              lty = 3, show.legend = FALSE) +
   labs(x = "Evaluation Time", y = "IPCW") + 
   facet_wrap(~ cat)
 ```
-
-## Weights Over Time
-
-```{r}
-#| label: weight-sum
-#| echo: false
-#| fig-width: 6
-#| fig-height: 4.25
-#| out-width: 60%
-#| fig-align: center
-
-franken_cat_preds %>% 
-  unnest(.pred) %>% 
-  summarize(
-    weight_sum = sum(.weight_censored, na.rm = TRUE),
-    .by = c(.eval_time)) %>% 
-  ggplot(aes(.eval_time, weight_sum)) + 
-  geom_line() +
-  labs(x = "Evaluation Time", y = "Sum of Weights")
-```
-
-## Number of Usable Samples
-
-```{r}
-#| label: num-active
-#| echo: false
-#| fig-width: 6
-#| fig-height: 4.25
-#| out-width: 60%
-#| fig-align: center
-
-franken_cat_preds %>% 
-  unnest(.pred) %>% 
-  summarize(
-    num_active = sum(!is.na(.weight_censored)),
-    .by = c(.eval_time)) %>% 
-  ggplot(aes(.eval_time, num_active)) + 
-  geom_line() +
-  labs(x = "Evaluation Time", y = "# Usable Samples")
-```
-
-
 
 
 ## Brier Score
@@ -351,21 +306,21 @@ $$
 Brier(\tau) = \frac{1}{W}\sum_{i=1}^N \sum_{k=0}^1w_i(\tau)I(y_{i\tau} = k)(y_{i\tau} - \hat{\pi}_{i\tau})^2
 $$
 
-## Franken Cat Brier Scores
+## Demonstration Cat Brier Scores
 
 Remember that these are randomly assembled data...
 
 ```{r}
 #| label: brier-ex
-franken_brier <- brier_survival(franken_cat_preds, truth = event_time, .pred)
-franken_brier %>% slice(1:5)
+demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
+demo_brier %>% slice(1:5)
 ```
 
 and also
 
 ```{r}
 #| label: brier-int-ex
-brier_survival_integrated(franken_cat_preds, truth = event_time, .pred)
+brier_survival_integrated(demo_cat_preds, truth = event_time, .pred)
 ```
 
 
@@ -379,7 +334,7 @@ brier_survival_integrated(franken_cat_preds, truth = event_time, .pred)
 #| fig-height: 4.25
 #| out-width: 60%
 #| fig-align: center
-franken_brier %>% 
+demo_brier %>% 
   ggplot(aes(.eval_time, .estimate)) + 
   geom_line() + 
   geom_hline(yintercept = 0, col = "green")+
@@ -400,11 +355,11 @@ We can use the standard ROC curve machinery once we have the indicators, probabi
 ROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are.  
 
 
-## Franken Cat ROC AUC 
+## Demonstration Cat ROC AUC 
 
 ```{r}
-franken_row_auc <- roc_auc_survival(franken_cat_preds, truth = event_time, .pred)
-franken_row_auc
+demo_row_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
+demo_row_auc
 ```
 
 ## ROC AUC Over Time
@@ -416,7 +371,7 @@ franken_row_auc
 #| fig-height: 4.25
 #| out-width: 60%
 #| fig-align: center
-franken_row_auc %>% 
+demo_row_auc %>% 
   ggplot(aes(.eval_time, .estimate)) + 
   geom_line() + 
   geom_hline(yintercept = 1, col = "green")+

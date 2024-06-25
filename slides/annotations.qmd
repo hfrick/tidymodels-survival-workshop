@@ -12,6 +12,7 @@ knitr:
 #| include: false
 
 library(tidymodels)
+library(censored)
 tidymodels_prefer()
 
 # To get `hexes()`
@@ -100,18 +101,44 @@ Generally speaking, this problem is referred to as [data leakage](https://en.wik
 
 # 04 - Evaluating Models
 
-## Where are the fitted models?
+## An Example Model Fit
 
-The primary purpose of resampling is to estimate model performance. The models are almost never needed again. 
+These are made-up cats. Each cat's predictors are randomly sampled values from the test set, so it is almost like a permutation-type analysis. 
 
-Also, if the data set is large, the model object may require a lot of memory to save so, by default, we don't keep them. 
+Also, almost every model we consider will be strongly influenced by the `neutered` and `intake_type` columns, which have very few unique values. 
 
-For more advanced use cases, you can extract and save them. See:
+Our models will show _some_ signal (even though they theoretically should not) because the random shuffling might still keep the same values of these important predictors. 
 
- * <https://www.tmwr.org/resampling.html#extract>
- * <https://www.tidymodels.org/learn/models/coefficients/> (an example)
+Finally - for the weird formula assembly: this will be so much easier once we introduce recipes. 
 
-<hr size="5">
+
+## Inverse Weights
+
+How the censoring probability varies over time can have a big effect on the metrics. 
+
+For the demonstration set, there are very few usable outcomes in the late stages of the analysis but these have large weights. 
+
+```{r}
+#| label: weight-sum
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4.25
+#| out-width: 80%
+#| fig-align: center
+load(file = "RData/demo_cat_preds.RData")
+
+demo_cat_preds %>% 
+  unnest(.pred) %>% 
+  summarize(
+    weight_sum = sum(.weight_censored, na.rm = TRUE),
+    `# Samples Available` = sum(!is.na(.weight_censored)),
+    .by = c(.eval_time)) %>% 
+  ggplot(aes(.eval_time, weight_sum, size = `# Samples Available`)) + 
+  geom_point(alpha = 1 / 4) +
+  labs(x = "Evaluation Time", y = "Sum of Weights") +
+  theme(legend.position = "top")
+```
+
 
 # 06 - Tuning Hyperparameters
 
