@@ -212,14 +212,6 @@ countdown::countdown(minutes = 5, id = "explore-tree-spec")
 * Proportional hazards (PH) model
 * Decision tree
 
-```{r data-model-illustration}
-#| echo: false
-cat_new <- tibble(
-  intake_condition = factor(c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))
-)
-  #theme_bw(base_size = 18)
-```
-
 ## Proportional hazards model
 
 ::: columns
@@ -229,11 +221,16 @@ cat_new <- tibble(
 #| fig.width: 8
 #| fig.height: 7
 
+cat_new <- tibble(
+  intake_condition = factor(c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))
+)
+
 fit(proportional_hazards(), event_time ~ 1, data = cat_train) %>% 
   augment(new_data = cat_new[1,], eval_time = seq(0, 360, 1)) %>% 
   tidyr::unnest(cols = .pred) %>% 
   ggplot() +
   geom_step(aes(.eval_time, .pred_survival)) +
+  labs(x = "Time", y = "Probability of remaining in the shelter") +
   theme_bw(base_size = 18)
 ```
 :::
@@ -256,12 +253,11 @@ p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_tr
   mutate(intake_condition = factor(intake_condition, levels = c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))) %>% 
   tidyr::unnest(cols = .pred) %>% 
   ggplot() +
-  geom_step(aes(.eval_time, .pred_survival, col = intake_condition)) +
+  geom_line(aes(.eval_time, .pred_survival, col = intake_condition)) +
+  labs(x = "Time", y = "Probability of remaining in the shelter") +
   theme_bw(base_size = 18) +
   theme(legend.position = "bottom")
 p_ph
-# plot_rates +
-#   geom_line(aes(A, .pred_one, color = I(test_color)), linewidth = 2, alpha = 0.8, data = logistic_preds)
 ```
 :::
 
@@ -316,7 +312,7 @@ fit_pec <- fit_dt %>% extract_fit_engine()
 fit_rpart <- fit_pec$rpart
 fit_rpart %>% 
   as.party() %>% 
-  plot()
+  plot(ep_args = list(justmin = 15, abbreviate = TRUE))
 ```
 
 :::
@@ -340,7 +336,7 @@ fit_pec <- fit_dt %>% extract_fit_engine()
 fit_rpart <- fit_pec$rpart
 fit_rpart %>% 
   as.party() %>% 
-  plot()
+  plot(ep_args = list(justmin = 15, abbreviate = TRUE))
 ```
 :::
 
@@ -368,7 +364,7 @@ fit_pec <- fit_dt %>% extract_fit_engine()
 fit_rpart <- fit_pec$rpart
 fit_rpart %>% 
   as.party() %>% 
-  plot()
+  plot(ep_args = list(justmin = 15, abbreviate = TRUE))
 ```
 :::
 
@@ -378,11 +374,20 @@ fit_rpart %>%
 #| fig.width: 8
 #| fig.height: 7
 
+cat_new_3 <- tibble(
+  intake_condition = factor(c("normal", "feral", "ill_mild"))
+)
 p_dt <- fit_dt %>% 
-  augment(new_data = cat_new, eval_time = seq(0, 360, 1)) %>% 
-  mutate(intake_condition = factor(intake_condition, levels = c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))) %>% tidyr::unnest(cols = .pred) %>% 
+  augment(new_data = cat_new_3, eval_time = seq(0, 360, 1)) %>% 
+  mutate(intake_condition = factor(intake_condition, levels = c("ill_mild", "normal", "feral"))) %>% 
+  tidyr::unnest(cols = .pred) %>% 
   ggplot() +
   geom_step(aes(.eval_time, .pred_survival, color = intake_condition)) +
+  scale_color_discrete(
+    labels = c("ill_mild, under_age_or_weight", "ill_moderatete, normal, other", "fractious, feral"),
+    guide = guide_legend(ncol = 2)
+    ) + 
+  labs(x = "Time", y = "Probability of remaining in the shelter") +
   theme_bw(base_size = 18) +
   theme(legend.position = "bottom")
 p_dt
