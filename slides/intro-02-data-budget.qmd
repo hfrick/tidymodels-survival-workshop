@@ -29,7 +29,7 @@ knitr:
 ::: {.column width="60%"}
 -   The city of Long Beach releases data on animals at the Long Beach Animal Shelter.
 -   Our dataset is a sample of the cats entering and leaving the shelter.
--   Type `?cat_adoption` or check the [sources](https://github.com/tidymodels/modeldata/blob/main/data-raw/cat_adoption.R#L10) to learn more about this dataset, including references.
+-   Type `?cat_adoption` or check the [sources](https://github.com/tidymodels/modeldata/blob/main/data-raw/cat_adoption.R) to learn more about this dataset, including references.
 :::
 
 ::: {.column width="40%"}
