@@ -387,11 +387,23 @@
   </style>
   <link href="../site_libs/countdown-0.4.0/countdown.css" rel="stylesheet">
   <script src="../site_libs/countdown-0.4.0/countdown.js"></script>
+  <link href="../site_libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+  <script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+  <script src="../site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+  <link href="../site_libs/leaflet-1.3.1/leaflet.css" rel="stylesheet">
+  <script src="../site_libs/leaflet-1.3.1/leaflet.js"></script>
+  <link href="../site_libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet">
+  <script src="../site_libs/proj4-2.6.2/proj4.min.js"></script>
+  <script src="../site_libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+  <link href="../site_libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet">
+  <script src="../site_libs/leaflet-binding-2.2.2/leaflet.js"></script>
+  <script src="../site_libs/leaflet-providers-2.0.0/leaflet-providers_2.0.0.js"></script>
+  <script src="../site_libs/leaflet-providers-plugin-2.2.2/leaflet-providers-plugin.js"></script>
 <meta property="og:title" content="Survival analysis with tidymodels - 2 - Your data budget">
-<meta property="og:description" content="Introduction to tidymodels">
+<meta property="og:description" content="Survival analysis with tidymodels">
 <meta property="og:site_name" content="Survival analysis with tidymodels">
 <meta name="twitter:title" content="Survival analysis with tidymodels - 2 - Your data budget">
-<meta name="twitter:description" content="Introduction to tidymodels">
+<meta name="twitter:description" content="Survival analysis with tidymodels">
 <meta name="twitter:card" content="summary">
 </head>
 <body class="quarto-light">
@@ -401,112 +413,73 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">2 - Your data budget</h1>
-  <p class="subtitle">Introduction to tidymodels</p>
+  <p class="subtitle">Survival analysis with tidymodels</p>
 
 <div class="quarto-title-authors">
 </div>
 
 </section>
-<section id="section" class="slide level2" data-background-image="https://media.giphy.com/media/Lr3UeH9tYu3qJtsSUg/giphy.gif" data-background-size="40%">
-<h2></h2>
-</section>
-<section id="data-on-chicago-taxi-trips" class="slide level2">
-<h2>Data on Chicago taxi trips</h2>
+<section id="data-on-shelter-cats" class="slide level2">
+<h2>Data on shelter cats</h2>
 <div class="columns">
 <div class="column" style="width:60%;">
 <ul>
-<li>The city of Chicago releases anonymized trip-level data on taxi trips in the city.</li>
-<li>We pulled a sample of 10,000 rides occurring in early 2022.</li>
-<li>Type <code>?taxi</code> to learn more about this dataset, including references.</li>
+<li>The city of Long Beach releases data on animals at the Long Beach Animal Shelter.</li>
+<li>Our dataset is a sample of the cats entering and leaving the shelter.</li>
+<li>Type <code>?cat_adoption</code> or check the <a href="https://github.com/tidymodels/modeldata/blob/main/data-raw/cat_adoption.R">sources</a> to learn more about this dataset, including references.</li>
 </ul>
 </div><div class="column" style="width:40%;">
-<p><img data-src="images/taxi_spinning.svg"></p>
+<p><img data-src="images/pet-house-blue.svg"></p>
 </div>
 </div>
 <div class="footer">
-<p>Credit: <a href="https://www.svgrepo.com/svg/8322/taxi" class="uri">https://www.svgrepo.com/svg/8322/taxi</a></p>
+<p>Credit: <a href="https://www.svgrepo.com/svg/194185/pet-house-kennel" class="uri">https://www.svgrepo.com/svg/194185/pet-house-kennel</a></p>
 </div>
 </section>
-<section id="data-on-chicago-taxi-trips-1" class="slide level2">
-<h2>Data on Chicago taxi trips</h2>
-<div class="columns">
-<div class="column" style="width:60%;">
+<section id="data-on-shelter-cats-1" class="slide level2">
+<h2>Data on shelter cats</h2>
 <ul>
-<li><code>N = 10,000</code></li>
-<li>A nominal outcome, <code>tip</code>, with levels <code>"yes"</code> and <code>"no"</code></li>
-<li>Several <strong>nominal</strong> variables like pickup &amp; dropoff location, taxi ID, and payment type.</li>
-<li>Several <strong>numeric</strong> variables like trip length and fare subtotals.</li>
-</ul>
-</div><div class="column" style="width:40%;">
-<p><img data-src="images/taxi.png"></p>
-</div>
-</div>
-<div class="footer">
-<p>Credit: <a href="https://unsplash.com/photos/7_r85l4eht8" class="uri">https://unsplash.com/photos/7_r85l4eht8</a></p>
-</div>
-<aside class="notes">
-<p>“Fare subtotals” refers to the fare itself, tax, tolls, tip amount.</p>
-<p>Also have date/time info</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</section>
-<section id="checklist-for-predictors" class="slide level2">
-<h2>Checklist for predictors</h2>
-<ul>
-<li><p>Is it ethical to use this variable? (Or even legal?)</p></li>
-<li><p>Will this variable be available at prediction time?</p></li>
-<li><p>Does this variable contribute to explainability?</p></li>
+<li>N = 2257</li>
+<li>A time-to-event outcome, consisting of the <code>time</code> spent at the shelter and the <code>event</code> status.</li>
+<li>An event is a cat being homed by the Long Beach animal shelter.</li>
+<li>If a cat is transfered to a different organization that works to home them, this is recorded as a non-event.</li>
+<li>Several <strong>nominal</strong> variables like sex, intake type and condition, as well as fur color.</li>
+<li>Two <strong>numeric</strong> variables for the location of the intake or capture, latitiude and logitude.</li>
 </ul>
 </section>
-<section id="data-on-chicago-taxi-trips-2" class="slide level2">
-<h2>Data on Chicago taxi trips</h2>
+<section id="data-on-shelter-cats-2" class="slide level2">
+<h2>Data on shelter cats</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">library</span>(tidymodels)</span>
-<span id="cb1-2"><a></a></span>
-<span id="cb1-3"><a></a>taxi</span>
-<span id="cb1-4"><a></a><span class="co">#&gt; # A tibble: 10,000 × 7</span></span>
-<span id="cb1-5"><a></a><span class="co">#&gt;    tip   distance company                      local dow   month  hour</span></span>
-<span id="cb1-6"><a></a><span class="co">#&gt;    &lt;fct&gt;    &lt;dbl&gt; &lt;fct&gt;                        &lt;fct&gt; &lt;fct&gt; &lt;fct&gt; &lt;int&gt;</span></span>
-<span id="cb1-7"><a></a><span class="co">#&gt;  1 yes      17.2  Chicago Independents         no    Thu   Feb      16</span></span>
-<span id="cb1-8"><a></a><span class="co">#&gt;  2 yes       0.88 City Service                 yes   Thu   Mar       8</span></span>
-<span id="cb1-9"><a></a><span class="co">#&gt;  3 yes      18.1  other                        no    Mon   Feb      18</span></span>
-<span id="cb1-10"><a></a><span class="co">#&gt;  4 yes      20.7  Chicago Independents         no    Mon   Apr       8</span></span>
-<span id="cb1-11"><a></a><span class="co">#&gt;  5 yes      12.2  Chicago Independents         no    Sun   Mar      21</span></span>
-<span id="cb1-12"><a></a><span class="co">#&gt;  6 yes       0.94 Sun Taxi                     yes   Sat   Apr      23</span></span>
-<span id="cb1-13"><a></a><span class="co">#&gt;  7 yes      17.5  Flash Cab                    no    Fri   Mar      12</span></span>
-<span id="cb1-14"><a></a><span class="co">#&gt;  8 yes      17.7  other                        no    Sun   Jan       6</span></span>
-<span id="cb1-15"><a></a><span class="co">#&gt;  9 yes       1.85 Taxicab Insurance Agency Llc no    Fri   Apr      12</span></span>
-<span id="cb1-16"><a></a><span class="co">#&gt; 10 yes       1.47 City Service                 no    Tue   Mar      14</span></span>
-<span id="cb1-17"><a></a><span class="co">#&gt; # ℹ 9,990 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a></a><span class="fu">library</span>(survival)</span>
+<span id="cb1-3"><a></a><span class="fu">library</span>(modeldata)</span>
+<span id="cb1-4"><a></a></span>
+<span id="cb1-5"><a></a>cat_adoption</span>
+<span id="cb1-6"><a></a><span class="co">#&gt; # A tibble: 2,257 × 20</span></span>
+<span id="cb1-7"><a></a><span class="co">#&gt;     time event sex    neutered intake_condition intake_type   latitude longitude</span></span>
+<span id="cb1-8"><a></a><span class="co">#&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;    &lt;fct&gt;            &lt;fct&gt;            &lt;dbl&gt;     &lt;dbl&gt;</span></span>
+<span id="cb1-9"><a></a><span class="co">#&gt;  1    17     1 male   yes      fractious        owner_surren…     33.8     -118.</span></span>
+<span id="cb1-10"><a></a><span class="co">#&gt;  2    98     1 male   yes      normal           stray             33.8     -118.</span></span>
+<span id="cb1-11"><a></a><span class="co">#&gt;  3    15     0 male   yes      ill_moderatete   owner_surren…     33.8     -118.</span></span>
+<span id="cb1-12"><a></a><span class="co">#&gt;  4    72     1 female yes      fractious        owner_surren…     33.8     -118.</span></span>
+<span id="cb1-13"><a></a><span class="co">#&gt;  5    22     0 male   yes      normal           owner_surren…     33.8     -118.</span></span>
+<span id="cb1-14"><a></a><span class="co">#&gt;  6    66     1 male   yes      normal           owner_surren…     33.8     -118.</span></span>
+<span id="cb1-15"><a></a><span class="co">#&gt;  7   200     1 female yes      other            other             33.9     -118.</span></span>
+<span id="cb1-16"><a></a><span class="co">#&gt;  8     9     0 female yes      normal           owner_surren…     33.9     -118.</span></span>
+<span id="cb1-17"><a></a><span class="co">#&gt;  9    45     1 male   yes      ill_mild         stray             33.8     -118.</span></span>
+<span id="cb1-18"><a></a><span class="co">#&gt; 10    38     1 male   no       ill_mild         stray             33.9     -118.</span></span>
+<span id="cb1-19"><a></a><span class="co">#&gt; # ℹ 2,247 more rows</span></span>
+<span id="cb1-20"><a></a><span class="co">#&gt; # ℹ 12 more variables: black &lt;int&gt;, brown &lt;int&gt;, brown_tabby &lt;int&gt;,</span></span>
+<span id="cb1-21"><a></a><span class="co">#&gt; #   calico &lt;int&gt;, cream &lt;int&gt;, gray &lt;int&gt;, gray_tabby &lt;int&gt;, orange &lt;int&gt;,</span></span>
+<span id="cb1-22"><a></a><span class="co">#&gt; #   orange_tabby &lt;int&gt;, tan &lt;int&gt;, tortie &lt;int&gt;, white &lt;int&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<aside class="notes">
-<p><code>tip</code>: Whether the rider left a tip. A factor with levels “yes” and “no”.</p>
-<p><code>distance</code>: The trip distance, in odometer miles.</p>
-<p><code>company</code>: The taxi company, as a factor. Companies that occurred few times were binned as “other”.</p>
-<p><code>local</code>: Whether the trip started in the same community area as it began. See the source data for community area values.</p>
-<p><code>dow</code>: The day of the week in which the trip began, as a factor.</p>
-<p><code>month</code>: The month in which the trip began, as a factor.</p>
-<p><code>hour</code>: The hour of the day in which the trip began, as a numeric.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+</section>
+<section id="make-the-outcome" class="slide level2">
+<h2>Make the outcome <img data-src="hexes/survival.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>cat_adoption <span class="ot">&lt;-</span> cat_adoption <span class="sc">%&gt;%</span> </span>
+<span id="cb2-2"><a></a>  <span class="fu">mutate</span>(<span class="at">event_time =</span> <span class="fu">Surv</span>(time, event), <span class="at">.keep =</span> <span class="st">"unused"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
 <section id="data-splitting-and-spending" class="slide level2">
 <h2>Data splitting and spending</h2>
@@ -562,11 +535,11 @@
 <section id="the-initial-split" class="slide level2 annotation">
 <h2>The initial split <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb2-2"><a></a>taxi_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(taxi)</span>
-<span id="cb2-3"><a></a>taxi_split</span>
-<span id="cb2-4"><a></a><span class="co">#&gt; &lt;Training/Testing/Total&gt;</span></span>
-<span id="cb2-5"><a></a><span class="co">#&gt; &lt;7500/2500/10000&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb3-2"><a></a>cat_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(cat_adoption)</span>
+<span id="cb3-3"><a></a>cat_split</span>
+<span id="cb3-4"><a></a><span class="co">#&gt; &lt;Training/Testing/Total&gt;</span></span>
+<span id="cb3-5"><a></a><span class="co">#&gt; &lt;1692/565/2257&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <aside class="notes">
 <p>How much data in training vs testing? This function uses a good default, but this depends on your specific goal/data We will talk about more powerful ways of splitting, like stratification, later</p>
@@ -582,44 +555,41 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="what-is-set.seed" class="slide level2">
-<h2>What is <code>set.seed()</code>?</h2>
-<p>To create that split of the data, R generates “pseudo-random” numbers: while they are made to behave like random numbers, their generation is deterministic give a “seed”.</p>
-<p>This allows us to reproduce results by setting that seed.</p>
-<p>Which seed you pick doesn’t matter, as long as you don’t try a bunch of seeds and pick the one that gives you the best performance.</p>
-</section>
 <section id="accessing-the-data" class="slide level2">
 <h2>Accessing the data <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>taxi_train <span class="ot">&lt;-</span> <span class="fu">training</span>(taxi_split)</span>
-<span id="cb3-2"><a></a>taxi_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(taxi_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>cat_train <span class="ot">&lt;-</span> <span class="fu">training</span>(cat_split)</span>
+<span id="cb4-2"><a></a>cat_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(cat_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="the-training-set" class="slide level2">
 <h2>The training set<img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>taxi_train</span>
-<span id="cb4-2"><a></a><span class="co">#&gt; # A tibble: 7,500 × 7</span></span>
-<span id="cb4-3"><a></a><span class="co">#&gt;    tip   distance company                   local dow   month  hour</span></span>
-<span id="cb4-4"><a></a><span class="co">#&gt;    &lt;fct&gt;    &lt;dbl&gt; &lt;fct&gt;                     &lt;fct&gt; &lt;fct&gt; &lt;fct&gt; &lt;int&gt;</span></span>
-<span id="cb4-5"><a></a><span class="co">#&gt;  1 yes       0.7  Taxi Affiliation Services yes   Tue   Mar      18</span></span>
-<span id="cb4-6"><a></a><span class="co">#&gt;  2 yes       0.99 Sun Taxi                  yes   Tue   Jan       8</span></span>
-<span id="cb4-7"><a></a><span class="co">#&gt;  3 yes       1.78 other                     no    Sat   Mar      22</span></span>
-<span id="cb4-8"><a></a><span class="co">#&gt;  4 yes       0    Taxi Affiliation Services yes   Wed   Apr      15</span></span>
-<span id="cb4-9"><a></a><span class="co">#&gt;  5 yes       0    Taxi Affiliation Services no    Sun   Jan      21</span></span>
-<span id="cb4-10"><a></a><span class="co">#&gt;  6 yes       2.3  other                     no    Sat   Apr      21</span></span>
-<span id="cb4-11"><a></a><span class="co">#&gt;  7 yes       6.35 Sun Taxi                  no    Wed   Mar      16</span></span>
-<span id="cb4-12"><a></a><span class="co">#&gt;  8 yes       2.79 other                     no    Sun   Feb      14</span></span>
-<span id="cb4-13"><a></a><span class="co">#&gt;  9 yes      16.6  other                     no    Sun   Apr      18</span></span>
-<span id="cb4-14"><a></a><span class="co">#&gt; 10 yes       0.02 Chicago Independents      yes   Sun   Apr      15</span></span>
-<span id="cb4-15"><a></a><span class="co">#&gt; # ℹ 7,490 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>cat_train</span>
+<span id="cb5-2"><a></a><span class="co">#&gt; # A tibble: 1,692 × 19</span></span>
+<span id="cb5-3"><a></a><span class="co">#&gt;    sex     neutered intake_condition  intake_type latitude longitude black brown</span></span>
+<span id="cb5-4"><a></a><span class="co">#&gt;    &lt;fct&gt;   &lt;fct&gt;    &lt;fct&gt;             &lt;fct&gt;          &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt; &lt;int&gt;</span></span>
+<span id="cb5-5"><a></a><span class="co">#&gt;  1 male    yes      under_age_or_wei… stray           33.8     -118.     1     0</span></span>
+<span id="cb5-6"><a></a><span class="co">#&gt;  2 female  yes      normal            stray           33.8     -118.     0     1</span></span>
+<span id="cb5-7"><a></a><span class="co">#&gt;  3 female  yes      feral             stray           33.9     -118.     0     0</span></span>
+<span id="cb5-8"><a></a><span class="co">#&gt;  4 male    yes      other             stray           33.8     -118.     0     0</span></span>
+<span id="cb5-9"><a></a><span class="co">#&gt;  5 female  yes      fractious         stray           33.8     -118.     1     0</span></span>
+<span id="cb5-10"><a></a><span class="co">#&gt;  6 unknown unknown  normal            stray           33.8     -118.     0     0</span></span>
+<span id="cb5-11"><a></a><span class="co">#&gt;  7 male    no       under_age_or_wei… stray           33.8     -118.     1     0</span></span>
+<span id="cb5-12"><a></a><span class="co">#&gt;  8 male    yes      normal            owner_surr…     33.8     -118.     0     0</span></span>
+<span id="cb5-13"><a></a><span class="co">#&gt;  9 male    no       normal            stray           33.9     -118.     1     0</span></span>
+<span id="cb5-14"><a></a><span class="co">#&gt; 10 male    no       ill_mild          stray           33.8     -118.     0     0</span></span>
+<span id="cb5-15"><a></a><span class="co">#&gt; # ℹ 1,682 more rows</span></span>
+<span id="cb5-16"><a></a><span class="co">#&gt; # ℹ 11 more variables: brown_tabby &lt;int&gt;, calico &lt;int&gt;, cream &lt;int&gt;,</span></span>
+<span id="cb5-17"><a></a><span class="co">#&gt; #   gray &lt;int&gt;, gray_tabby &lt;int&gt;, orange &lt;int&gt;, orange_tabby &lt;int&gt;, tan &lt;int&gt;,</span></span>
+<span id="cb5-18"><a></a><span class="co">#&gt; #   tortie &lt;int&gt;, white &lt;int&gt;, event_time &lt;Surv&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="the-test-set" class="slide level2">
 <h2>The test set <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <p>🙈</p>
 <div class="fragment">
-<p>There are 2500 rows and 7 columns in the test set.</p>
+<p>There are 565 rows and 19 columns in the test set.</p>
 </div>
 </section>
 <section id="your-turn-1" class="slide level2" data-transition="slide-in">
@@ -627,6 +597,8 @@
 <p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
 <p><em>Split your data so 20% is held out for the test set.</em></p>
 <p><em>Try out different values in <code>set.seed()</code> to see how the results change.</em></p>
+<p><br></p>
+<p><em>Extension/Challenge: This is a simple random split. Which other types of splits can you think of and does rsample offer corresponding functions?</em></p>
 <div class="cell">
 <div class="cell-output-display">
 <div class="countdown" id="try-splitting" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
@@ -639,32 +611,15 @@
 <section id="data-splitting-and-spending-3" class="slide level2">
 <h2>Data splitting and spending <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb5-2"><a></a>taxi_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(taxi, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
-<span id="cb5-3"><a></a>taxi_train <span class="ot">&lt;-</span> <span class="fu">training</span>(taxi_split)</span>
-<span id="cb5-4"><a></a>taxi_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(taxi_split)</span>
-<span id="cb5-5"><a></a></span>
-<span id="cb5-6"><a></a><span class="fu">nrow</span>(taxi_train)</span>
-<span id="cb5-7"><a></a><span class="co">#&gt; [1] 8000</span></span>
-<span id="cb5-8"><a></a><span class="fu">nrow</span>(taxi_test)</span>
-<span id="cb5-9"><a></a><span class="co">#&gt; [1] 2000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section></section>
-<section>
-<section id="what-about-a-validation-set" class="title-slide slide level1 center">
-<h1>What about a validation set?</h1>
-
-</section>
-<section id="section-1" class="slide level2" data-background-color="white" data-background-image="https://www.tmwr.org/premade/validation.svg" data-background-size="50%">
-<h2></h2>
-</section>
-<section id="validation-set" class="slide level2">
-<h2>Validation set</h2>
-<div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb6-2"><a></a><span class="fu">initial_validation_split</span>(taxi, <span class="at">prop =</span> <span class="fu">c</span>(<span class="fl">0.6</span>, <span class="fl">0.2</span>))</span>
-<span id="cb6-3"><a></a><span class="co">#&gt; &lt;Training/Validation/Testing/Total&gt;</span></span>
-<span id="cb6-4"><a></a><span class="co">#&gt; &lt;6000/2000/2000/10000&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-2"><a></a>cat_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(cat_adoption, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb6-3"><a></a>cat_train <span class="ot">&lt;-</span> <span class="fu">training</span>(cat_split)</span>
+<span id="cb6-4"><a></a>cat_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(cat_split)</span>
+<span id="cb6-5"><a></a></span>
+<span id="cb6-6"><a></a><span class="fu">nrow</span>(cat_train)</span>
+<span id="cb6-7"><a></a><span class="co">#&gt; [1] 1805</span></span>
+<span id="cb6-8"><a></a><span class="fu">nrow</span>(cat_test)</span>
+<span id="cb6-9"><a></a><span class="co">#&gt; [1] 452</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section></section>
 <section>
@@ -675,15 +630,17 @@
 <section id="your-turn-2" class="slide level2" data-transition="slide-in">
 <h2>Your turn</h2>
 <p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
-<p><em>Explore the <code>taxi_train</code> data on your own!</em></p>
+<p><em>Explore the <code>cat_train</code> data on your own!</em></p>
 <ul>
-<li><em>What’s the distribution of the outcome, <code>tip</code>?</em></li>
-<li><em>What’s the distribution of numeric variables like <code>distance</code>?</em></li>
-<li><em>How does <code>tip</code> differ across the categorical variables?</em></li>
+<li><em>What does the Kaplan-Meier curve look like for the outcome, <code>event_time</code>?</em></li>
+<li><em>How does <code>event_time</code> differ across the categorical variables?</em></li>
+<li><em>What’s the distribution of the location information, <code>latitude</code> and <code>longitude</code>?</em></li>
 </ul>
+<p><br></p>
+<p><em>Extension/Challenge: How would you visualize the relelationship between the outcome and longitude and latitude, respectively?</em></p>
 <div class="cell">
 <div class="cell-output-display">
-<div class="countdown" id="explore-taxi" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
+<div class="countdown" id="explore-cat" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
 <div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
 <code class="countdown-time"><span class="countdown-digits minutes">08</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
@@ -703,63 +660,65 @@
           display:block!important;
       }</style></aside>
 </section>
+<section id="time-to-adoption" class="slide level2">
+<h2>Time to adoption <img data-src="hexes/ggsurvfit.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">library</span>(ggsurvfit)</span>
+<span id="cb7-2"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> cat_adoption) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figures/cat-event-time-1.svg" class="quarto-figure quarto-figure-center"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> neutered, <span class="at">data =</span> cat_train) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="figures/cat-event-time-by-neutered-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
+<section id="section-1" class="slide level2">
+<h2></h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> brown_tabby, <span class="at">data =</span> cat_train) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+</div>
+<img data-src="figures/cat-event-time-by-brown-tabby-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
 <section id="section-2" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a>taxi_train <span class="sc">%&gt;%</span> </span>
-<span id="cb7-2"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> tip)) <span class="sc">+</span></span>
-<span id="cb7-3"><a></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> gray, <span class="at">data =</span> cat_train) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="figures/taxi-tip-counts-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
+<img data-src="figures/cat-event-time-by-gray-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
 <section id="section-3" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>taxi_train <span class="sc">%&gt;%</span> </span>
-<span id="cb8-2"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> local, <span class="at">fill =</span> tip)) <span class="sc">+</span></span>
-<span id="cb8-3"><a></a>  <span class="fu">geom_bar</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">library</span>(leaflet)</span>
+<span id="cb11-2"><a></a>cat_train <span class="sc">%&gt;%</span> </span>
+<span id="cb11-3"><a></a>  <span class="fu">leaflet</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-4"><a></a>  <span class="fu">addProviderTiles</span>(<span class="st">"CartoDB.Positron"</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb11-5"><a></a>  <span class="fu">addCircles</span>(<span class="at">lng =</span> <span class="sc">~</span> longitude, <span class="at">lat =</span> <span class="sc">~</span> latitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-9ac6da0c8718bfb47fb4" style="width:960px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-9ac6da0c8718bfb47fb4">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["CartoDB.Positron",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircles","args":[[33.773678,33.8269805,33.8712957,33.8189526,33.771717,33.7777481,33.7607689,33.8154351,33.8543014,33.8440702,33.7771459,33.8563851,33.8601575,33.7674222,33.7918471,33.8680258,33.8732943,33.8709745,33.7880461,33.7918539,33.7789839,33.7791148,33.8027141,33.8233626,33.7843699,33.7937467,33.7897549,33.7700504,33.7946311,33.8171036,33.78816279999999,33.7898887,33.8416957,33.7817228,33.78261,33.8083474,33.8602137,33.7898857,33.8191222,33.7692936,33.8080748,33.8696134,33.7789659,33.8007621,33.7795796,33.77009990000001,33.77791860000001,33.7996711,33.8475831,33.8447512,33.7826038,33.8171037,33.8097185,33.8746909,33.7878394,33.7753586,33.8173554,33.8269088,33.7971304,33.8447512,33.8096122,33.8251136,33.8747549,33.843179,33.7657333,33.7935112,33.8738774,33.7946311,33.8708354,33.8598892,33.83507,33.7739592,33.8676763,33.8667312,33.8520822,33.7953217,33.8783268,33.8619371,33.7898501,33.7802992,33.7826012,33.8517802,33.8486774,33.7880565,33.7744498,33.8480235,33.8096122,33.8288416,33.8270382,33.80273,33.8674137,33.804253,33.8324299,33.7953198,33.810379,33.8246342,33.808202,33.8515279,33.8480235,33.7843736,33.8199565,33.8727983,33.8583884,33.8357311,33.8032286,33.7537496,33.7700504,34.0133857,33.8565874,33.865678,33.7700504,33.7715811,33.8107871,33.7644087,33.7898887,33.7849848,33.8233626,33.8101109,33.866659,33.8451451,33.8143759,33.8534468,33.7982504,33.8638641,33.8449959,33.8121258,33.8535366,33.7729091,33.7843736,33.7946311,33.7998123,33.865678,33.8693271,33.8269088,33.863826,33.7958505,33.7839902,33.80378380000001,33.7771602,33.8119126,33.7972941,33.7948559,33.8379479,33.7839282,33.7844161,33.8099869,33.7771817,33.8119126,33.7738901,33.7916813,33.8096122,33.7717127,33.7898666,33.8338532,33.7667642,33.8097185,33.7786073,33.812501,33.8866435,33.8742238,33.8753713,33.8810322,33.8480235,33.8601575,33.7953198,33.8523028,33.8674093,33.8097185,33.85626870000001,33.8275943,33.7845907,33.7871309,33.876182,33.80378380000001,33.7753596,33.7758937,33.8064166,33.8699302,33.77558000000001,33.77356450000001,33.7844236,33.819639,33.7844118,33.7674222,33.7845907,33.8104713,33.7897549,33.8571807,33.7838353,33.8120512,33.8465661,33.7853169,33.8475833,33.8056842,33.8027086,33.8116586,33.77897910000001,33.8154248,33.8449606,33.8166917,33.8815637,33.7789862,33.7844161,33.7972941,33.8708354,33.7660664,33.7777481,33.7946311,33.8184229,33.8172425,33.784493,33.791272,33.8281418,33.7880474,33.77074650000001,33.7953491,33.8288416,33.8044614,33.7671511,33.8766522,33.7751351,33.7699,33.810379,33.790617,33.8221606,33.7852731,33.84791,33.7644498,33.8113701,33.81247010000001,33.77458379999999,33.7856706,33.8594111,33.8575206,33.8753801,33.7954547,33.7789885,33.8693631,33.8096122,33.7839899,33.8463573,33.7711925,33.8543482,33.85095829999999,33.8173554,33.861878,33.7770064,33.8051433,33.8004801,33.77356450000001,33.8686475,33.7789678,33.81169089999999,33.8275919,33.81169089999999,33.8032286,33.8571078,33.8475833,33.7819923,33.8044572,33.8517802,33.8729561,33.7815928,33.8509734,33.7815662,33.8015024,33.863034,33.8571078,33.77271959999999,33.7789754,33.8009205,33.77897850000001,33.8701468,33.7880494,33.831302,33.782386,33.7940334,33.8683992,33.8461651,33.8657939,33.8115302,33.7816982,33.7814103,33.8693324,33.7801918,33.7939966,33.8693631,33.78092850000001,33.8543545,33.7603862,33.8693271,33.7705036,33.8096122,33.83190039999999,33.7862476,33.7771621,33.7845907,33.7770064,33.8234811,33.7839343,33.8593402,33.8361277,33.7642908,33.7700504,33.7826062,33.8357311,33.8251136,33.7849848,33.8746754,33.7693203,33.8558082,33.7656907,33.7856706,33.8782002,33.7777598,33.7887777,33.8709745,33.7753586,33.8764386,33.8618297,33.7898537,33.8609928,33.8757222,33.8288822,33.781816,33.8154393,33.810379,33.7691655,33.8173553,33.7744417,33.8465661,33.8468873,33.7845907,33.8779472,33.7743236,33.7573557,33.8464537,33.8480648,33.7751351,33.7839899,33.7821981,33.7959099,33.7880565,33.7989363,33.7863161,33.8006395,33.7874942,33.8032739,33.7898708,33.7728177,33.7919449,33.7854384,33.843328,33.8571474,33.8686475,33.7950073,33.882509,33.8316736,33.8097185,33.8782002,33.7749537,33.7916813,33.7835253,33.788222,33.7420745,33.8618635,33.8743224,33.7736785,33.8509734,33.7660731,33.8357311,33.8592138,33.7729055,33.768555,33.7998297,33.77458379999999,33.7816722,33.8502533,33.8242212,33.7989404,33.8027342,33.7916675,33.804253,33.8708354,33.8777385,33.7821981,33.784939,33.861878,33.7862476,33.8096122,33.8744033,33.7777849,33.7821981,33.8433771,33.7623687,33.8188673,33.8047935,33.8724552,33.8777385,33.8691673,33.78816279999999,33.7650577,33.7857717,33.8096122,33.796092,33.7862377,33.799059,33.8727983,33.7901485,33.8707061,33.7936828,33.7916675,33.8116554,33.8133786,33.8188592,33.809657,33.8031796,33.8289361,33.7917434,33.7848607,33.8746936,33.7898725,33.77813460000001,33.8347355,33.8502635,33.7717153,33.851141,33.8760256,33.8576481,33.83507,33.8773141,33.771712,33.8051324,33.8534468,33.8104779,33.8152601,33.8634376,33.7825981,33.8084713,33.7608344,33.7846908,33.7736101,33.7862377,33.7871309,33.863826,33.7937467,33.8540503,33.765281,33.7672612,33.7854384,33.7881895,33.8083474,33.7990736,33.8692073,33.8171572,33.8742039,33.8261865,33.7705565,33.8743224,33.8653496,33.7751351,33.8619431,33.7789752,33.8540693,33.8467661,33.7918776,33.8787589,33.7939966,33.8679143,33.781816,33.8073898,33.7882842,33.8098577,33.8116492,33.8099414,33.7862248,33.8480648,33.8753801,33.8116426,33.7663284,33.8492412,33.8606421,33.8099869,33.7862407,33.7989861,33.80272070000001,33.7682824,33.787005,33.7972993,33.7789728,33.8027342,33.8027017,33.7826115,33.7958223,33.7807871,33.8098294,33.786767,33.8517802,33.8563936,33.8483955,33.8475831,33.7729382,33.7768891,33.8673834,33.7789905,33.8661015,33.8600986,33.8435268,33.796086,33.7971149,33.8113701,33.7943951,33.7898672,33.7971222,33.7630426,33.7935031,33.8563817,33.850745,33.7812864,33.8116535,33.811509,33.876182,33.7836558,33.8606421,33.8450294,33.8639003,33.7952996,33.8234987,33.8742861,33.7918753,33.8072285,33.8154351,33.8007869,33.7636793,33.76934060000001,33.79907439999999,33.8292499,33.7705019,33.7553752,33.8464537,33.806607,33.861878,33.8534849,33.7923838,33.832138,33.7787528,33.8450686,33.7777481,33.8412198,33.8545294,33.87709359999999,33.8721048,33.7849848,33.8215604,33.7807783,33.8235072,33.7537496,33.8571078,33.8565874,33.8490301,33.7866818,33.7644631,33.784565,33.8524273,33.820077,33.7705019,33.8562405,33.81028149999999,33.8154351,33.8475831,33.7821632,33.76550470000001,33.8121258,33.8113701,33.78816279999999,33.7976003,33.7932669,33.8602137,33.7789736,33.8175651,33.7753586,33.7836072,33.8211047,33.7700504,33.7815928,33.7717101,33.8753801,33.7717109,33.8505275,33.7918539,33.8025831,33.7916813,33.7875982,33.8330753,33.8670902,33.8025021,33.7971342,33.77791860000001,33.781478,33.7843699,33.7936333,33.7826208,33.7753586,33.7772119,33.7753542,33.7809531,33.8581363,33.7898613,33.7864604,33.7869216,33.8685019,33.8044572,33.8252051,33.8173554,33.8113701,33.8639003,33.8224766,33.8096099,33.7934603,33.8503111,33.7649616,33.8095992,33.778976,33.7989516,33.802302,33.8766726,33.8738774,33.8738774,33.7644867,33.8693271,33.8753801,33.7617736,33.8673681,33.8745273,33.8784962,33.77791860000001,33.8606421,33.8313054,33.7840514,33.7918539,33.7786073,33.8503079,33.8096122,33.7918539,33.7705147,33.818068,33.7858395,33.7870922,33.8528787,33.7954518,33.7844162,33.80273,33.8562405,33.8732943,33.8810061,33.8044572,33.7898537,33.84249310000001,33.7826035,33.7753479,33.7752237,33.8579994,33.863826,33.7926282,33.7753783,33.7845907,33.7789754,33.8044614,33.8836359,33.8778066,33.8576481,33.8223965,33.7870403,33.8108047,33.782595,33.7682391,33.7822849,33.7898537,33.8590048,33.8502152,33.7780704,33.815278,33.8743813,33.857402,33.8743864,33.7862405,33.8576449,33.8512876,33.8738575,33.8191222,33.7777481,33.7971223,33.8121148,33.8812403,33.8616996,33.8096122,33.8027086,33.8480235,33.7989861,33.8008711,33.84791,33.8096122,33.8810061,33.7766278,33.7774657,33.81165,33.802557,33.797269,33.8782002,33.800189,33.7705296,33.851141,33.8783524,33.8523028,33.792209,33.8777385,33.79368720000001,33.8125045,33.7994832,33.7698941,33.8680518,33.7802992,33.800918,33.8565884,33.8040221,33.7874942,33.7844118,33.8743797,33.8180588,33.8120489,33.8709883,33.8102748,33.7934938,33.8781007,33.8503079,33.7643447,33.7845194,33.7874579,33.7836072,33.7898725,33.7717177,33.8168191,33.7662331,33.8475833,33.8528536,33.789591,33.822332,33.8597946,33.7826035,33.7744399,33.7950073,33.8693271,33.8121258,33.7753542,33.7676779,33.7916642,33.8437309,33.8330367,33.7872317,33.7845654,33.77791860000001,33.7880565,33.8096122,33.7898857,33.7665727,33.83634170000001,33.8719118,33.8430645,33.7845795,33.7971209,33.7844236,33.7860322,33.7767293,33.7935093,33.8605961,33.8096122,33.8044572,33.7781856,33.8103642,33.7974077,33.8658563,33.771717,33.7938652,33.7767293,33.87116,33.8729561,33.7848507,33.7862248,33.8044572,33.7729382,33.8190678,33.7946311,33.7873962,33.7807837,33.7934962,33.880192,33.8601575,33.8583483,33.7809169,33.7847023,33.8650921,33.7816457,33.79009,33.7843156,33.8143759,33.8391685,33.7771459,33.8605961,33.8606421,33.7823247,33.8224087,33.8601575,33.8313054,33.8514535,33.8502635,33.7753479,33.7691655,33.7939966,33.8489323,33.7758937,33.800918,33.8719118,33.7862248,33.8014406,33.7979136,33.8221639,33.8532318,33.7878394,33.7847023,33.8062835,33.7859683,33.7880474,33.8523028,33.7774657,33.8753801,33.7597875,33.8559854,33.7882842,33.859486,33.8014406,33.8783546,33.7537496,33.8555916,33.8101914,33.7826038,33.7756077,33.804253,33.7838353,33.8620346,33.8581153,33.7660653,33.8228122,33.7862248,33.7789754,33.8606421,33.8204663,33.808574,33.8006337,33.8095632,33.8178954,33.8839366,33.8608207,33.7948503,33.8498371,33.7979136,33.8745273,33.7979136,33.871396,33.8862888,33.7991408,33.863295,33.7896274,33.7786073,33.8836513,33.7956245,33.8027342,33.7781427,33.859486,33.8242056,33.7898857,33.806783,33.7939258,33.8740932,33.8113701,33.7880846,33.7680909,33.8173553,33.7898537,33.7918766,33.8510469,33.8526229,33.7978908,33.84406,33.8691673,33.86019,33.8860272,33.8266954,33.7789911,33.7938646,33.7538937,33.780654,33.810627,33.8764386,33.8461803,33.7936114,33.8544965,33.8062492,33.8551137,33.8235072,33.8083474,33.858738,33.790074,33.8095632,33.8727919,33.788676,33.8764386,33.7751351,33.7837074,33.7705036,33.7791395,33.8485879,33.8601575,33.7789677,33.7898503,33.7789707,33.829186,33.7893774,33.8475831,33.7953183,33.792138,33.7826031,33.8605961,33.797133,33.8601575,33.8477457,33.7937467,33.8330753,33.8692185,33.7971354,33.8447512,33.8104713,33.8579964,33.804253,33.8874518,33.80052939999999,33.8571807,33.859486,33.7954614,33.7972736,33.8043432,33.7954419,33.8096122,33.8729561,33.9526234,33.8732943,33.7839902,33.8117361,33.8543525,33.778973,33.7748281,33.8047935,33.8557948,33.7601795,33.8729561,33.7753453,33.8096122,33.7689758,33.8154442,33.7699572,33.773656,33.786767,33.7954547,33.7692936,33.8583939,33.8601575,33.8096122,33.8313054,33.8288416,33.7918766,33.8149663,33.7665223,33.7953038,33.84221280000001,33.8006285,33.81080120000001,33.851497,33.8475833,33.8674137,33.7772394,33.8702764,33.8834191,33.8743224,33.8810322,33.8367426,33.8751269,33.7856706,33.7838706,33.8089391,33.842783,33.7880402,33.7813009,33.8679263,33.7874942,33.7896413,33.8221819,33.8783153,33.7821637,33.7994539,33.8096122,33.8514557,33.797016,33.7789723,33.8740853,33.8191222,33.7826065,33.8656775,33.8601171,33.8678275,33.8667312,33.7861145,33.8188937,33.8545294,33.8641608,33.8096122,33.7843699,33.7791395,33.8458602,33.85433,33.8545294,33.7833395,33.7649042,33.7881995,33.7914622,33.8154351,33.791759,33.8359994,33.784565,33.8549875,33.8249686,33.866659,33.8673681,33.7700504,33.8213964,33.7692936,33.7714363,33.7683175,33.7855969,33.7789839,33.8025831,33.855916,33.8103642,33.7935022,33.8223213,33.8104543,33.8808812,33.7932669,33.7935737,33.7789829,33.8041045,33.778863,33.7862321,33.845175,33.7936559,33.8638935,33.8766726,33.7918753,33.8121258,33.7898537,33.9045042,33.8106508,33.7880534,33.8504381,33.8619371,33.8047935,33.7858395,33.8113701,33.8261865,33.861878,33.81065299999999,33.765281,33.7939258,33.8746571,33.8655425,33.7826021,33.7844161,33.7880474,33.83616689999999,33.8096122,33.8004801,33.8096122,33.8027342,33.7754652,33.806783,33.7773209,33.8600986,33.8475831,33.8543651,33.8096122,33.8691615,33.8042693,33.7971342,33.7789754,33.817104,33.7997598,33.8103642,33.7818746,33.7844118,33.7801815,33.8721048,33.7857696,33.8753801,33.8619431,33.8097185,33.78991860000001,33.8829689,33.8025126,33.7753658,33.7912724,33.8601575,33.8313291,33.7766278,33.84791,33.777473,33.7765456,33.8686475,33.7954518,33.7868197,33.8085881,33.8728152,33.8601512,33.7871566,33.8543545,33.7883226,33.7736391,33.7916994,33.8755852,33.8007624,33.7871309,33.778973,33.8272397,33.8333151,33.7903574,33.8031871,33.7912894,33.7777555,33.8291168,33.7791395,33.7539004,33.8121258,33.8042338,33.8764386,33.8524297,33.8242601,33.8030546,33.8242201,33.815278,33.7924587,33.7898666,33.8615457,33.7673769,33.8320384,33.8601568,33.8252051,33.8557948,33.7918766,33.8106568,33.8346185,33.784565,33.8027342,33.8475833,33.8782002,33.8655014,33.800918,33.8601575,33.7893774,33.8096122,33.7799418,33.7789905,33.77791860000001,33.7898607,33.797133,33.7672612,33.8782002,33.7972911,33.8104713,33.7998897,33.8594592,33.8495902,33.8430084,33.8103642,33.8799364,33.8125045,33.8573807,33.7918505,33.8323621,33.7727024,33.7807837,33.7729101,33.8487616,33.8571474,33.7682376,33.77897910000001,33.8461706,33.7912724,33.8098314,33.8221473,33.8727175,33.7973198,33.8582345,33.8464537,33.8486568,33.8065036,33.8191222,33.8381264,33.7826035,33.8096122,33.8397387,33.8191074,33.793476,33.8121258,33.7714936,33.78816279999999,33.7940127,33.8594111,33.7969007,33.7836399,33.7777612,33.8014999,33.7920012,33.8776118,33.7898836,33.7939258,33.8503079,33.7789839,33.8772923,33.8533977,33.8430309,33.8835502,33.7789659,33.8571078,33.7914622,33.7970125,33.7681825,33.8540693,33.8685019,33.7822849,33.7840514,33.8486568,33.8732153,33.8665627,33.7635292,33.8117161,33.8244852,33.7871309,33.7844128,33.8520822,33.7932669,33.8601575,33.799059,33.8658563,33.77897910000001,33.8044572,33.8795422,33.8692185,33.8746936,33.7885258,33.7681825,33.8132203,33.7838115,33.7789665,33.8601568,33.771717,33.9016219,33.8772923,33.8681326,33.866659,33.8782002,33.7918471,33.7880565,33.7971209,33.7994478,33.8515666,33.8727897,33.7972736,33.7845654,33.8772923,33.7758937,33.8696544,33.7916726,33.768555,33.8361372,33.8776118,33.8025831,33.7866818,33.7700504,33.8486568,33.8171572,33.8575614,33.7705296,33.781582,33.8757052,33.7974104,33.8650921,33.8197825,33.8732943,33.7962025,33.8850342,33.7561779,33.799097,33.8743864,33.810379,33.8154393,33.7767396,33.7676779,33.8744804,33.7753354,33.7753416,33.8273556,33.7954518,33.8778302,33.7537496,33.80187,33.7870698,33.8097185,33.7809473,33.7772394,33.8677938,33.7969306,33.8685019,33.7789711,33.7791862,33.8116535,33.7953491,33.7916693,33.81042559999999,33.8597946,33.8639003,33.7845797,33.7849848,33.809411,33.815278,33.8027214,33.780778,33.79009360000001,33.8058328,33.8708354,33.8601575,33.7826115,33.8640647,33.7691655,33.8467776,33.8044612,33.8753713,33.77677070000001,33.7862371,33.8591688,33.7789714,33.7948559,33.8190198,33.8557059,33.7971177,33.7896274,33.793642,33.7426408,33.7848653,33.7717101,33.7537496,33.8563851,33.7729382,33.8064735,33.7603862,33.782386,33.7954676,33.7918539,33.8692147,33.8721048,33.7880474,33.7644087,33.77009990000001,33.8126778,33.800918,33.8188842,33.7789714,33.8543525,33.7845907,33.8571078,33.8181697,33.774979,33.7972911,33.7880551,33.8116252,33.8709745,33.7692936,33.8189385,33.8489323,33.8073898,33.766083,33.8419426,33.7537496,33.8475831,33.768985,33.800918,33.806783,33.8040869,33.8101109,34.0540839,33.8666531,33.7979136,33.7838706,33.7791246,33.783938,33.8866435,33.8291168,33.7887355,33.7494561,33.8601575,33.7936513,33.7971245,33.8600718,33.810419,33.8601575,33.7660731,33.804253,33.79167,33.7674098,33.7918766,33.8323679,33.8774437,33.7644944,33.8522331,33.7765571,33.7777601,33.8674093,33.8860272,33.7847023,33.8680258,33.8583884,33.797907,33.8619371,33.78324509999999,33.8343134,33.8535366,33.7918539,33.8163727,33.8449257,33.7735293,33.7936828,33.7918753,33.7889816,33.7916727,33.8707061,33.7853169,33.8701468,33.7880494,33.7892896,33.7880846,33.8117361,33.806783,33.8531568,33.7863161,33.7918539,33.8121258,33.866659,33.8640647,33.771712,33.8755852,33.8379479,33.7809473,33.859486,33.7873962,33.8719372,33.864244,33.796559,33.809528,33.7971177,33.7862279,33.7845654,33.8571807,33.8743678,33.8655748,33.7574242,33.7946311,33.768099,33.8467318,33.86723010000001,33.7674222,33.7789839,33.8590048,33.8171036,33.7889816,33.8743797,33.818711,33.7781786,33.8601575,33.8044572,33.8085881,33.8275919,33.7932669,33.8656775,33.7751351,33.7903001,33.8099889,33.778976,33.8118509,33.8749345,33.815039,33.7705147,33.7826115,33.8583939,33.8708354,33.8025831,33.7872317,33.7795996,33.7753453,33.7765491,33.8757052,33.7898666,33.7916879,33.8134529,33.7665223,33.8746754,33.8619431,33.778056,33.78991860000001,33.7777481,33.7741167,33.8188592,33.787219,33.7869216,33.7700504,33.801454,33.7915571,33.7844997,33.8490603,33.8221606,33.7807967,33.8671586,33.8204911,33.78958,33.7853169,33.8710479,33.8810322,33.846661,33.8709718,33.858124,33.815039,33.8102508,33.7848656,33.8458413,33.772469,33.8753801,33.7960219,33.8707061,33.8116265,33.8243209,33.8740853,33.7463568,33.8151978,33.7668778,33.7782082,33.7826363,33.7726675,33.7583325,33.861878,33.7871562,33.8743813,33.8112202,33.7809473,33.8148866,33.8729561,33.8116487,33.8188592,33.784565,33.7691794,33.8320384,33.8724304,33.7761588,33.7936513,33.8116492,33.7914622,33.7789714,33.7946311,33.8190198,33.8764386,33.8031871,33.8044572,33.8632856,33.7953198,33.8601575,33.79629329999999,33.7871309,33.781478,33.8222428,33.8191222,33.8014999,33.8775777,33.7878394,33.7802992,33.8727897,33.7989404,33.7956147,33.782348,33.8096122,33.7739592,33.7748281,33.7882134,33.8465661,33.7924183,33.7735284,33.7865069,33.8096122,33.8691673,33.7989363,33.8583483,33.8571807,33.8357311,33.8029516,33.8475831,33.8325128,33.8545294,33.7855469,33.8871061,33.7946311,33.7918539,33.8116426,33.8269088,33.8322409,33.799059,33.8503079,33.7789723,33.8216296,33.8010608,33.7936526,33.83634170000001,33.8601575,33.8563818,33.7844997,33.8696244,33.7814332,33.8096122,33.8359994,33.7603862,33.7729471,33.7789677,33.8768404,33.788676,33.791446,33.7829148,33.8433771,33.7766278,33.8743813,33.8577462,33.771713,33.7791395,33.84221280000001,33.7848676,33.7844072,33.7682849,33.8775178,33.7751351,33.7982504,33.8600718,33.7935031,33.8707761,33.7849848,33.7898537,33.7954674,33.7939966,33.8085892,33.7789754,33.80233279999999,33.8777385,33.7845795,33.7857768,33.8757052,33.8039374,33.8782002,33.8546389,33.810379,33.8068893,33.7838115,33.7923838,33.7672612,33.788676,33.8121148,33.8121258,33.8151978,33.7826316,33.8027214,33.8366757,33.7726874,33.8655748,33.800918,33.809411,33.86723010000001,33.7932669,33.8571078,33.8695686,33.87431249999999,33.8618297,33.824267,33.8096122,33.7718703,33.874181,33.8187501,33.7657333,33.7699179,33.8565929,33.8671119,33.7986706,33.8096122,33.781582,33.8366466,33.81028149999999,33.8495902,33.8583939,33.7781397,33.8341635,33.8764465,33.8405508,33.8503079,33.8523859,33.7955603,33.7924717,33.8065321,33.78261,33.7911473,33.8288416,33.8027342,33.8116535,33.77791860000001,33.8096122,33.8804957,33.8597946,33.8709745,33.7946311,33.799068,33.8266954,33.7935031,33.7800888,33.8612155,33.7862476,33.7807811,33.876182,33.8543836,33.8057589,33.7896413,33.8171059,33.7771627,33.7954867,33.7918539,33.7807777,33.7989446,33.8677646,33.7843699,33.8040221,33.8530901,33.7880565,33.7871562,33.7880846,33.7681145,33.851141,33.8727897,33.7806147,33.7825991,33.7704943,33.7824207,33.8475831,33.8638935,33.8594111,33.8743224,33.8641808,33.7941359,33.815278,33.8323621,33.7972911,33.851141,33.7858395,33.7990736,33.7697637,33.7729091,33.799059,33.8108047,33.7880474,33.8699631,33.74215350000001,33.8765281,33.8188673,33.7898887,33.7844072,33.7897549,33.8171062,33.8063532,33.8187642,33.8579069,33.7789754,33.7880565,33.8447512,33.797293,33.7989516,33.8717045,33.8288416,33.7918539,33.7620376,33.8140082],[-118.1500512,-118.1138571,-118.0544133,-118.2009988,-118.1546023,-118.2006138,-118.1358809,-118.1988625,-118.189831,-118.2011076,-118.1796272,-118.1837361,-118.1724828,-118.2149442,-118.0925199,-118.1763169,-118.1967604,-118.1773503,-118.1662014,-118.1948868,-118.183959,-118.1609526,-118.2196039,-118.2190055,-118.1797301,-118.1751593,-118.1850101,-118.1937395,-118.1750875,-118.1752462,-118.1773224,-118.1687288,-118.1733306,-118.2041051,-118.1633084,-118.1867193,-118.1685934,-118.1910812,-118.1758938,-118.1963896,-118.1849237,-118.0536298,-118.1950758,-118.2088979,-118.1699714,-118.1960785,-118.1921449,-118.1923808,-118.0672484,-118.1912196,-118.1643982,-118.2154046,-118.0929813,-118.2026096,-118.1394618,-118.1876879,-118.0955774,-118.1982261,-118.1693299,-118.1912196,-118.0826161,-118.1244893,-118.157858,-118.1976743,-118.1808587,-118.1785095,-118.1567337,-118.1750875,-118.1846106,-118.1668632,-118.189,-118.2393836,-118.0912657,-118.2025182,-118.099442,-118.178528,-118.2080757,-118.1791662,-118.1578386,-118.1993892,-118.1867049,-118.19174,-118.0819496,-118.1741938,-118.1873643,-118.1716295,-118.0826161,-118.0896661,-118.1916277,-118.1957094,-118.1644764,-118.1822933,-118.1674748,-118.1882312,-118.0992327,-118.1903718,-118.1956642,-118.1714025,-118.1716295,-118.1513375,-118.2152499,-118.1751347,-118.1898534,-118.1884661,-118.1338707,-118.0906996,-118.1937395,-118.0907006,-118.0747224,-118.1818753,-118.1937395,-118.1777235,-118.216022,-118.1677255,-118.1687288,-118.1970582,-118.2190055,-118.1096495,-118.1682656,-118.1246725,-118.0659084,-118.1772428,-118.0981399,-118.181797,-118.1978195,-118.2199732,-118.1825909,-118.1994671,-118.1513375,-118.1750875,-118.09928,-118.1818753,-118.1818623,-118.1982261,-118.1857255,-118.1704823,-118.1878167,-118.1423875,-118.170905,-118.1059545,-118.1870265,-118.1740263,-118.134692,-118.1924053,-118.1730895,-118.1999679,-118.1513264,-118.1059545,-118.1850455,-118.1994943,-118.0826161,-118.1600653,-118.1796068,-118.1409614,-118.1771283,-118.0929813,-118.2031453,-118.192098,-118.1050507,-118.2026551,-118.1791659,-118.1601,-118.1716295,-118.1724828,-118.1882312,-118.1794782,-118.159405,-118.0929813,-118.1800438,-118.0990285,-118.1750967,-118.1892678,-118.1761434,-118.1423875,-118.1709049,-118.1720107,-118.1923402,-118.1696368,-118.2006049,-118.1664466,-118.1633038,-118.202081,-118.1655381,-118.2149442,-118.1750967,-118.1251845,-118.1850101,-118.1629143,-118.1788553,-118.16674,-118.2002407,-118.1937322,-118.0677496,-118.1197583,-118.2108996,-118.2089371,-118.1892889,-118.1771993,-118.177087,-118.1213323,-118.1774187,-118.1534984,-118.1730895,-118.1870265,-118.1846106,-118.1858168,-118.2006138,-118.1750875,-118.1241089,-118.2119827,-118.1771093,-118.1797739,-118.1328356,-118.1785045,-118.1815964,-118.1735131,-118.0896661,-118.1678456,-118.171601,-118.1989082,-118.1799603,-118.1676684,-118.0992327,-118.1792262,-118.174145,-118.185356,-118.0766751,-118.1480894,-118.2234229,-118.2210926,-118.1777828,-118.1921526,-118.0819073,-118.1600949,-118.1967604,-118.1946126,-118.1692962,-118.1663845,-118.0826161,-118.2172863,-118.1760897,-118.1445888,-118.1772499,-118.1676822,-118.0955774,-118.1850399,-118.1751606,-118.1300398,-118.2121162,-118.1664466,-118.151255,-118.1963571,-118.1882763,-118.0980253,-118.1882763,-118.1338707,-118.0541908,-118.0677496,-118.164123,-118.2121997,-118.19174,-118.0407857,-118.2148929,-118.1863702,-118.1971447,-118.1008424,-118.1944318,-118.0541908,-118.1736369,-118.1795513,-118.1978598,-118.173076,-118.0543201,-118.1556865,-118.0879898,-118.1499122,-118.1589403,-118.1537079,-118.1667231,-118.1770332,-118.1843074,-118.196081,-118.1911031,-118.1780605,-118.1993847,-118.1719841,-118.1663845,-118.181451,-118.1790948,-118.1495589,-118.1818623,-118.1824019,-118.0826161,-118.1027122,-118.1567097,-118.1480569,-118.1750967,-118.1751606,-118.0782898,-118.1981017,-118.0447953,-118.1873634,-118.1522333,-118.1937395,-118.1963655,-118.1884661,-118.1244893,-118.1970582,-118.1826302,-118.1950692,-118.1741342,-118.1863703,-118.1921526,-118.1859479,-118.1950735,-118.1192374,-118.1773503,-118.1876879,-118.1981979,-118.191754,-118.1458794,-118.1987084,-118.0549716,-118.1675194,-118.17468,-118.2076944,-118.0992327,-118.1820586,-118.0955468,-118.1567765,-118.2002407,-118.169689,-118.1750967,-118.1967604,-118.1948556,-118.1205232,-118.1915809,-118.1733662,-118.1799603,-118.2172863,-118.1466639,-118.1763369,-118.1741938,-118.1763283,-118.1589477,-118.0558465,-118.1730582,-118.1443554,-118.1687286,-118.1193275,-118.2216409,-118.1909253,-118.192577,-118.0981187,-118.151255,-118.188059,-118.1816622,-118.1129916,-118.0929813,-118.1859479,-118.1457084,-118.1994943,-118.1491603,-118.168468,-118.1883076,-118.057257,-118.1893411,-118.1609298,-118.1863702,-118.1718028,-118.1884661,-118.1898653,-118.1963849,-118.1822623,-118.1095902,-118.1777828,-118.1782402,-118.1981314,-118.1943313,-118.1905437,-118.2021574,-118.1828537,-118.1822933,-118.1846106,-118.1947725,-118.1466639,-118.1244705,-118.1850399,-118.1567097,-118.0826161,-118.0503997,-118.1824253,-118.1466639,-118.1889459,-118.1470038,-118.0809235,-118.1889261,-118.0595907,-118.1947725,-118.0441361,-118.1773224,-118.1746409,-118.1880058,-118.0826161,-118.1481139,-118.1976677,-118.1804684,-118.1751347,-118.138669,-118.1566013,-118.185884,-118.1828537,-118.1806633,-118.216882,-118.1078217,-118.0680316,-118.0758242,-118.1879441,-118.1974135,-118.1866865,-118.1740968,-118.1828574,-118.159793,-118.1690667,-118.1930246,-118.1676819,-118.1917114,-118.157865,-118.1734743,-118.189,-118.1773852,-118.1836921,-118.1585302,-118.1772428,-118.1145169,-118.0955236,-118.1939327,-118.1730926,-118.1666287,-118.1964809,-118.1857238,-118.21176,-118.1976677,-118.1892678,-118.1857255,-118.1751593,-118.1752025,-118.1663126,-118.1786864,-118.1909253,-118.1673638,-118.1867193,-118.2075447,-118.1708466,-118.0283172,-118.1555746,-118.1018663,-118.1741158,-118.1893411,-118.0697727,-118.1799603,-118.0482752,-118.1709214,-118.1935615,-118.0663916,-118.193333,-118.0282376,-118.1719841,-118.1888545,-118.17468,-118.1536367,-118.153327,-118.1741704,-118.1980837,-118.190922,-118.1633188,-118.1733662,-118.1967604,-118.1607597,-118.1861294,-118.1861258,-118.1882829,-118.1999679,-118.1622283,-118.1852385,-118.1988879,-118.1721329,-118.1783921,-118.1999694,-118.1850322,-118.2021574,-118.2097857,-118.1790548,-118.1202455,-118.161129,-118.0844223,-118.1803313,-118.19174,-118.1827307,-118.188191,-118.0672484,-118.1948492,-118.1598357,-118.1080783,-118.1589358,-118.2027924,-118.1820236,-118.1926551,-118.1426265,-118.1882325,-118.2234229,-118.1994971,-118.1480288,-118.1600443,-118.1502588,-118.1828539,-118.0548368,-118.1949353,-118.1847412,-118.213288,-118.2187782,-118.1761434,-118.1813385,-118.1882829,-118.1945799,-118.179874,-118.1677681,-118.2212669,-118.172539,-118.1642211,-118.0728115,-118.1988625,-118.2132808,-118.1345305,-118.1032215,-118.2174145,-118.0907299,-118.1980721,-118.1394539,-118.1915809,-118.1513636,-118.1850399,-118.1677447,-118.2236742,-118.122597,-118.1741748,-118.1304848,-118.2006138,-118.1759805,-118.1564047,-118.1968061,-118.1761908,-118.1970582,-118.0800689,-118.1654866,-118.213702,-118.0906996,-118.0541908,-118.0747224,-118.1916076,-118.1545568,-118.1933366,-118.154242,-118.1959944,-118.185013,-118.1980721,-118.1848922,-118.0819265,-118.1988625,-118.0672484,-118.1309876,-118.1589547,-118.2199732,-118.2234229,-118.1773224,-118.0712981,-118.2204244,-118.1685934,-118.1775378,-118.0718222,-118.1876879,-118.1969724,-118.1260059,-118.1937395,-118.2148929,-118.1567713,-118.1967604,-118.1863677,-118.1704159,-118.1948868,-118.1676989,-118.1994943,-118.1524246,-118.1692483,-118.1790895,-118.2130253,-118.1959057,-118.1921449,-118.1806515,-118.1797301,-118.1847872,-118.1622607,-118.1876879,-118.1567933,-118.1936623,-118.1837365,-118.1820058,-118.1698182,-118.2121923,-118.167336,-118.048573,-118.2121997,-118.1208852,-118.0955774,-118.2234229,-118.179874,-118.1942663,-118.1076044,-118.1019982,-118.0741655,-118.1606187,-118.086983,-118.1665858,-118.1979026,-118.098016,-118.0634677,-118.1567337,-118.1567337,-118.1684263,-118.1818623,-118.1967604,-118.1893593,-118.185207,-118.1773731,-118.2039496,-118.1921449,-118.1882829,-118.0868387,-118.1948572,-118.1948868,-118.2031453,-118.1747327,-118.0826161,-118.1948868,-118.1963808,-118.0955419,-118.1644052,-118.2124331,-118.0774022,-118.2087288,-118.1655481,-118.1957094,-118.1848922,-118.1967604,-118.1565482,-118.2121997,-118.1458794,-118.184687,-118.1676517,-118.1687498,-118.118042,-118.1008083,-118.1857255,-118.0993211,-118.1779488,-118.1750967,-118.1795513,-118.1678456,-118.1858352,-118.1939325,-118.1734743,-118.0694365,-118.1871105,-118.2198046,-118.14153,-118.1228614,-118.1788917,-118.1458794,-118.158953,-118.1756748,-118.1763607,-118.1784991,-118.0740833,-118.1752566,-118.1524712,-118.1763459,-118.1772727,-118.1678703,-118.1838961,-118.1758938,-118.2006138,-118.0690565,-118.1096356,-118.1787632,-118.0590293,-118.0826161,-118.2108996,-118.1716295,-118.1852385,-118.059079,-118.0766751,-118.0826161,-118.1565482,-118.1803685,-118.2025378,-118.191704,-118.191637,-118.1923408,-118.1859479,-118.0725715,-118.1948227,-118.1917114,-118.2071499,-118.1794782,-118.1369091,-118.1947725,-118.1870385,-118.0777971,-118.0718409,-118.1358002,-118.1081058,-118.1993892,-118.1858974,-118.1958537,-118.1923394,-118.1730582,-118.1655381,-118.1791202,-118.1232493,-118.1062309,-118.1782904,-118.1538585,-118.1981016,-118.1815573,-118.1747327,-118.1954426,-118.1533454,-118.1236696,-118.1969724,-118.1828574,-118.1655775,-118.0922278,-118.1743649,-118.0677496,-118.0798749,-118.1920452,-118.1772213,-118.1484742,-118.1676517,-118.1698465,-118.188059,-118.1818623,-118.2199732,-118.1936623,-118.167617,-118.1687337,-118.1948483,-118.1741953,-118.1659088,-118.1718072,-118.1921449,-118.1741938,-118.0826161,-118.1910812,-118.1951753,-118.1862281,-118.0675199,-118.1281286,-118.1761722,-118.1948039,-118.1633038,-118.1577365,-118.1847872,-118.1774167,-118.1923925,-118.0826161,-118.2121997,-118.1382348,-118.1061645,-118.2151527,-118.0549715,-118.1546023,-118.1481913,-118.1847872,-118.1895785,-118.0407857,-118.1963665,-118.1633079,-118.2121997,-118.1948492,-118.1771168,-118.1750875,-118.188855,-118.1665866,-118.2138223,-118.0649769,-118.1724828,-118.0647871,-118.186694,-118.1672601,-118.1983643,-118.1828659,-118.1259594,-118.1337522,-118.0659084,-118.2086979,-118.1796272,-118.1923925,-118.1882829,-118.1432631,-118.0761684,-118.1724828,-118.0868387,-118.0649467,-118.1930246,-118.1687498,-118.1820586,-118.1719841,-118.1987915,-118.1720107,-118.1858974,-118.0675199,-118.1633188,-118.0459976,-118.1774033,-118.1795873,-118.1713909,-118.1394618,-118.1672601,-118.1117922,-118.1521263,-118.1785045,-118.1794782,-118.2025378,-118.1967604,-118.2047757,-118.1884022,-118.153327,-118.1615507,-118.0459976,-118.152621,-118.0906996,-118.0727835,-118.1167941,-118.1643982,-118.1377105,-118.1822933,-118.1788553,-118.1838029,-118.1829916,-118.1616855,-118.0955133,-118.1633188,-118.1795513,-118.1882829,-118.1706194,-118.0757121,-118.193066,-118.1179623,-118.0742464,-118.1046832,-118.0977454,-118.1763448,-118.1786363,-118.1774033,-118.1773731,-118.1774033,-118.1569989,-118.0647803,-118.1757611,-118.0565802,-118.151579,-118.2031453,-118.1848329,-118.1226002,-118.2021574,-118.1533055,-118.1615507,-118.1965873,-118.1910812,-118.0972337,-118.176288,-118.0701363,-118.2234229,-118.1707108,-118.1404846,-118.0955468,-118.1458794,-118.164179,-118.237801,-118.1770062,-118.2108759,-118.192569,-118.0441361,-118.1705601,-118.0719383,-118.1719683,-118.1934664,-118.1000466,-118.0910526,-118.1749549,-118.0939291,-118.1981979,-118.1870265,-118.1629836,-118.1827764,-118.2121957,-118.1917564,-118.213702,-118.1867193,-118.107833,-118.1961716,-118.1179623,-118.1761903,-118.1179628,-118.1981979,-118.1799603,-118.1950823,-118.1824019,-118.1718077,-118.1846387,-118.1724828,-118.17907,-118.1892521,-118.155669,-118.1730434,-118.1227203,-118.0672484,-118.1796124,-118.188935,-118.1545828,-118.1923925,-118.1882378,-118.1724828,-118.1964722,-118.1751593,-118.1692483,-118.1685528,-118.1905446,-118.1912196,-118.1251845,-118.0597403,-118.1822933,-118.1041894,-118.1750984,-118.1629502,-118.1615507,-118.1825936,-118.2162783,-118.2100224,-118.1836447,-118.0826161,-118.0407857,-118.087104,-118.1967604,-118.1878167,-118.1861061,-118.1781879,-118.1622263,-118.123423,-118.1889261,-118.1883062,-118.1338295,-118.0407857,-118.1611421,-118.0826161,-118.1676658,-118.2119773,-118.1730525,-118.1413661,-118.1803313,-118.1946126,-118.1963896,-118.1000236,-118.1724828,-118.0826161,-118.0868387,-118.0896661,-118.164179,-118.1020949,-118.1907523,-118.1871975,-118.1911276,-118.1801759,-118.2155321,-118.1969998,-118.0677496,-118.1644764,-118.1730704,-118.0636738,-118.1791406,-118.1893411,-118.1601,-118.1681056,-118.037761,-118.1921526,-118.216339,-118.1136063,-118.1845225,-118.1866864,-118.187721,-118.1870265,-118.1730582,-118.1621653,-118.1292194,-118.1599446,-118.1803542,-118.1338141,-118.0826161,-118.0657545,-118.1337091,-118.1654888,-118.0693558,-118.1758938,-118.1867049,-118.1925279,-118.1772884,-118.2008922,-118.2025182,-118.1952221,-118.1121138,-118.1564047,-118.1935283,-118.0826161,-118.1797301,-118.1718077,-118.191597,-118.1839579,-118.1564047,-118.1490088,-118.1950706,-118.1543427,-118.1803622,-118.1988625,-118.1518177,-118.1864537,-118.154242,-118.1934587,-118.106014,-118.1682656,-118.185207,-118.1937395,-118.211938,-118.1963896,-118.1490456,-118.1519938,-118.145753,-118.183959,-118.1676989,-118.0787734,-118.1061645,-118.1969826,-118.1154561,-118.1175397,-118.1770865,-118.2204244,-118.1652089,-118.1879927,-118.1555799,-118.1805306,-118.161095,-118.1848809,-118.1921484,-118.1789179,-118.0634677,-118.1642211,-118.2199732,-118.1458794,-118.2345641,-118.1035949,-118.1963742,-118.1981445,-118.1791662,-118.1889261,-118.1644052,-118.2234229,-118.1018663,-118.1850399,-118.0955769,-118.1663126,-118.176288,-118.1817118,-118.1791958,-118.1950782,-118.1730895,-118.1785045,-118.1382272,-118.0826161,-118.2121162,-118.0826161,-118.2021574,-118.192202,-118.0972337,-118.1630949,-118.1820236,-118.0672484,-118.1734456,-118.0826161,-118.1801218,-118.1763295,-118.1959057,-118.1795513,-118.1989132,-118.1263884,-118.1061645,-118.1608847,-118.1655381,-118.1980402,-118.1761908,-118.152986,-118.1967604,-118.0482752,-118.0929813,-118.21382,-118.0434183,-118.2141196,-118.1813101,-118.1784109,-118.1724828,-118.0915251,-118.1803685,-118.0766751,-118.199135,-118.2006039,-118.151255,-118.2087288,-118.1783397,-118.0692551,-118.1730083,-118.1744299,-118.1543254,-118.1790948,-118.1238084,-118.08315,-118.199265,-118.1955214,-118.2111168,-118.1892678,-118.1622263,-118.0936577,-118.1305077,-118.0950634,-118.0717802,-118.2160074,-118.1910753,-118.1716706,-118.1718077,-118.1329341,-118.2199732,-118.0711152,-118.1981979,-118.0724991,-118.2240961,-118.0805363,-118.1837719,-118.1784991,-118.2123431,-118.1796068,-118.1533504,-118.1170021,-118.1664374,-118.1715221,-118.1208852,-118.1883062,-118.164179,-118.100221,-118.1767643,-118.154242,-118.2021574,-118.0677496,-118.1859479,-118.1849681,-118.1858974,-118.1724828,-118.1227203,-118.0826161,-118.2037409,-118.1600543,-118.1921449,-118.1676429,-118.1882378,-118.1786864,-118.1859479,-118.210872,-118.1251845,-118.1441104,-118.1945352,-118.1990145,-118.2002211,-118.1061645,-118.2036149,-118.0777971,-118.1969552,-118.167334,-118.1250933,-118.1271565,-118.1665866,-118.1980473,-118.1980605,-118.0981187,-118.1465474,-118.1892889,-118.1707108,-118.1784109,-118.1937121,-118.1850249,-118.0525379,-118.2021467,-118.0738803,-118.1915809,-118.1598395,-118.1912538,-118.1758938,-118.1246931,-118.1676517,-118.0826161,-118.1817508,-118.2143158,-118.1948138,-118.2199732,-118.1796768,-118.1773224,-118.1372541,-118.0819073,-118.1706194,-118.1842845,-118.1910754,-118.062975,-118.184824,-118.0739962,-118.1920127,-118.176288,-118.1747327,-118.183959,-118.183915,-118.0765775,-118.192467,-118.102303,-118.1950758,-118.0541908,-118.1803622,-118.1836481,-118.1900671,-118.1935615,-118.048573,-118.1788917,-118.1948572,-118.1598395,-118.0637662,-118.0995642,-118.1535708,-118.1849658,-118.1846958,-118.1892678,-118.1611181,-118.099442,-118.2204244,-118.1724828,-118.1804684,-118.0549715,-118.1892889,-118.2121997,-118.2040719,-118.1685528,-118.1740968,-118.1243993,-118.1900671,-118.1950956,-118.1867055,-118.1458962,-118.1715221,-118.1546023,-118.1427665,-118.183915,-118.1656376,-118.1682656,-118.1859479,-118.0925199,-118.1741938,-118.1948039,-118.0622108,-118.183889,-118.1792128,-118.2162783,-118.1718072,-118.183915,-118.1720107,-118.1646777,-118.1599963,-118.1822623,-118.133837,-118.0739962,-118.1676989,-118.1545568,-118.1937395,-118.1598395,-118.0283172,-118.1929113,-118.1948227,-118.1991406,-118.2004619,-118.1707826,-118.1983643,-118.1064156,-118.1967604,-118.1408175,-118.0645728,-118.1208858,-118.1880416,-118.1524712,-118.0992327,-118.2076944,-118.1922396,-118.167617,-118.041392,-118.1957271,-118.1938053,-118.1077654,-118.2087288,-118.203455,-118.0906996,-118.0632001,-118.2146729,-118.0929813,-118.1576846,-118.1730704,-118.0417766,-118.1443103,-118.048573,-118.1751043,-118.1908732,-118.213288,-118.1735131,-118.1892675,-118.1078694,-118.1484742,-118.179874,-118.1740015,-118.1970582,-118.1940185,-118.1784991,-118.208731,-118.156752,-118.1410754,-118.0755264,-118.1846106,-118.1724828,-118.1790548,-118.1766294,-118.1820586,-118.1796526,-118.1959093,-118.1791659,-118.1860078,-118.1950637,-118.1954016,-118.1578416,-118.1740263,-118.2152086,-118.1936188,-118.1719973,-118.151579,-118.190911,-118.1000082,-118.1850349,-118.1567713,-118.0906996,-118.1837361,-118.1948492,-118.2194345,-118.1495589,-118.1499122,-118.2073962,-118.1948868,-118.0484027,-118.1761908,-118.1785045,-118.1677255,-118.1960785,-118.1148167,-118.1858974,-118.1052085,-118.1578416,-118.1781879,-118.1750967,-118.0541908,-118.0741588,-118.1351588,-118.210872,-118.1611932,-118.2035007,-118.1773503,-118.1963896,-118.1602259,-118.1987915,-118.1536367,-118.1875466,-118.2196405,-118.0906996,-118.0672484,-118.1676658,-118.1858974,-118.0972337,-118.1869123,-118.1096495,-117.934238,-118.2017752,-118.1774033,-118.216339,-118.1413777,-118.1341016,-118.1050507,-118.1716706,-118.0992063,-118.1075815,-118.1724828,-118.1815696,-118.1763334,-118.1839964,-118.0719428,-118.1724828,-118.1718028,-118.1822933,-118.1633039,-118.1981239,-118.164179,-118.1338539,-118.1534686,-118.2842943,-118.067556,-118.1963539,-118.1876672,-118.159405,-118.0719383,-118.1672601,-118.1763169,-118.1898534,-118.1923393,-118.1791662,-118.1963874,-118.127149,-118.1825909,-118.1948868,-118.1113417,-118.1409751,-118.1709746,-118.185884,-118.1642211,-118.1207944,-118.1622096,-118.1566013,-118.1937322,-118.0543201,-118.1866858,-118.1835764,-118.1707108,-118.1861061,-118.0972337,-118.1882327,-118.1589477,-118.1948868,-118.2199732,-118.1682656,-118.1766294,-118.1836856,-118.1955214,-118.134692,-118.1576846,-118.1615507,-118.188855,-118.1751303,-118.1685205,-118.1078305,-118.1137923,-118.1719973,-118.1676536,-118.1718072,-118.1629143,-118.1809483,-118.1705771,-118.1371146,-118.1750875,-118.1502585,-118.1939192,-118.1984055,-118.2149442,-118.183959,-118.158953,-118.1752462,-118.1207944,-118.1791202,-118.1813482,-118.1630323,-118.1724828,-118.2121997,-118.0692551,-118.0980253,-118.2204244,-118.1925279,-118.1799603,-118.1514657,-118.2086871,-118.1437159,-118.2141162,-118.1597593,-118.178429,-118.1963808,-118.1790548,-118.1000236,-118.1846106,-118.1676989,-118.1659088,-118.0580864,-118.1611421,-118.1836903,-118.2004619,-118.1796068,-118.2121803,-118.1860951,-118.1907523,-118.1826302,-118.0482752,-118.144801,-118.21382,-118.2006138,-118.1936514,-118.1078217,-118.176166,-118.167336,-118.1937395,-118.0416349,-118.1816361,-118.1971031,-118.1934987,-118.174145,-118.1545851,-118.1704594,-118.1695697,-118.210818,-118.1937322,-118.1967604,-118.1601,-118.1866651,-118.1810999,-118.1679453,-118.178429,-118.0994223,-118.1976651,-118.0979388,-118.2123469,-118.1967604,-118.1252392,-118.1566013,-118.2024198,-118.0809266,-118.0693558,-118.1109545,-118.1666361,-118.1968437,-118.1489038,-118.2104887,-118.183444,-118.2403305,-118.1850399,-118.1910896,-118.0740833,-118.127217,-118.1576846,-118.0769366,-118.0407857,-118.1806633,-118.1078217,-118.154242,-118.1257165,-118.1664374,-118.1882392,-118.1739631,-118.1815696,-118.1980837,-118.1803622,-118.1578416,-118.1750875,-118.2152086,-118.1981979,-118.0717802,-118.2121997,-118.0937026,-118.1882312,-118.1724828,-118.1126565,-118.1892678,-118.1806515,-118.1026747,-118.1758938,-118.062975,-118.193357,-118.1394618,-118.1993892,-118.1792128,-118.1905437,-118.1806724,-118.1478799,-118.0826161,-118.2393836,-118.123423,-118.1921115,-118.2002407,-118.2107463,-118.1720086,-118.2023278,-118.0826161,-118.0441361,-118.1763283,-118.0647871,-118.1629502,-118.1884661,-118.1647463,-118.0672484,-118.1367034,-118.1564047,-118.1839953,-118.0651588,-118.1750875,-118.1948868,-118.1607597,-118.1982261,-118.1655497,-118.1804684,-118.1747327,-118.1654888,-118.2177739,-118.1211601,-118.2109272,-118.1862281,-118.1724828,-118.0548197,-118.1971031,-118.1679018,-118.1707337,-118.0826161,-118.1864537,-118.1495589,-118.1760582,-118.17907,-118.2056088,-118.1179628,-118.154294,-118.1652834,-118.1889459,-118.1803685,-118.0740833,-118.06323,-118.1747276,-118.1718077,-118.1911276,-118.1817796,-118.1383162,-118.146218,-118.2025528,-118.1799603,-118.0981399,-118.1839964,-118.1828539,-118.0665008,-118.1970582,-118.1458794,-118.2119323,-118.1719841,-118.0703529,-118.1795513,-118.0968607,-118.1947725,-118.1761722,-118.1481201,-118.2004619,-118.1628723,-118.1859479,-118.1943384,-118.0992327,-118.1044214,-118.1867055,-118.2236742,-118.1786864,-118.1179628,-118.1096356,-118.2199732,-118.1666361,-118.1798509,-118.208731,-118.1246575,-118.1397393,-118.1705771,-118.1858974,-118.1940185,-118.1984055,-118.2204244,-118.0541908,-118.2009737,-118.1861087,-118.191754,-118.2212124,-118.0826161,-118.1891162,-118.0661916,-118.1164629,-118.1808587,-118.176355,-118.1968671,-118.1888545,-118.0854208,-118.0826161,-118.1991406,-118.1767795,-118.0819265,-118.1990145,-118.1000236,-118.1641651,-118.130545,-118.1730485,-118.1267017,-118.1747327,-118.1955218,-118.0990216,-118.1892489,-118.1580944,-118.1633084,-118.177982,-118.0896661,-118.2021574,-118.213288,-118.1921449,-118.0826161,-118.1839623,-118.1484742,-118.1773503,-118.1750875,-118.2130742,-118.1719683,-118.1828539,-118.2140039,-118.0510022,-118.1567097,-118.1687246,-118.1761434,-118.1660804,-118.0741581,-118.1621653,-118.2143806,-118.144803,-118.2003292,-118.1948868,-118.1795552,-118.2111057,-118.1578273,-118.1797301,-118.1923394,-118.0525744,-118.1741938,-118.1910896,-118.1707108,-118.1606091,-118.1917114,-118.1792128,-118.1424632,-118.1741775,-118.1876822,-118.1621182,-118.0672484,-118.1789179,-118.0819073,-118.1893411,-118.1529994,-118.175966,-118.1784991,-118.1250933,-118.210872,-118.1917114,-118.1644052,-118.2075447,-118.1875408,-118.1994671,-118.1804684,-118.2198046,-118.1785045,-118.182078,-118.1899309,-118.1534734,-118.0809235,-118.1687288,-118.1383162,-118.1850101,-118.1741269,-118.2097755,-118.0912177,-118.1686116,-118.1795513,-118.1741938,-118.1912196,-118.2040265,-118.1979026,-118.1695724,-118.0896661,-118.1948868,-118.1891929,-118.2111155],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.2},null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null,null]}],"limits":{"lat":[33.7420745,34.0540839],"lng":[-118.2842943,-117.934238]}},"evals":[],"jsHooks":[]}</script>
 </div>
-<img data-src="figures/taxi-tip-by-local-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
+</div>
+</section>
 <section id="section-4" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a>taxi_train <span class="sc">%&gt;%</span> </span>
-<span id="cb9-2"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> hour, <span class="at">fill =</span> tip)) <span class="sc">+</span></span>
-<span id="cb9-3"><a></a>  <span class="fu">geom_bar</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">smooth_ph_linear_pred</span>(event_time <span class="sc">~</span> latitude, <span class="at">data =</span> cat_adoption, <span class="at">deg_free =</span> <span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
-<img data-src="figures/taxi-tip-by-hour-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
-<section id="section-5" class="slide level2">
-<h2></h2>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a>taxi_train <span class="sc">%&gt;%</span> </span>
-<span id="cb10-2"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> hour, <span class="at">fill =</span> tip)) <span class="sc">+</span></span>
-<span id="cb10-3"><a></a>  <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"fill"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="figures/taxi-tip-by-hour-fill-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
-<section id="section-6" class="slide level2">
-<h2></h2>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a>taxi_train <span class="sc">%&gt;%</span> </span>
-<span id="cb11-2"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> distance)) <span class="sc">+</span></span>
-<span id="cb11-3"><a></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">100</span>) <span class="sc">+</span></span>
-<span id="cb11-4"><a></a>  <span class="fu">facet_grid</span>(<span class="fu">vars</span>(tip))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
-</div>
-<img data-src="figures/taxi-tip-by-distance-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section></section>
-<section>
-<section id="split-smarter" class="title-slide slide level1 center">
-<h1>Split smarter</h1>
-
-</section>
-<section id="section-7" class="slide level2">
-<h2></h2>
-
-<img data-src="figures/taxi-tip-pct-1.svg" class="r-stretch"><p>Stratified sampling would split within response values</p>
+<img data-src="figures/cat-latitude-1.svg" class="quarto-figure quarto-figure-center r-stretch"><p><code>smooth_ph_linear_pred()</code> a custom function, available<br>
+in <code>slides/setup.R</code>. <!-- FIXME: make that a link once the repo is final --></p>
 <aside class="notes">
-<p>Based on our EDA, we know that the source data contains fewer <code>"no"</code> tip values than <code>"yes"</code>. We want to make sure we allot equal proportions of those responses so that both the training and testing data have enough of each to give accurate estimates.</p>
+<p>latitude ~ “y-axis”</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -772,22 +731,26 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="stratification" class="slide level2">
-<h2>Stratification</h2>
-<p>Use <code>strata = tip</code></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb12-2"><a></a>taxi_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(taxi, <span class="at">prop =</span> <span class="fl">0.8</span>, <span class="at">strata =</span> tip)</span>
-<span id="cb12-3"><a></a>taxi_split</span>
-<span id="cb12-4"><a></a><span class="co">#&gt; &lt;Training/Testing/Total&gt;</span></span>
-<span id="cb12-5"><a></a><span class="co">#&gt; &lt;8000/2000/10000&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="stratification-1" class="slide level2">
-<h2>Stratification</h2>
-<p>Stratification often helps, with very little downside</p>
+<section id="section-5" class="slide level2">
+<h2></h2>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="fu">smooth_ph_linear_pred</span>(event_time <span class="sc">~</span> longitude, <span class="at">data =</span> cat_adoption, <span class="at">deg_free =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
-<img data-src="figures/taxi-tip-pct-by-split-1.svg" class="r-stretch"></section>
+</div>
+<img data-src="figures/cat-longitude-1.svg" class="quarto-figure quarto-figure-center r-stretch"><aside class="notes">
+<p>longitude ~ “x-axis”</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="the-whole-game---status-update" class="slide level2">
 <h2>The whole game - status update</h2>
 
