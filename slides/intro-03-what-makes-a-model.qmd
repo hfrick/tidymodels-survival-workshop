@@ -71,7 +71,7 @@ countdown::countdown(minutes = 3, id = "how-to-fit-linear-model")
 Credit: <https://www.svgrepo.com/svg/481270/cat-5>
 :::
 
-## To specify a model `r hexes("parsnip")`
+## To specify a model `r hexes("censored", "parsnip")`
 
 ```{r setup-previous}
 #| echo: false
@@ -112,13 +112,13 @@ Models have default engines
 :::
 :::
 
-## To specify a model `r hexes("parsnip")`
+## To specify a model `r hexes("censored", "parsnip")`
 
 ```{r proportional-hazards-again}
 proportional_hazards()
 ```
 
-## To specify a model `r hexes("parsnip")`
+## To specify a model `r hexes("censored", "parsnip")`
 
 ```{r proportional-hazards-glmnet}
 proportional_hazards() %>%
@@ -151,7 +151,7 @@ decision_tree()
 Some models have a default mode
 :::
 
-## To specify a model `r hexes("parsnip")`
+## To specify a model `r hexes("censored", "parsnip")`
 
 ```{r decision-tree-censored-reg}
 decision_tree() %>% 
@@ -167,6 +167,11 @@ All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 :::
 
 ##  {background-iframe="https://www.tidymodels.org/find/parsnip/"}
+
+::: footer
+:::
+
+##  {background-iframe="https://censored.tidymodels.org/"}
 
 ::: footer
 :::
@@ -472,7 +477,7 @@ Two ways workflows handle levels better than base R:
 -   Restores missing levels that were present at fit time, but happen to be missing at prediction time (like, if your "new" data just doesn't have an instance of that level)
 :::
 
-## A model workflow `r hexes("parsnip", "workflows")`
+## A model workflow `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-spec}
 tree_spec <-
@@ -483,7 +488,7 @@ tree_spec %>%
   fit(event_time ~ ., data = cat_train) 
 ```
 
-## A model workflow `r hexes("parsnip", "workflows")`
+## A model workflow `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow}
 tree_spec <-
@@ -496,7 +501,7 @@ workflow() %>%
   fit(data = cat_train) 
 ```
 
-## A model workflow `r hexes("parsnip", "workflows")`
+## A model workflow `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-fit}
 tree_spec <-
@@ -522,7 +527,7 @@ workflow(event_time ~ ., tree_spec) %>%
 countdown::countdown(minutes = 5, id = "explore-tree-workflow")
 ```
 
-## Predict with your model `r hexes("parsnip", "workflows")`
+## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 How do you use your new `tree_fit` model?
 
@@ -536,7 +541,7 @@ tree_fit <-
   fit(data = cat_train) 
 ```
 
-## Predict with your model `r hexes("parsnip", "workflows")`
+## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 How do you use your new `tree_fit` model?
 
@@ -544,7 +549,7 @@ How do you use your new `tree_fit` model?
 predict(tree_fit, new_data = cat_test)
 ```
 
-## Predict with your model `r hexes("parsnip", "workflows")`
+## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 How do you use your new `tree_fit` model?
 
@@ -552,14 +557,14 @@ How do you use your new `tree_fit` model?
 predict(tree_fit, new_data = cat_test, type = "time")
 ```
 
-## Predict with your model `r hexes("parsnip", "workflows")`
+## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-predict-survival}
 preds <- predict(tree_fit, new_data = cat_test, type = "survival", eval_time = c(30, 365))
 preds
 ```
 
-## Predict with your model `r hexes("parsnip", "workflows")`
+## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-predict-survival-2}
 preds <- predict(tree_fit, new_data = cat_test, type = "survival", eval_time = c(30, 365))
