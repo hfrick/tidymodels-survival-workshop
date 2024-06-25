@@ -207,20 +207,22 @@ One approach is to weight observations based on the likelihood that _each sample
 
 ## Probability of Censoring
 
-$\hat{C}(T;x_i)$ is the probability that sample $i$ is censored at some generic time $T$. 
+$\hat{C}(t^*;\boldsymbol{x}_{i})$ is the probability that sample $i$ is censored at some time $t^*$ where
 
 $$
-Pr[censored] = 
+t^*= 
 \begin{cases}
-\hat{C}(t_i;\boldsymbol{x}_{i}) & \text{if } y_{i\tau} = 1 \\ \notag
-\hat{C}(\tau;\boldsymbol{x}_{i})  & \text{if } y_{i\tau} = 0  \notag 
+t_i - \epsilon &  \text{if }t_i \le \tau \\ \notag
+\tau           &  \text{if }t_i > \tau  \notag 
 \end{cases}
 $$
-(note the time of censoring)
+(default: $\epsilon = 10^{-10}$)
+
+<br>
 
 Case weights $w_i(\tau)$ are the inverse of these probabilities and $W(\tau)$ is their sum.
 
-In actuality, we use $\tau - \epsilon$ for some _very_ small $\epsilon$ since we can't see into the future. 
+
 
 ## Probability of Censoring Model
 
@@ -285,6 +287,7 @@ demo_cat_preds %>%
   add_rowindex() %>% 
   mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
   unnest(.pred) %>% 
+  filter(.eval_time <= 50) %>% 
   ggplot(aes(.eval_time, .weight_censored)) + 
   geom_line(aes(group = cat, col = cat), show.legend = FALSE) +
   geom_vline(data = max_wt_time, aes(xintercept = max_weight_time, col = cat), 
