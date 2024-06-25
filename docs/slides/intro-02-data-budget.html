@@ -426,7 +426,7 @@
 <ul>
 <li>The city of Long Beach releases data on animals at the Long Beach Animal Shelter.</li>
 <li>Our dataset is a sample of the cats entering and leaving the shelter.</li>
-<li>Type <code>?cat_adoption</code> to learn more about this dataset, including references.</li>
+<li>Type <code>?cat_adoption</code> or check the <a href="https://github.com/tidymodels/modeldata/blob/main/data-raw/cat_adoption.R">sources</a> to learn more about this dataset, including references.</li>
 </ul>
 </div><div class="column" style="width:40%;">
 <p><img data-src="images/pet-house-blue.svg"></p>
@@ -473,22 +473,9 @@
 <span id="cb1-21"><a></a><span class="co">#&gt; #   calico &lt;int&gt;, cream &lt;int&gt;, gray &lt;int&gt;, gray_tabby &lt;int&gt;, orange &lt;int&gt;,</span></span>
 <span id="cb1-22"><a></a><span class="co">#&gt; #   orange_tabby &lt;int&gt;, tan &lt;int&gt;, tortie &lt;int&gt;, white &lt;int&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<aside class="notes">
-<p>FIXME: add decription of each variable?</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 </section>
 <section id="make-the-outcome" class="slide level2">
-<h2>Make the outcome</h2>
+<h2>Make the outcome <img data-src="hexes/survival.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>cat_adoption <span class="ot">&lt;-</span> cat_adoption <span class="sc">%&gt;%</span> </span>
 <span id="cb2-2"><a></a>  <span class="fu">mutate</span>(<span class="at">event_time =</span> <span class="fu">Surv</span>(time, event), <span class="at">.keep =</span> <span class="st">"unused"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -673,36 +660,42 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="section" class="slide level2">
-<h2></h2>
+<section id="time-to-adoption" class="slide level2">
+<h2>Time to adoption <img data-src="hexes/ggsurvfit.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">library</span>(ggsurvfit)</span>
 <span id="cb7-2"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> cat_adoption) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figures/cat-event-time-1.svg" class="quarto-figure quarto-figure-center"></p>
+</figure>
 </div>
-<img data-src="figures/cat-event-time-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
-<section id="section-1" class="slide level2">
+</div>
+</div>
+</section>
+<section id="section" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> neutered, <span class="at">data =</span> cat_train) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="figures/cat-event-time-by-neutered-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
-<section id="section-2" class="slide level2">
+<section id="section-1" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> brown_tabby, <span class="at">data =</span> cat_train) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="figures/cat-event-time-by-brown-tabby-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
-<section id="section-3" class="slide level2">
+<section id="section-2" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> gray, <span class="at">data =</span> cat_train) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="figures/cat-event-time-by-gray-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
-<section id="section-4" class="slide level2">
+<section id="section-3" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">library</span>(leaflet)</span>
@@ -716,7 +709,7 @@
 </div>
 </div>
 </section>
-<section id="section-5" class="slide level2">
+<section id="section-4" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">smooth_ph_linear_pred</span>(event_time <span class="sc">~</span> latitude, <span class="at">data =</span> cat_adoption, <span class="at">deg_free =</span> <span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -738,7 +731,7 @@ in <code>slides/setup.R</code>. <!-- FIXME: make that a link once the repo is fi
           display:block!important;
       }</style></aside>
 </section>
-<section id="section-6" class="slide level2">
+<section id="section-5" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="fu">smooth_ph_linear_pred</span>(event_time <span class="sc">~</span> longitude, <span class="at">data =</span> cat_adoption, <span class="at">deg_free =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>

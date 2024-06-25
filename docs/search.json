@@ -326,28 +326,28 @@
     "href": "slides/intro-02-data-budget.html#section-2",
     "title": "2 - Your data budget",
     "section": "",
-    "text": "survfit(event_time ~ brown_tabby, data = cat_train) %&gt;% ggsurvfit()"
+    "text": "survfit(event_time ~ gray, data = cat_train) %&gt;% ggsurvfit()"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#section-3",
     "href": "slides/intro-02-data-budget.html#section-3",
     "title": "2 - Your data budget",
     "section": "",
-    "text": "survfit(event_time ~ gray, data = cat_train) %&gt;% ggsurvfit()"
+    "text": "library(leaflet)\ncat_train %&gt;% \n  leaflet() %&gt;%\n  addProviderTiles(\"CartoDB.Positron\") %&gt;%  \n  addCircles(lng = ~ longitude, lat = ~ latitude)"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#section-4",
     "href": "slides/intro-02-data-budget.html#section-4",
     "title": "2 - Your data budget",
     "section": "",
-    "text": "library(leaflet)\ncat_train %&gt;% \n  leaflet() %&gt;%\n  addProviderTiles(\"CartoDB.Positron\") %&gt;%  \n  addCircles(lng = ~ longitude, lat = ~ latitude)"
+    "text": "smooth_ph_linear_pred(event_time ~ latitude, data = cat_adoption, deg_free = 6)\n\n\nsmooth_ph_linear_pred() a custom function, available\nin slides/setup.R. \n\nlatitude ~ “y-axis”"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#section-5",
     "href": "slides/intro-02-data-budget.html#section-5",
     "title": "2 - Your data budget",
     "section": "",
-    "text": "smooth_ph_linear_pred(event_time ~ latitude, data = cat_adoption, deg_free = 6)\n\n\nsmooth_ph_linear_pred() a custom function, available\nin slides/setup.R. \n\nlatitude ~ “y-axis”"
+    "text": "smooth_ph_linear_pred(event_time ~ longitude, data = cat_adoption, deg_free = 5)\n\n\n\nlongitude ~ “x-axis”"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#section-6",
@@ -1481,7 +1481,7 @@
     "href": "slides/intro-02-data-budget.html#data-on-shelter-cats",
     "title": "2 - Your data budget",
     "section": "Data on shelter cats",
-    "text": "Data on shelter cats\n\n\n\nThe city of Long Beach releases data on animals at the Long Beach Animal Shelter.\nOur dataset is a sample of the cats entering and leaving the shelter.\nType ?cat_adoption to learn more about this dataset, including references.\n\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/194185/pet-house-kennel"
+    "text": "Data on shelter cats\n\n\n\nThe city of Long Beach releases data on animals at the Long Beach Animal Shelter.\nOur dataset is a sample of the cats entering and leaving the shelter.\nType ?cat_adoption or check the sources to learn more about this dataset, including references.\n\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/194185/pet-house-kennel"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#data-on-shelter-cats-1",
@@ -1495,27 +1495,34 @@
     "href": "slides/intro-02-data-budget.html#data-on-shelter-cats-2",
     "title": "2 - Your data budget",
     "section": "Data on shelter cats",
-    "text": "Data on shelter cats\n\nlibrary(tidymodels)\nlibrary(survival)\nlibrary(modeldata)\n\ncat_adoption\n#&gt; # A tibble: 2,257 × 20\n#&gt;     time event sex    neutered intake_condition intake_type   latitude longitude\n#&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;    &lt;fct&gt;            &lt;fct&gt;            &lt;dbl&gt;     &lt;dbl&gt;\n#&gt;  1    17     1 male   yes      fractious        owner_surren…     33.8     -118.\n#&gt;  2    98     1 male   yes      normal           stray             33.8     -118.\n#&gt;  3    15     0 male   yes      ill_moderatete   owner_surren…     33.8     -118.\n#&gt;  4    72     1 female yes      fractious        owner_surren…     33.8     -118.\n#&gt;  5    22     0 male   yes      normal           owner_surren…     33.8     -118.\n#&gt;  6    66     1 male   yes      normal           owner_surren…     33.8     -118.\n#&gt;  7   200     1 female yes      other            other             33.9     -118.\n#&gt;  8     9     0 female yes      normal           owner_surren…     33.9     -118.\n#&gt;  9    45     1 male   yes      ill_mild         stray             33.8     -118.\n#&gt; 10    38     1 male   no       ill_mild         stray             33.9     -118.\n#&gt; # ℹ 2,247 more rows\n#&gt; # ℹ 12 more variables: black &lt;int&gt;, brown &lt;int&gt;, brown_tabby &lt;int&gt;,\n#&gt; #   calico &lt;int&gt;, cream &lt;int&gt;, gray &lt;int&gt;, gray_tabby &lt;int&gt;, orange &lt;int&gt;,\n#&gt; #   orange_tabby &lt;int&gt;, tan &lt;int&gt;, tortie &lt;int&gt;, white &lt;int&gt;\n\n\nFIXME: add decription of each variable?"
+    "text": "Data on shelter cats\n\nlibrary(tidymodels)\nlibrary(survival)\nlibrary(modeldata)\n\ncat_adoption\n#&gt; # A tibble: 2,257 × 20\n#&gt;     time event sex    neutered intake_condition intake_type   latitude longitude\n#&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;    &lt;fct&gt;            &lt;fct&gt;            &lt;dbl&gt;     &lt;dbl&gt;\n#&gt;  1    17     1 male   yes      fractious        owner_surren…     33.8     -118.\n#&gt;  2    98     1 male   yes      normal           stray             33.8     -118.\n#&gt;  3    15     0 male   yes      ill_moderatete   owner_surren…     33.8     -118.\n#&gt;  4    72     1 female yes      fractious        owner_surren…     33.8     -118.\n#&gt;  5    22     0 male   yes      normal           owner_surren…     33.8     -118.\n#&gt;  6    66     1 male   yes      normal           owner_surren…     33.8     -118.\n#&gt;  7   200     1 female yes      other            other             33.9     -118.\n#&gt;  8     9     0 female yes      normal           owner_surren…     33.9     -118.\n#&gt;  9    45     1 male   yes      ill_mild         stray             33.8     -118.\n#&gt; 10    38     1 male   no       ill_mild         stray             33.9     -118.\n#&gt; # ℹ 2,247 more rows\n#&gt; # ℹ 12 more variables: black &lt;int&gt;, brown &lt;int&gt;, brown_tabby &lt;int&gt;,\n#&gt; #   calico &lt;int&gt;, cream &lt;int&gt;, gray &lt;int&gt;, gray_tabby &lt;int&gt;, orange &lt;int&gt;,\n#&gt; #   orange_tabby &lt;int&gt;, tan &lt;int&gt;, tortie &lt;int&gt;, white &lt;int&gt;"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#make-the-outcome",
     "href": "slides/intro-02-data-budget.html#make-the-outcome",
     "title": "2 - Your data budget",
-    "section": "Make the outcome",
-    "text": "Make the outcome\n\ncat_adoption &lt;- cat_adoption %&gt;% \n  mutate(event_time = Surv(time, event), .keep = \"unused\")"
+    "section": "Make the outcome ",
+    "text": "Make the outcome \n\ncat_adoption &lt;- cat_adoption %&gt;% \n  mutate(event_time = Surv(time, event), .keep = \"unused\")"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#section-1",
     "href": "slides/intro-02-data-budget.html#section-1",
     "title": "2 - Your data budget",
     "section": "",
-    "text": "survfit(event_time ~ neutered, data = cat_train) %&gt;% ggsurvfit()"
+    "text": "survfit(event_time ~ brown_tabby, data = cat_train) %&gt;% ggsurvfit()"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#section",
     "href": "slides/intro-02-data-budget.html#section",
     "title": "2 - Your data budget",
     "section": "",
-    "text": "library(ggsurvfit)\nsurvfit(event_time ~ 1, data = cat_adoption) %&gt;% ggsurvfit()"
+    "text": "survfit(event_time ~ neutered, data = cat_train) %&gt;% ggsurvfit()"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#time-to-adoption",
+    "href": "slides/intro-02-data-budget.html#time-to-adoption",
+    "title": "2 - Your data budget",
+    "section": "Time to adoption ",
+    "text": "Time to adoption \n\nlibrary(ggsurvfit)\nsurvfit(event_time ~ 1, data = cat_adoption) %&gt;% ggsurvfit()"
   }
 ]
