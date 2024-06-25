@@ -66,7 +66,7 @@ library(modeldata)
 cat_adoption
 ```
 
-## Make the outcome
+## Make the outcome `r hexes("survival")`
 
 ```{r cats-surv-outcome}
 cat_adoption <- cat_adoption %>% 
@@ -232,7 +232,7 @@ countdown::countdown(minutes = 8, id = "explore-cat")
 Make a plot or summary and then share with neighbor
 :::
 
-## 
+## Time to adoption `r hexes("ggsurvfit")`
 
 ```{r cat-event-time}
 #| fig-align: 'center'
