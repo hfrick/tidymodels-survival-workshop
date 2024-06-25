@@ -31,6 +31,8 @@ library(tidymodels)
 library(censored)
 library(splines)
 
+data(cat_adoption)
+
 cat_adoption <- 
   cat_adoption %>% 
   mutate(event_time = Surv(time, event), .keep = "unused", .before = everything()) 
