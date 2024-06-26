@@ -58,13 +58,14 @@ f <- event_time ~ . -
   # Them remove geocoded columns
   longitude - latitude +
   # Then add them back as spline terms
-  ns(longitude, df = 5) + ns(latitude, df = 5) +
-  # Add an interaction
-  neutered:sex
+  ns(longitude, df = 5) + ns(latitude, df = 5) #+
+  ## Add an interaction
+  #neutered:sex
 
-cph_spline_fit <- 
-  proportional_hazards() %>%
-  fit(f, data = cat_train)
+cph_spline_wflow <- workflow(f, proportional_hazards())
+
+cph_spline_fit <- cph_spline_wflow %>%
+  fit(data = cat_train)
 ```
 
 
@@ -316,8 +317,9 @@ The RKM curve is attached to the parsnip model object. For our data set...
 #| fig-height: 4
 #| out-width: 80%
 #| fig-align: center
+cph_spline_fit_parsnip <- extract_fit_parsnip(cph_spline_fit)
 rkm_data <- 
-  cph_spline_fit$censor_probs$fit[c("time", "surv")] %>% 
+  cph_spline_fit_parsnip$censor_probs$fit[c("time", "surv")] %>% 
   as_tibble() %>% 
   set_names(c(".eval_time", ".pred_censored"))
 
