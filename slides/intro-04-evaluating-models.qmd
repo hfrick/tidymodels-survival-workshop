@@ -472,3 +472,27 @@ times <- c(90, 30, 60, 120)
 ```
 
 
+
+# ⚠️ DANGERS OF OVERFITTING ⚠️
+
+## Your turn {transition="slide-in"}
+
+![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
+
+*Why haven't we done this?*
+
+```{r augment-acc-2}
+#| eval: false
+cph_spline_fit %>%
+  augment(cat_train, eval_time = 8:320) %>%
+  brier_survival(truth = event_time, .pred)
+```
+
+```{r ex-overfitting}
+#| echo: false
+countdown::countdown(minutes = 5, id = "overfitting")
+```
+
+# The testing data are precious 💎
+
+# How can we use the *training* data to compare and evaluate different models? 🤔
