@@ -496,3 +496,86 @@ countdown::countdown(minutes = 5, id = "overfitting")
 # The testing data are precious 💎
 
 # How can we use the *training* data to compare and evaluate different models? 🤔
+
+##  {background-color="white" background-image="https://www.tmwr.org/premade/resampling.svg" background-size="80%"}
+
+## Cross-validation `r hexes("rsample")`
+
+```{r vfold-cv}
+vfold_cv(cat_train) # v = 10 is default
+```
+
+## Cross-validation `r hexes("rsample")`
+
+What is in this?
+
+```{r taxi-splits}
+cat_folds <- vfold_cv(cat_train)
+cat_folds$splits[1:3]
+```
+
+::: notes
+Talk about a list column, storing non-atomic types in dataframe
+:::
+
+## Bootstrapping `r hexes("rsample")`
+
+```{r bootstraps}
+set.seed(3214)
+bootstraps(cat_train)
+```
+
+##  {background-iframe="https://rsample.tidymodels.org/reference/index.html"}
+
+::: footer
+:::
+
+## Cross-validation `r hexes("rsample")`
+
+We'll use this setup:
+
+```{r cat-folds}
+set.seed(123)
+cat_folds <- vfold_cv(cat_train, v = 10)
+cat_folds
+```
+
+. . .
+
+Set the seed when creating resamples
+
+## Your turn {transition="slide-in"}
+
+![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
+
+*Create Monte Carlo cross-validation sets.*
+
+*(Use the reference guide to find the functions.)*
+
+<br></br>
+
+*Extension/Challenge: Create a validation set. How is this different, how is this similar to other resampling schemes?*
+
+```{r ex-try-rsample}
+#| echo: false
+countdown::countdown(minutes = 5, id = "try-rsample")
+```
+
+## Monte Carlo Cross-Validation `r hexes("rsample")`
+
+```{r mc-cv}
+set.seed(322)
+mc_cv(cat_train, times = 10)
+```
+
+## Validation set `r hexes("rsample")`
+
+```{r validation-split}
+set.seed(853)
+cat_val_split <- initial_validation_split(cat_adoption)
+validation_set(cat_val_split)
+```
+
+. . .
+
+A validation set is just another type of resample
