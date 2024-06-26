@@ -62,9 +62,9 @@ f <- event_time ~ . -
   ## Add an interaction
   #neutered:sex
 
-cph_spline_wflow <- workflow(f, proportional_hazards())
+cat_wflow <- workflow(f, proportional_hazards())
 
-cph_spline_fit <- cph_spline_wflow %>%
+cph_spline_fit <- cat_wflow %>%
   fit(data = cat_train)
 ```
 
@@ -581,3 +581,55 @@ validation_set(cat_val_split)
 . . .
 
 A validation set is just another type of resample
+
+# We are equipped with metrics and resamples!
+
+## Fit our model to the resamples
+
+```{r fit-resamples}
+cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = 8:320)
+cat_res
+```
+
+## Evaluating model performance `r hexes("tune")`
+
+```{r collect-metrics}
+cat_res %>%
+  collect_metrics()
+```
+
+::: notes
+`collect_metrics()` is one of a suite of `collect_*()` functions that can be used to work with columns of tuning results. Most columns in a tuning result prefixed with `.` have a corresponding `collect_*()` function with options for common summaries.
+:::
+
+. . .
+
+We can reliably measure performance using only the **training** data 🎉
+
+## Where are the fitted models? `r hexes("tune")`  {.annotation}
+
+```{r cat-res}
+cat_res
+```
+
+. . .
+
+🗑️
+
+## But it's easy to save the predictions `r hexes("tune")`
+
+```{r save-predictions}
+# Save the assessment set results
+ctrl_cat <- control_resamples(save_pred = TRUE)
+cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = 8:320,
+                         control = ctrl_cat)
+
+cat_res
+```
+
+## But it's easy to collect the predictions `r hexes("tune")`
+
+```{r collect-predictions}
+cat_preds <- collect_predictions(cat_res)
+cat_preds
+```
