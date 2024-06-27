@@ -532,28 +532,6 @@ bootstraps(cat_train)
 ::: footer
 :::
 
-## The whole game - status update
-
-```{r diagram-resamples, echo = FALSE}
-#| fig-align: "center"
-
-knitr::include_graphics("images/whole-game-transparent-resamples.jpg")
-```
-
-## Cross-validation `r hexes("rsample")`
-
-We'll use this setup:
-
-```{r cat-folds}
-set.seed(123)
-cat_folds <- vfold_cv(cat_train, v = 10)
-cat_folds
-```
-
-. . .
-
-Set the seed when creating resamples
-
 ## Your turn {transition="slide-in"}
 
 ![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
@@ -589,6 +567,28 @@ validation_set(cat_val_split)
 . . .
 
 A validation set is just another type of resample
+
+## Cross-validation `r hexes("rsample")`
+
+We'll use this setup:
+
+```{r cat-folds}
+set.seed(123)
+cat_folds <- vfold_cv(cat_train, v = 10)
+cat_folds
+```
+
+. . .
+
+Set the seed when creating resamples
+
+## The whole game - status update
+
+```{r diagram-resamples, echo = FALSE}
+#| fig-align: "center"
+
+knitr::include_graphics("images/whole-game-transparent-resamples.jpg")
+```
 
 # We are equipped with metrics and resamples!
 
