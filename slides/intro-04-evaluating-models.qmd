@@ -737,12 +737,6 @@ These are metrics computed with the **test** set
 
 ## What is in `final_fit`? `r hexes("tune")`
 
-```{r collect-predictions-final-fit}
-collect_predictions(final_fit)
-```
-
-## What is in `final_fit`? `r hexes("tune")`
-
 ```{r extract-workflow}
 extract_workflow(final_fit)
 ```
