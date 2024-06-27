@@ -1,6 +1,6 @@
 ---
 title: "4 - Evaluating models"
-subtitle: "Introduction to tidymodels"
+subtitle: "Survival analysis with tidymodels"
 format:
   revealjs: 
     slide-number: true
@@ -55,7 +55,7 @@ Let's fit another PH and add some nonlinear terms via [splines](https://aml4td.o
 #| label: example-fit
 # First add all of the predictors...
 f <- event_time ~ . -
-  # Them remove geocoded columns
+  # Then remove geocoded columns
   longitude - latitude +
   # Then add them back as spline terms
   ns(longitude, df = 5) + ns(latitude, df = 5) #+
@@ -600,8 +600,7 @@ knitr::include_graphics("images/whole-game-transparent-resamples.jpg")
 ## Fit our model to the resamples
 
 ```{r fit-resamples}
-#| cache: true
-cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = 8:320)
+cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120))
 cat_res
 ```
 
@@ -633,10 +632,9 @@ cat_res
 ## But it's easy to save the predictions `r hexes("tune")`
 
 ```{r save-predictions}
-#| cache: true
 # Save the assessment set results
 ctrl_cat <- control_resamples(save_pred = TRUE)
-cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = 8:320,
+cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120),
                          control = ctrl_cat)
 
 cat_res
@@ -698,12 +696,11 @@ countdown::countdown(minutes = 8, id = "try-fit-resamples")
 ## Evaluating model performance `r hexes("tune")`
 
 ```{r collect-metrics-rf}
-#| cache: true
 ctrl_cat <- control_resamples(save_pred = TRUE)
 
 # Random forest uses random numbers so set the seed first
 set.seed(2)
-rf_res <- fit_resamples(rf_wflow, cat_folds, eval_time = 8:320, control = ctrl_cat)
+rf_res <- fit_resamples(rf_wflow, cat_folds, eval_time = c(90, 30, 60, 120), control = ctrl_cat)
 
 collect_metrics(rf_res)
 ```
@@ -728,7 +725,7 @@ We've shown you `fit()` and `predict()` (+ `augment()`) but there is a shortcut:
 
 ```{r final-fit}
 # cat_split has train + test info
-final_fit <- last_fit(rf_wflow, cat_split, eval_time = 8:320) 
+final_fit <- last_fit(rf_wflow, cat_split, eval_time = c(90, 30, 60, 120)) 
 
 final_fit
 ```
