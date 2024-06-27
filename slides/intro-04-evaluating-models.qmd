@@ -532,6 +532,14 @@ bootstraps(cat_train)
 ::: footer
 :::
 
+## The whole game - status update
+
+```{r diagram-resamples, echo = FALSE}
+#| fig-align: "center"
+
+knitr::include_graphics("images/whole-game-transparent-resamples.jpg")
+```
+
 ## Cross-validation `r hexes("rsample")`
 
 We'll use this setup:
@@ -632,4 +640,70 @@ cat_res
 ```{r collect-predictions}
 cat_preds <- collect_predictions(cat_res)
 cat_preds
+```
+
+# Decision tree 🌳
+
+# Random forest 🌳🌲🌴🌵🌴🌳🌳🌴🌲🌵🌴🌲🌳🌴🌳🌵🌵🌴🌲🌲🌳🌴🌳🌴🌲🌴🌵🌴🌲🌴🌵🌲🌵🌴🌲🌳🌴🌵🌳🌴🌳
+
+## Random forest 🌳🌲🌴🌵🌳🌳🌴🌲🌵🌴🌳🌵
+
+- Ensemble many decision tree models
+
+- All the trees vote! 🗳️
+
+- Bootstrap aggregating + random predictor sampling
+
+. . .
+
+- Often works well without tuning hyperparameters (more on this in a moment), as long as there are enough trees
+
+## Create a random forest model `r hexes("parsnip")`
+
+```{r rf-spec}
+rf_spec <- rand_forest(trees = 1000) %>% 
+  set_engine("aorsf") %>% 
+  set_mode("censored regression")
+rf_spec
+```
+
+## Create a random forest model `r hexes("workflows")`
+
+```{r rf-wflow}
+rf_wflow <- workflow(event_time ~ ., rf_spec)
+rf_wflow
+```
+
+## Your turn {transition="slide-in"}
+
+![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
+
+*Use `fit_resamples()` and `rf_wflow` to:*
+
+-   *keep predictions*
+-   *compute metrics*
+
+```{r ex-try-fit-resamples}
+#| echo: false
+countdown::countdown(minutes = 8, id = "try-fit-resamples")
+```
+
+## Evaluating model performance `r hexes("tune")`
+
+```{r collect-metrics-rf}
+ctrl_cat <- control_resamples(save_pred = TRUE)
+
+# Random forest uses random numbers so set the seed first
+
+set.seed(2)
+rf_res <- fit_resamples(rf_wflow, cat_folds, eval_time = 8:320, control = ctrl_cat)
+collect_metrics(rf_res)
+```
+
+## The whole game - status update
+
+```{r diagram-select, echo = FALSE}
+#| fig-align: "center"
+
+knitr::include_graphics("images/whole-game-transparent-select.jpg")
 ```
