@@ -495,6 +495,11 @@ cph_spline_fit %>%
 countdown::countdown(minutes = 5, id = "overfitting")
 ```
 
+::: {.notes}
+- repredicting the training set is overly optimistic
+- optimising that leads to overfitting
+:::
+
 # The testing data are precious 💎
 
 # How can we use the *training* data to compare and evaluate different models? 🤔
