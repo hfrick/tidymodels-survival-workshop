@@ -262,6 +262,7 @@ p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_tr
   tidyr::unnest(cols = .pred) %>% 
   ggplot() +
   geom_line(aes(.eval_time, .pred_survival, col = intake_condition)) +
+  scale_color_discrete(guide = guide_legend(nrow = 3)) + 
   labs(x = "Time", y = "Probability of remaining in the shelter") +
   theme_bw(base_size = 18) +
   theme(legend.position = "bottom")
@@ -304,7 +305,7 @@ $\lambda(t | x_i) = \lambda_0(t) \cdot \exp (x_i^T \beta)$
 ```{r tree-fit}
 #| echo: false
 
-fit_dt <- decision_tree(cost_complexity = 0.01) %>%
+fit_dt <- decision_tree(cost_complexity = 0.008) %>%
   set_mode("censored regression") %>% 
   fit(event_time ~ intake_condition, data = cat_train) 
 ```
@@ -387,13 +388,13 @@ cat_new_3 <- tibble(
 )
 p_dt <- fit_dt %>% 
   augment(new_data = cat_new_3, eval_time = seq(0, 360, 1)) %>% 
-  mutate(intake_condition = factor(intake_condition, levels = c("ill_mild", "normal", "feral"))) %>% 
+  mutate(intake_condition = factor(intake_condition, levels = c("feral", "normal", "ill_mild"))) %>% 
   tidyr::unnest(cols = .pred) %>% 
   ggplot() +
   geom_step(aes(.eval_time, .pred_survival, color = intake_condition)) +
   scale_color_discrete(
-    labels = c("ill_mild, under_age_or_weight", "ill_moderatete, normal, other", "fractious, feral"),
-    guide = guide_legend(ncol = 2)
+    labels = c("fractious, feral", "normal, other", "ill_mild, ill_moderatete, under_age_or_weight"),
+    guide = guide_legend(ncol = 1)
     ) + 
   labs(x = "Time", y = "Probability of remaining in the shelter") +
   theme_bw(base_size = 18) +
