@@ -66,7 +66,7 @@
 <text x='161.60' y='285.50' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='14.69px' lengthAdjust='spacingAndGlyphs'>100</text>
 <text x='274.04' y='285.50' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='14.69px' lengthAdjust='spacingAndGlyphs'>200</text>
 <text x='386.49' y='285.50' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='14.69px' lengthAdjust='spacingAndGlyphs'>300</text>
-<text x='233.56' y='298.09' text-anchor='middle' style='font-size: 11.00px; font-family: "Arial";' textLength='78.87px' lengthAdjust='spacingAndGlyphs'>Evaluation Time</text>
-<text transform='translate(13.37,139.87) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-family: "Arial";' textLength='55.02px' lengthAdjust='spacingAndGlyphs'>Brier Score</text>
+<text x='233.56' y='298.09' text-anchor='middle' style='font-size: 11.00px; font-family: "Arial";' textLength='75.20px' lengthAdjust='spacingAndGlyphs'>Evaluation time</text>
+<text transform='translate(13.37,139.87) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-family: "Arial";' textLength='53.19px' lengthAdjust='spacingAndGlyphs'>Brier score</text>
 </g>
 </svg>

@@ -4,7 +4,7 @@
     "href": "slides/intro-04-evaluating-models.html#previously",
     "title": "4 - Evaluating models",
     "section": "Previously",
-    "text": "Previously\n\nlibrary(tidymodels)\nlibrary(censored)\nlibrary(splines)\n\ndata(cat_adoption)\n\ncat_adoption &lt;- \n  cat_adoption %&gt;% \n  mutate(event_time = Surv(time, event), .keep = \"unused\", .before = everything()) \n\nset.seed(27)\nin_demo &lt;- sample.int(nrow(cat_adoption), 50)\ndemo_cats &lt;- cat_adoption %&gt;% slice(in_demo)\n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption %&gt;% slice(-in_demo), prop = 0.8)\ncat_train &lt;- training(cat_split)\ncat_test &lt;- training(cat_split)"
+    "text": "Previously\n\nlibrary(tidymodels)\nlibrary(censored)\nlibrary(splines)\n\ndata(cat_adoption)\n\ncat_adoption &lt;- \n  cat_adoption %&gt;% \n  mutate(event_time = Surv(time, event), .keep = \"unused\", .before = everything()) \n\nset.seed(27)\nin_demo &lt;- sample.int(nrow(cat_adoption), 50)\ndemo_cats &lt;- cat_adoption %&gt;% slice(in_demo)\n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption %&gt;% slice(-in_demo), prop = 0.8)\ncat_train &lt;- training(cat_split)\ncat_test &lt;- testing(cat_split)"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#an-example-model-fit",
@@ -18,7 +18,7 @@
     "href": "slides/intro-04-evaluating-models.html#predictions",
     "title": "4 - Evaluating models",
     "section": "Predictions",
-    "text": "Predictions\nFor our demo data set of n = 50 cats, the largest event time was 329.\nWe’ll make predictions from 8 days to 320 days:\n\ndemo_cat_preds &lt;- augment(cph_spline_fit, demo_cats, eval_time = 8:320)\ndemo_cat_preds %&gt;% select(1:3) %&gt;% slice(1:5)\n#&gt; # A tibble: 5 × 3\n#&gt;   .pred              .pred_time event_time\n#&gt;   &lt;list&gt;                  &lt;dbl&gt;     &lt;Surv&gt;\n#&gt; 1 &lt;tibble [313 × 5]&gt;       58.9        36 \n#&gt; 2 &lt;tibble [313 × 5]&gt;      181.         16+\n#&gt; 3 &lt;tibble [313 × 5]&gt;      106.         12+\n#&gt; 4 &lt;tibble [313 × 5]&gt;       62.7        16 \n#&gt; 5 &lt;tibble [313 × 5]&gt;       31.4        22"
+    "text": "Predictions\nFor our demo data set of n = 50 cats, the largest event time was 329.\nWe’ll make predictions from 8 days to 320 days:\n\ndemo_cat_preds &lt;- augment(cph_spline_fit, demo_cats, eval_time = 8:320)\ndemo_cat_preds %&gt;% select(1:3)\n#&gt; # A tibble: 50 × 3\n#&gt;    .pred              .pred_time event_time\n#&gt;    &lt;list&gt;                  &lt;dbl&gt;     &lt;Surv&gt;\n#&gt;  1 &lt;tibble [313 × 5]&gt;       58.9        36 \n#&gt;  2 &lt;tibble [313 × 5]&gt;      181.         16+\n#&gt;  3 &lt;tibble [313 × 5]&gt;      106.         12+\n#&gt;  4 &lt;tibble [313 × 5]&gt;       62.7        16 \n#&gt;  5 &lt;tibble [313 × 5]&gt;       31.4        22 \n#&gt;  6 &lt;tibble [313 × 5]&gt;       88.5        16 \n#&gt;  7 &lt;tibble [313 × 5]&gt;       48.2       294 \n#&gt;  8 &lt;tibble [313 × 5]&gt;      109.         68+\n#&gt;  9 &lt;tibble [313 × 5]&gt;       60.9        31 \n#&gt; 10 &lt;tibble [313 × 5]&gt;      104.         24+\n#&gt; # ℹ 40 more rows"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#dynamic-predictions",
@@ -747,5 +747,47 @@
     "title": "2 - Your data budget",
     "section": "The whole game - status update",
     "text": "The whole game - status update\n\n\n\n\nhttps://workshops.tidymodels.org"
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#evaluation-time",
+    "href": "slides/intro-04-evaluating-models.html#evaluation-time",
+    "title": "4 - Evaluating models",
+    "section": "Evaluation time",
+    "text": "Evaluation time\nWe pick specific time points to evaluate the model (depending on our problem) such as every 30 days:"
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#brier-scores",
+    "href": "slides/intro-04-evaluating-models.html#brier-scores",
+    "title": "4 - Evaluating models",
+    "section": "Brier Scores",
+    "text": "Brier Scores\n\ndemo_brier &lt;- brier_survival(demo_cat_preds, truth = event_time, .pred)\ndemo_brier %&gt;% filter(.eval_time %in% seq(30, 300, by = 30))\n#&gt; # A tibble: 10 × 4\n#&gt;    .metric        .estimator .eval_time .estimate\n#&gt;    &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;\n#&gt;  1 brier_survival standard           30     0.163\n#&gt;  2 brier_survival standard           60     0.170\n#&gt;  3 brier_survival standard           90     0.151\n#&gt;  4 brier_survival standard          120     0.174\n#&gt;  5 brier_survival standard          150     0.164\n#&gt;  6 brier_survival standard          180     0.188\n#&gt;  7 brier_survival standard          210     0.147\n#&gt;  8 brier_survival standard          240     0.156\n#&gt;  9 brier_survival standard          270     0.161\n#&gt; 10 brier_survival standard          300     0.125"
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#brier-scores-over-evaluation-time",
+    "href": "slides/intro-04-evaluating-models.html#brier-scores-over-evaluation-time",
+    "title": "4 - Evaluating models",
+    "section": "Brier Scores Over Evaluation Time",
+    "text": "Brier Scores Over Evaluation Time"
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#integrated-brier-score",
+    "href": "slides/intro-04-evaluating-models.html#integrated-brier-score",
+    "title": "4 - Evaluating models",
+    "section": "Integrated Brier Score",
+    "text": "Integrated Brier Score\n\nbrier_survival_integrated(demo_cat_preds, truth = event_time, .pred)\n#&gt; # A tibble: 1 × 3\n#&gt;   .metric                   .estimator .estimate\n#&gt;   &lt;chr&gt;                     &lt;chr&gt;          &lt;dbl&gt;\n#&gt; 1 brier_survival_integrated standard       0.152"
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#area-under-the-roc-curve-1",
+    "href": "slides/intro-04-evaluating-models.html#area-under-the-roc-curve-1",
+    "title": "4 - Evaluating models",
+    "section": "Area Under the ROC Curve",
+    "text": "Area Under the ROC Curve\n\ndemo_row_auc &lt;- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)\ndemo_row_auc %&gt;% filter(.eval_time %in% seq(30, 300, by = 30))\n#&gt; # A tibble: 10 × 4\n#&gt;    .metric          .estimator .eval_time .estimate\n#&gt;    &lt;chr&gt;            &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;\n#&gt;  1 roc_auc_survival standard           30     0.660\n#&gt;  2 roc_auc_survival standard           60     0.679\n#&gt;  3 roc_auc_survival standard           90     0.582\n#&gt;  4 roc_auc_survival standard          120     0.582\n#&gt;  5 roc_auc_survival standard          150     0.515\n#&gt;  6 roc_auc_survival standard          180     0.515\n#&gt;  7 roc_auc_survival standard          210     0.490\n#&gt;  8 roc_auc_survival standard          240     0.490\n#&gt;  9 roc_auc_survival standard          270     0.490\n#&gt; 10 roc_auc_survival standard          300     0.679"
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#roc-auc-over-evaluation-time",
+    "href": "slides/intro-04-evaluating-models.html#roc-auc-over-evaluation-time",
+    "title": "4 - Evaluating models",
+    "section": "ROC AUC Over Evaluation Time",
+    "text": "ROC AUC Over Evaluation Time"
   }
 ]

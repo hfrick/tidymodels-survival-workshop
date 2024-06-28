@@ -23,10 +23,9 @@ knitr:
 #| file: setup.R
 ```
 
-## Previously
-
 ```{r}
-#| label: pref-previous
+#| label: setup-previous
+#| echo: false
 library(tidymodels)
 library(censored)
 library(splines)
@@ -75,12 +74,11 @@ We'll make predictions from 8 days to 320 days:
 ```{r}
 #| label: demo-cat-preds
 demo_cat_preds <- augment(cph_spline_fit, demo_cats, eval_time = 8:320)
-demo_cat_preds %>% select(1:3) %>% slice(1:5)
+demo_cat_preds %>% select(1:3)
 ```
 ```{r}
 #| label: save-pred-for-annotations
 #| include: false
-
 save(demo_cat_preds, file = "RData/demo_cat_preds.RData")
 ```
 
@@ -117,7 +115,7 @@ demo_cat_preds %>%
   ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
   geom_line() +
   geom_vline(xintercept = (1:12) * 30, col = "black", lty = 3, alpha = 7 / 10) +
-  labs(x = "Evaluation Time", y = "Pr[Survival]")
+  labs(x = "Evaluation time", y = "Probability of not adopted")
 ```
 
 
@@ -353,24 +351,15 @@ $$
 Brier(\tau) = \frac{1}{W}\sum_{i=1}^N \sum_{k=0}^1w_i(\tau)I(y_{i\tau} = k)(y_{i\tau} - \hat{\pi}_{i\tau})^2
 $$
 
-## Demonstration Cat Brier Scores
+## Brier Scores
 
 ```{r}
 #| label: brier-ex
 demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
-demo_brier %>% slice(1:5)
+demo_brier %>% filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
-and also
-
-```{r}
-#| label: brier-int-ex
-brier_survival_integrated(demo_cat_preds, truth = event_time, .pred)
-```
-
-
-
-## Brier Scores Over Time
+## Brier Scores Over Evaluation Time
 
 ```{r}
 #| label: brier-time
@@ -383,9 +372,15 @@ demo_brier %>%
   ggplot(aes(.eval_time, .estimate)) + 
   geom_line() + 
   geom_hline(yintercept = 0, col = "green")+
-  labs(x = "Evaluation Time", y = "Brier Score")
+  labs(x = "Evaluation time", y = "Brier score")
 ```
 
+## Integrated Brier Score
+
+```{r}
+#| label: brier-int-ex
+brier_survival_integrated(demo_cat_preds, truth = event_time, .pred)
+```
 
 ## Area Under the ROC Curve
 
@@ -400,14 +395,14 @@ We can use the standard ROC curve machinery once we have the indicators, probabi
 ROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are.  
 
 
-## Demonstration Cat ROC AUC 
+## Area Under the ROC Curve 
 
 ```{r auc-survival}
 demo_row_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
-demo_row_auc
+demo_row_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
-## ROC AUC Over Time
+## ROC AUC Over Evaluation Time
 
 ```{r}
 #| label: auc-time
@@ -421,7 +416,7 @@ demo_row_auc %>%
   geom_line() + 
   geom_hline(yintercept = 1, col = "green")+
   geom_hline(yintercept = 1/2, col = "red")+
-  labs(x = "Evaluation Time", y = "ROC AUC")
+  labs(x = "Evaluation time", y = "ROC AUC")
 ```
 
 ## Using Evaluation Times

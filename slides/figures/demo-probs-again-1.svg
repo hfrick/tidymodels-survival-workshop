@@ -84,8 +84,8 @@
 <text x='127.85' y='267.50' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='14.69px' lengthAdjust='spacingAndGlyphs'>100</text>
 <text x='207.45' y='267.50' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='14.69px' lengthAdjust='spacingAndGlyphs'>200</text>
 <text x='287.05' y='267.50' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='14.69px' lengthAdjust='spacingAndGlyphs'>300</text>
-<text x='194.71' y='280.09' text-anchor='middle' style='font-size: 11.00px; font-family: "Arial";' textLength='78.87px' lengthAdjust='spacingAndGlyphs'>Evaluation Time</text>
-<text transform='translate(13.37,130.87) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-family: "Arial";' textLength='56.23px' lengthAdjust='spacingAndGlyphs'>Pr[Survival]</text>
+<text x='194.71' y='280.09' text-anchor='middle' style='font-size: 11.00px; font-family: "Arial";' textLength='75.20px' lengthAdjust='spacingAndGlyphs'>Evaluation time</text>
+<text transform='translate(13.37,130.87) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-family: "Arial";' textLength='124.75px' lengthAdjust='spacingAndGlyphs'>Probability of not adopted</text>
 <rect x='359.78' y='82.93' width='66.74' height='95.88' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <text x='365.26' y='97.52' style='font-size: 11.00px; font-family: "Arial";' textLength='14.67px' lengthAdjust='spacingAndGlyphs'>cat</text>
 <rect x='365.26' y='104.21' width='17.28' height='17.28' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
