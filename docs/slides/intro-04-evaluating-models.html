@@ -9,7 +9,7 @@
 <link href="../site_libs/quarto-html/light-border.css" rel="stylesheet">
 <link href="../site_libs/quarto-html/quarto-html.min.css" rel="stylesheet" data-mode="light">
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.4.552">
+  <meta name="generator" content="quarto-1.4.555">
 
   <title>Survival analysis with tidymodels - 4 - Evaluating models</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -388,10 +388,10 @@
   <link href="../site_libs/countdown-0.4.0/countdown.css" rel="stylesheet">
   <script src="../site_libs/countdown-0.4.0/countdown.js"></script>
 <meta property="og:title" content="Survival analysis with tidymodels - 4 - Evaluating models">
-<meta property="og:description" content="Introduction to tidymodels">
+<meta property="og:description" content="Survival analysis with tidymodels">
 <meta property="og:site_name" content="Survival analysis with tidymodels">
 <meta name="twitter:title" content="Survival analysis with tidymodels - 4 - Evaluating models">
-<meta name="twitter:description" content="Introduction to tidymodels">
+<meta name="twitter:description" content="Survival analysis with tidymodels">
 <meta name="twitter:card" content="summary">
 </head>
 <body class="quarto-light">
@@ -401,208 +401,303 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">4 - Evaluating models</h1>
-  <p class="subtitle">Introduction to tidymodels</p>
+  <p class="subtitle">Survival analysis with tidymodels</p>
 
 <div class="quarto-title-authors">
 </div>
 
 </section>
-<section id="looking-at-predictions" class="slide level2">
-<h2>Looking at predictions</h2>
+<section id="previously" class="slide level2">
+<h2>Previously</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb1-2"><a></a>  <span class="fu">relocate</span>(tip, .pred_class, .pred_yes, .pred_no)</span>
-<span id="cb1-3"><a></a><span class="co">#&gt; # A tibble: 8,000 × 10</span></span>
-<span id="cb1-4"><a></a><span class="co">#&gt;    tip   .pred_class .pred_yes .pred_no distance company local dow   month  hour</span></span>
-<span id="cb1-5"><a></a><span class="co">#&gt;    &lt;fct&gt; &lt;fct&gt;           &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;   &lt;fct&gt; &lt;fct&gt; &lt;fct&gt; &lt;int&gt;</span></span>
-<span id="cb1-6"><a></a><span class="co">#&gt;  1 yes   yes             0.967   0.0333    17.2  Chicag… no    Thu   Feb      16</span></span>
-<span id="cb1-7"><a></a><span class="co">#&gt;  2 yes   yes             0.935   0.0646     0.88 City S… yes   Thu   Mar       8</span></span>
-<span id="cb1-8"><a></a><span class="co">#&gt;  3 yes   yes             0.967   0.0333    18.1  other   no    Mon   Feb      18</span></span>
-<span id="cb1-9"><a></a><span class="co">#&gt;  4 yes   yes             0.949   0.0507    12.2  Chicag… no    Sun   Mar      21</span></span>
-<span id="cb1-10"><a></a><span class="co">#&gt;  5 yes   yes             0.821   0.179      0.94 Sun Ta… yes   Sat   Apr      23</span></span>
-<span id="cb1-11"><a></a><span class="co">#&gt;  6 yes   yes             0.967   0.0333    17.5  Flash … no    Fri   Mar      12</span></span>
-<span id="cb1-12"><a></a><span class="co">#&gt;  7 yes   yes             0.967   0.0333    17.7  other   no    Sun   Jan       6</span></span>
-<span id="cb1-13"><a></a><span class="co">#&gt;  8 yes   yes             0.938   0.0616     1.85 Taxica… no    Fri   Apr      12</span></span>
-<span id="cb1-14"><a></a><span class="co">#&gt;  9 yes   yes             0.938   0.0616     0.53 Sun Ta… no    Tue   Mar      18</span></span>
-<span id="cb1-15"><a></a><span class="co">#&gt; 10 yes   yes             0.931   0.0694     6.65 Taxica… no    Sun   Apr      11</span></span>
-<span id="cb1-16"><a></a><span class="co">#&gt; # ℹ 7,990 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb1-2"><a></a><span class="fu">library</span>(censored)</span>
+<span id="cb1-3"><a></a><span class="fu">library</span>(splines)</span>
+<span id="cb1-4"><a></a></span>
+<span id="cb1-5"><a></a><span class="fu">data</span>(cat_adoption)</span>
+<span id="cb1-6"><a></a></span>
+<span id="cb1-7"><a></a>cat_adoption <span class="ot">&lt;-</span> </span>
+<span id="cb1-8"><a></a>  cat_adoption <span class="sc">%&gt;%</span> </span>
+<span id="cb1-9"><a></a>  <span class="fu">mutate</span>(<span class="at">event_time =</span> <span class="fu">Surv</span>(time, event), <span class="at">.keep =</span> <span class="st">"unused"</span>, <span class="at">.before =</span> <span class="fu">everything</span>()) </span>
+<span id="cb1-10"><a></a></span>
+<span id="cb1-11"><a></a><span class="fu">set.seed</span>(<span class="dv">27</span>)</span>
+<span id="cb1-12"><a></a>in_demo <span class="ot">&lt;-</span> <span class="fu">sample.int</span>(<span class="fu">nrow</span>(cat_adoption), <span class="dv">50</span>)</span>
+<span id="cb1-13"><a></a>demo_cats <span class="ot">&lt;-</span> cat_adoption <span class="sc">%&gt;%</span> <span class="fu">slice</span>(in_demo)</span>
+<span id="cb1-14"><a></a></span>
+<span id="cb1-15"><a></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb1-16"><a></a>cat_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(cat_adoption <span class="sc">%&gt;%</span> <span class="fu">slice</span>(<span class="sc">-</span>in_demo), <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb1-17"><a></a>cat_train <span class="ot">&lt;-</span> <span class="fu">training</span>(cat_split)</span>
+<span id="cb1-18"><a></a>cat_test <span class="ot">&lt;-</span> <span class="fu">training</span>(cat_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="confusion-matrix" class="slide level2">
-<h2>Confusion matrix <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<p><img data-src="images/confusion-matrix.png"></p>
-</section>
-<section id="confusion-matrix-1" class="slide level2">
-<h2>Confusion matrix <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
+<section id="an-example-model-fit" class="slide level2 annotation">
+<h2>An Example Model Fit</h2>
+<p>Let’s fit another PH and add some nonlinear terms via <a href="https://aml4td.org/chapters/interactions-nonlinear.html#sec-splines">splines</a>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb2-2"><a></a>  <span class="fu">conf_mat</span>(<span class="at">truth =</span> tip, <span class="at">estimate =</span> .pred_class)</span>
-<span id="cb2-3"><a></a><span class="co">#&gt;           Truth</span></span>
-<span id="cb2-4"><a></a><span class="co">#&gt; Prediction  yes   no</span></span>
-<span id="cb2-5"><a></a><span class="co">#&gt;        yes 7341  536</span></span>
-<span id="cb2-6"><a></a><span class="co">#&gt;        no    43   80</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="co"># First add all of the predictors...</span></span>
+<span id="cb2-2"><a></a>f <span class="ot">&lt;-</span> event_time <span class="sc">~</span> . <span class="sc">-</span></span>
+<span id="cb2-3"><a></a>  <span class="co"># Then remove geocoded columns</span></span>
+<span id="cb2-4"><a></a>  longitude <span class="sc">-</span> latitude <span class="sc">+</span></span>
+<span id="cb2-5"><a></a>  <span class="co"># Then add them back as spline terms</span></span>
+<span id="cb2-6"><a></a>  <span class="fu">ns</span>(longitude, <span class="at">df =</span> <span class="dv">5</span>) <span class="sc">+</span> <span class="fu">ns</span>(latitude, <span class="at">df =</span> <span class="dv">5</span>)</span>
+<span id="cb2-7"><a></a></span>
+<span id="cb2-8"><a></a>cat_wflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>(f, <span class="fu">proportional_hazards</span>())</span>
+<span id="cb2-9"><a></a></span>
+<span id="cb2-10"><a></a>cph_spline_fit <span class="ot">&lt;-</span> cat_wflow <span class="sc">%&gt;%</span></span>
+<span id="cb2-11"><a></a>  <span class="fu">fit</span>(<span class="at">data =</span> cat_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="confusion-matrix-2" class="slide level2">
-<h2>Confusion matrix <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
+<section id="predictions" class="slide level2">
+<h2>Predictions</h2>
+<p>For our demo data set of n = 50 cats, the largest event time was 329.</p>
+<p>We’ll make predictions from 8 days to 320 days:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a></a>  <span class="fu">conf_mat</span>(<span class="at">truth =</span> tip, <span class="at">estimate =</span> .pred_class) <span class="sc">%&gt;%</span></span>
-<span id="cb3-3"><a></a>  <span class="fu">autoplot</span>(<span class="at">type =</span> <span class="st">"heatmap"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="figures/conf-mat-plot-1.svg"></p>
-</figure>
-</div>
-</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>demo_cat_preds <span class="ot">&lt;-</span> <span class="fu">augment</span>(cph_spline_fit, demo_cats, <span class="at">eval_time =</span> <span class="dv">8</span><span class="sc">:</span><span class="dv">320</span>)</span>
+<span id="cb3-2"><a></a>demo_cat_preds <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="sc">%&gt;%</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
+<span id="cb3-3"><a></a><span class="co">#&gt; # A tibble: 5 × 3</span></span>
+<span id="cb3-4"><a></a><span class="co">#&gt;   .pred              .pred_time event_time</span></span>
+<span id="cb3-5"><a></a><span class="co">#&gt;   &lt;list&gt;                  &lt;dbl&gt;     &lt;Surv&gt;</span></span>
+<span id="cb3-6"><a></a><span class="co">#&gt; 1 &lt;tibble [313 × 5]&gt;       58.9        36 </span></span>
+<span id="cb3-7"><a></a><span class="co">#&gt; 2 &lt;tibble [313 × 5]&gt;      181.         16+</span></span>
+<span id="cb3-8"><a></a><span class="co">#&gt; 3 &lt;tibble [313 × 5]&gt;      106.         12+</span></span>
+<span id="cb3-9"><a></a><span class="co">#&gt; 4 &lt;tibble [313 × 5]&gt;       62.7        16 </span></span>
+<span id="cb3-10"><a></a><span class="co">#&gt; 5 &lt;tibble [313 × 5]&gt;       31.4        22</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="metrics-for-model-performance" class="slide level2">
-<h2>Metrics for model performance <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="columns">
-<div class="column" style="width:60%;">
+<section id="dynamic-predictions" class="slide level2">
+<h2>Dynamic Predictions</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb4-2"><a></a>  <span class="fu">accuracy</span>(<span class="at">truth =</span> tip, <span class="at">estimate =</span> .pred_class)</span>
-<span id="cb4-3"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb4-4"><a></a><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
-<span id="cb4-5"><a></a><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb4-6"><a></a><span class="co">#&gt; 1 accuracy binary         0.928</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div><div class="column" style="width:40%;">
-<p><img data-src="images/confusion-matrix-accuracy.png"></p>
-</div>
-</div>
-</section>
-<section id="dangers-of-accuracy" class="slide level2">
-<h2>Dangers of accuracy <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<p>We need to be careful of using <code>accuracy()</code> since it can give “good” performance by only predicting one way with imbalanced data</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb5-2"><a></a>  <span class="fu">mutate</span>(<span class="at">.pred_class =</span> <span class="fu">factor</span>(<span class="st">"yes"</span>, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"yes"</span>, <span class="st">"no"</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb5-3"><a></a>  <span class="fu">accuracy</span>(<span class="at">truth =</span> tip, <span class="at">estimate =</span> .pred_class)</span>
-<span id="cb5-4"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb5-5"><a></a><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
-<span id="cb5-6"><a></a><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb5-7"><a></a><span class="co">#&gt; 1 accuracy binary         0.923</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>demo_cat_preds<span class="sc">$</span>.pred[[<span class="dv">1</span>]]</span>
+<span id="cb4-2"><a></a><span class="co">#&gt; # A tibble: 313 × 5</span></span>
+<span id="cb4-3"><a></a><span class="co">#&gt;    .eval_time .pred_survival .weight_time .pred_censored .weight_censored</span></span>
+<span id="cb4-4"><a></a><span class="co">#&gt;         &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt;          &lt;dbl&gt;            &lt;dbl&gt;</span></span>
+<span id="cb4-5"><a></a><span class="co">#&gt;  1          8          0.971         8.00          1                 1   </span></span>
+<span id="cb4-6"><a></a><span class="co">#&gt;  2          9          0.944         9.00          0.969             1.03</span></span>
+<span id="cb4-7"><a></a><span class="co">#&gt;  3         10          0.914        10.0           0.944             1.06</span></span>
+<span id="cb4-8"><a></a><span class="co">#&gt;  4         11          0.895        11.0           0.918             1.09</span></span>
+<span id="cb4-9"><a></a><span class="co">#&gt;  5         12          0.868        12.0           0.903             1.11</span></span>
+<span id="cb4-10"><a></a><span class="co">#&gt;  6         13          0.836        13.0           0.893             1.12</span></span>
+<span id="cb4-11"><a></a><span class="co">#&gt;  7         14          0.812        14.0           0.883             1.13</span></span>
+<span id="cb4-12"><a></a><span class="co">#&gt;  8         15          0.793        15.0           0.865             1.16</span></span>
+<span id="cb4-13"><a></a><span class="co">#&gt;  9         16          0.770        16.0           0.849             1.18</span></span>
+<span id="cb4-14"><a></a><span class="co">#&gt; 10         17          0.751        17.0           0.834             1.20</span></span>
+<span id="cb4-15"><a></a><span class="co">#&gt; # ℹ 303 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="metrics-for-model-performance-1" class="slide level2">
-<h2>Metrics for model performance <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="columns">
-<div class="column" style="width:60%;">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb6-2"><a></a>  <span class="fu">sensitivity</span>(<span class="at">truth =</span> tip, <span class="at">estimate =</span> .pred_class)</span>
-<span id="cb6-3"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb6-4"><a></a><span class="co">#&gt;   .metric     .estimator .estimate</span></span>
-<span id="cb6-5"><a></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb6-6"><a></a><span class="co">#&gt; 1 sensitivity binary         0.994</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div><div class="column" style="width:40%;">
-<p><img data-src="images/confusion-matrix-sensitivity.png"></p>
-</div>
-</div>
-</section>
-<section id="metrics-for-model-performance-2" class="slide level2">
-<h2>Metrics for model performance <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="columns">
-<div class="column" style="width:60%;">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb7" data-code-line-numbers="3-6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb7-2"><a></a>  <span class="fu">sensitivity</span>(<span class="at">truth =</span> tip, <span class="at">estimate =</span> .pred_class)</span>
-<span id="cb7-3"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb7-4"><a></a><span class="co">#&gt;   .metric     .estimator .estimate</span></span>
-<span id="cb7-5"><a></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb7-6"><a></a><span class="co">#&gt; 1 sensitivity binary         0.994</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p><br></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a></a>  <span class="fu">specificity</span>(<span class="at">truth =</span> tip, <span class="at">estimate =</span> .pred_class)</span>
-<span id="cb8-3"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb8-4"><a></a><span class="co">#&gt;   .metric     .estimator .estimate</span></span>
-<span id="cb8-5"><a></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb8-6"><a></a><span class="co">#&gt; 1 specificity binary         0.130</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div><div class="column" style="width:40%;">
-<p><img data-src="images/confusion-matrix-specificity.png"></p>
-</div>
-</div>
-</section>
-<section id="metrics-for-model-performance-3" class="slide level2">
-<h2>Metrics for model performance <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<p>We can use <code>metric_set()</code> to combine multiple calculations into one</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a>taxi_metrics <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(accuracy, specificity, sensitivity)</span>
-<span id="cb9-2"><a></a></span>
-<span id="cb9-3"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb9-4"><a></a>  <span class="fu">taxi_metrics</span>(<span class="at">truth =</span> tip, <span class="at">estimate =</span> .pred_class)</span>
-<span id="cb9-5"><a></a><span class="co">#&gt; # A tibble: 3 × 3</span></span>
-<span id="cb9-6"><a></a><span class="co">#&gt;   .metric     .estimator .estimate</span></span>
-<span id="cb9-7"><a></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb9-8"><a></a><span class="co">#&gt; 1 accuracy    binary         0.928</span></span>
-<span id="cb9-9"><a></a><span class="co">#&gt; 2 specificity binary         0.130</span></span>
-<span id="cb9-10"><a></a><span class="co">#&gt; 3 sensitivity binary         0.994</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="metrics-for-model-performance-4" class="slide level2">
-<h2>Metrics for model performance <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a>taxi_metrics <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(accuracy, specificity, sensitivity)</span>
-<span id="cb10-2"><a></a></span>
-<span id="cb10-3"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb10-4"><a></a>  <span class="fu">group_by</span>(local) <span class="sc">%&gt;%</span></span>
-<span id="cb10-5"><a></a>  <span class="fu">taxi_metrics</span>(<span class="at">truth =</span> tip, <span class="at">estimate =</span> .pred_class)</span>
-<span id="cb10-6"><a></a><span class="co">#&gt; # A tibble: 6 × 4</span></span>
-<span id="cb10-7"><a></a><span class="co">#&gt;   local .metric     .estimator .estimate</span></span>
-<span id="cb10-8"><a></a><span class="co">#&gt;   &lt;fct&gt; &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb10-9"><a></a><span class="co">#&gt; 1 yes   accuracy    binary         0.898</span></span>
-<span id="cb10-10"><a></a><span class="co">#&gt; 2 no    accuracy    binary         0.935</span></span>
-<span id="cb10-11"><a></a><span class="co">#&gt; 3 yes   specificity binary         0.169</span></span>
-<span id="cb10-12"><a></a><span class="co">#&gt; 4 no    specificity binary         0.116</span></span>
-<span id="cb10-13"><a></a><span class="co">#&gt; 5 yes   sensitivity binary         0.987</span></span>
-<span id="cb10-14"><a></a><span class="co">#&gt; 6 no    sensitivity binary         0.996</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="two-class-data" class="slide level2">
-<h2>Two class data</h2>
-<p>These metrics assume that we know the threshold for converting “soft” probability predictions into “hard” class predictions.</p>
-<div class="fragment">
-<p>Is a 50% threshold good?</p>
-<p>What happens if we say that we need to be 80% sure to declare an event?</p>
-<ul>
-<li>sensitivity ⬇️, specificity ⬆️</li>
-</ul>
-</div>
-<div class="fragment">
-<p>What happens for a 20% threshold?</p>
-<ul>
-<li>sensitivity ⬆️, specificity ⬇️</li>
-</ul>
-</div>
-</section>
-<section id="varying-the-threshold" class="slide level2">
-<h2>Varying the threshold</h2>
+<section id="predicted-survival-probabilities" class="slide level2">
+<h2>Predicted Survival Probabilities</h2>
 
-<img data-src="figures/thresholds-1.svg" class="r-stretch"></section>
-<section id="roc-curves" class="slide level2">
-<h2>ROC curves</h2>
-<p>To make an ROC (receiver operator characteristic) curve, we:</p>
+<img data-src="figures/demo-probs-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="concordance" class="slide level2">
+<h2>Concordance</h2>
+<p>The concordance statistic (“c-index”, <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=%22multivariable+prognostic+models%3A+issues+in+developing+models%2C+evaluating+assumptions+and+adequacy%2C+and+measuring+and+reducing+errors%22&amp;btnG=">Harrell <em>et al</em> (1996)</a>) is a metric that quantifies that the rank order of the times is consistent with some model score (e.g., a survival probability).</p>
+<p><br></p>
+<p>It takes into account censoring and does not depend on a specific evaluation time. The range of values is <span class="math inline">\([-1, 1]\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>demo_cat_preds <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a></a>  <span class="fu">concordance_survival</span>(event_time, <span class="at">estimate =</span> .pred_time)</span>
+<span id="cb5-3"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span id="cb5-4"><a></a><span class="co">#&gt;   .metric              .estimator .estimate</span></span>
+<span id="cb5-5"><a></a><span class="co">#&gt;   &lt;chr&gt;                &lt;chr&gt;          &lt;dbl&gt;</span></span>
+<span id="cb5-6"><a></a><span class="co">#&gt; 1 concordance_survival standard       0.668</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="time-dependent-metrics" class="slide level2">
+<h2>Time-dependent metrics</h2>
+<p>We pick specific time points to evaluate the model (depending on our problem) such as every 30 days:</p>
+
+<img data-src="figures/demo-probs-again-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="classificationish-metrics" class="slide level2">
+<h2>Classification(ish) Metrics</h2>
+<p>Most dynamic metrics convert the survival probabilities to events and non-events based on some probability threshold.</p>
+<p>From there, we can apply existing classification metrics, such as</p>
 <ul>
-<li><p>calculate the sensitivity and specificity for all possible thresholds</p></li>
-<li><p>plot false positive rate (x-axis) versus true positive rate (y-axis)</p></li>
+<li>Brier Score (for calibration)</li>
+<li>Area under the ROC curve (for separation)</li>
 </ul>
-<p>given that sensitivity is the true positive rate, and specificity is the true negative rate. Hence <code>1 - specificity</code> is the false positive rate.</p>
-<div class="fragment">
-<p>We can use the area under the ROC curve as a classification metric:</p>
+<p>We’ll talk about both of these.</p>
+<p>There are more details on dynamics metrics at <a href="https://www.tidymodels.org/learn/#category=survival%20analysis">tidymodels.org</a>.</p>
+</section>
+<section id="using-the-right-evaluation-strategy" class="slide level2">
+<h2>Using the Right Evaluation Strategy</h2>
+<p>There are <em>a lot</em> of papers with different methods of evaluating survival data with dynamic metrics. Almost all of these are created to help score/screen predictors.</p>
+<p>The problem is that these metrics are not derived for estimated model probabilities. Statistically, this is a very different problem (and not applicable here).</p>
+<p>Instead, tidymodels uses an approach similar to causal inference called <em>inverse probability of censoring weights</em> (IPCW). The main reference is <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=graf+1999+%22Assessment+and+comparison+of+prognostic+classification+schemes+for+survival+data%22&amp;btnG=">Graf <em>et al</em> (1999)</a>.</p>
+</section>
+<section id="converting-to-events" class="slide level2">
+<h2>Converting to Events</h2>
+<p>For a specific time point <span class="math inline">\(\tau\)</span>, we convert the observed event time to a binary event/non-event version (if possible) (<span class="math inline">\(y_{i\tau} \in \{0, 1\}\)</span>).</p>
+<p><span class="math display">\[
+y_{i\tau} =
+\begin{cases}
+1 &amp; \text{if } t_{i} \leq \tau\text{ and  event} \notag \\
+0 &amp; \text{if } t_{i} \gt \tau \text{ and } either \notag \\
+N/A &amp; \text{if } t_{i} \leq \tau\text{ and censored }
+\end{cases}
+\]</span></p>
+</section>
+<section id="converting-to-events-1" class="slide level2">
+<h2>Converting to Events</h2>
+
+<img data-src="figures/plot-graf-categories-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:70.0%"></section>
+<section id="class-probability-estimates" class="slide level2">
+<h2>Class Probability Estimates</h2>
+<p>The predicted class probabilities are then:</p>
+<p><span class="math display">\[
+\begin{align}
+Pr[y_{i\tau} = 1] &amp;= 1- \hat{S}(\tau; \boldsymbol{x}_{i})\notag \\
+Pr[y_{i\tau} = 0] &amp;= \hat{S}(\tau; \boldsymbol{x}_{i}) \notag
+\end{align}
+\]</span></p>
+</section>
+<section id="inverse-probability-weighting" class="slide level2">
+<h2>Inverse Probability Weighting</h2>
+<p>Without censored data points, this conversion would yield appropriate performance estimates.</p>
+<p><br></p>
+<p>Otherwise, there is the potential for bias due to missingness.</p>
+<p><br></p>
+<p>One approach is to weight observations based on the likelihood that <em>each sample</em> is censored (regardless of their actual status).</p>
+</section>
+<section id="probability-of-censoring" class="slide level2">
+<h2>Probability of Censoring</h2>
+<p><span class="math inline">\(\hat{C}(t^*;\boldsymbol{x}_{i})\)</span> is the probability that sample <span class="math inline">\(i\)</span> is censored at some time <span class="math inline">\(t^*\)</span> where</p>
+<p><span class="math display">\[
+t^*=
+\begin{cases}
+t_i - \epsilon &amp;  \text{if }t_i \le \tau \\ \notag
+\tau           &amp;  \text{if }t_i &gt; \tau  \notag
+\end{cases}
+\]</span> (default: <span class="math inline">\(\epsilon = 10^{-10}\)</span>)</p>
+<p><br></p>
+<p>Case weights <span class="math inline">\(w_i(\tau)\)</span> are the inverse of these probabilities and <span class="math inline">\(W(\tau)\)</span> is their sum.</p>
+</section>
+<section id="probability-of-censoring-model" class="slide level2">
+<h2>Probability of Censoring Model</h2>
+<p>We currently only estimate the probability of non-informative right censoring (i.e.&nbsp;the predictors <span class="math inline">\(x_i\)</span> are ignored).</p>
 <ul>
-<li>ROC AUC = 1 💯</li>
-<li>ROC AUC = 1/2 😢</li>
+<li>Our estimator <span class="math inline">\(\hat{C}(T;x_i)\)</span> is the “reverse Kaplan-Meier” (RKM, <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=Korn+1986+%22Censoring+distributions+as+a+measure+of+follow-up+in+survival+analysis%22&amp;btnG=">Korn (1986)</a>) curve that inverts the event indicator.</li>
+<li>This is the same for each sample at time <span class="math inline">\(\tau\)</span>.</li>
 </ul>
+<p>(We may expand this API in the future)</p>
+<p>The RKM curve is attached to the parsnip model object. For our data set…</p>
+</section>
+<section id="reverse-kaplan-meier-curve" class="slide level2">
+<h2>Reverse Kaplan-Meier Curve</h2>
+
+<img data-src="figures/reverse-km-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="inverse-weights" class="slide level2 annotation">
+<h2>Inverse Weights</h2>
+
+<img data-src="figures/ipcw-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="brier-score" class="slide level2">
+<h2>Brier Score</h2>
+<p>The Brier score is a measure of calibration originally meant for classification models:</p>
+<p><span class="math display">\[
+Brier = \frac{1}{N}\sum_{i=1}^N\sum_{k=1}^C (y_{ik} - \hat{\pi}_{ik})^2
+\]</span></p>
+<p>For our application, we have two classes (event and non-event) and case weights</p>
+<p><span class="math display">\[
+Brier(\tau) = \frac{1}{W}\sum_{i=1}^N \sum_{k=0}^1w_i(\tau)I(y_{i\tau} = k)(y_{i\tau} - \hat{\pi}_{i\tau})^2
+\]</span></p>
+</section>
+<section id="demonstration-cat-brier-scores" class="slide level2">
+<h2>Demonstration Cat Brier Scores</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>demo_brier <span class="ot">&lt;-</span> <span class="fu">brier_survival</span>(demo_cat_preds, <span class="at">truth =</span> event_time, .pred)</span>
+<span id="cb6-2"><a></a>demo_brier <span class="sc">%&gt;%</span> <span class="fu">slice</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
+<span id="cb6-3"><a></a><span class="co">#&gt; # A tibble: 5 × 4</span></span>
+<span id="cb6-4"><a></a><span class="co">#&gt;   .metric        .estimator .eval_time .estimate</span></span>
+<span id="cb6-5"><a></a><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>
+<span id="cb6-6"><a></a><span class="co">#&gt; 1 brier_survival standard            8    0.0197</span></span>
+<span id="cb6-7"><a></a><span class="co">#&gt; 2 brier_survival standard            9    0.0394</span></span>
+<span id="cb6-8"><a></a><span class="co">#&gt; 3 brier_survival standard           10    0.0601</span></span>
+<span id="cb6-9"><a></a><span class="co">#&gt; 4 brier_survival standard           11    0.0616</span></span>
+<span id="cb6-10"><a></a><span class="co">#&gt; 5 brier_survival standard           12    0.0776</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>and also</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">brier_survival_integrated</span>(demo_cat_preds, <span class="at">truth =</span> event_time, .pred)</span>
+<span id="cb7-2"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span id="cb7-3"><a></a><span class="co">#&gt;   .metric                   .estimator .estimate</span></span>
+<span id="cb7-4"><a></a><span class="co">#&gt;   &lt;chr&gt;                     &lt;chr&gt;          &lt;dbl&gt;</span></span>
+<span id="cb7-5"><a></a><span class="co">#&gt; 1 brier_survival_integrated standard       0.152</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="brier-scores-over-time" class="slide level2">
+<h2>Brier Scores Over Time</h2>
+
+<img data-src="figures/brier-time-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:60.0%"></section>
+<section id="area-under-the-roc-curve" class="slide level2">
+<h2>Area Under the ROC Curve</h2>
+<p>This is more straightforward.</p>
+<p><br></p>
+<p>We can use the standard ROC curve machinery once we have the indicators, probabilities, and censoring weights at time <span class="math inline">\(\tau\)</span> (<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=%22Optimal+Composite+Markers+for+Time-Dependent+Receiver+Operating+Characteristic+Curves+with+Censored+Survival+Data%22&amp;btnG=">Hung and Chiang (2010)</a>).</p>
+<p><br></p>
+<p>ROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are.</p>
+</section>
+<section id="demonstration-cat-roc-auc" class="slide level2">
+<h2>Demonstration Cat ROC AUC</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>demo_row_auc <span class="ot">&lt;-</span> <span class="fu">roc_auc_survival</span>(demo_cat_preds, <span class="at">truth =</span> event_time, .pred)</span>
+<span id="cb8-2"><a></a>demo_row_auc</span>
+<span id="cb8-3"><a></a><span class="co">#&gt; # A tibble: 313 × 4</span></span>
+<span id="cb8-4"><a></a><span class="co">#&gt;    .metric          .estimator .eval_time .estimate</span></span>
+<span id="cb8-5"><a></a><span class="co">#&gt;    &lt;chr&gt;            &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>
+<span id="cb8-6"><a></a><span class="co">#&gt;  1 roc_auc_survival standard            8     0.596</span></span>
+<span id="cb8-7"><a></a><span class="co">#&gt;  2 roc_auc_survival standard            9     0.566</span></span>
+<span id="cb8-8"><a></a><span class="co">#&gt;  3 roc_auc_survival standard           10     0.487</span></span>
+<span id="cb8-9"><a></a><span class="co">#&gt;  4 roc_auc_survival standard           11     0.483</span></span>
+<span id="cb8-10"><a></a><span class="co">#&gt;  5 roc_auc_survival standard           12     0.571</span></span>
+<span id="cb8-11"><a></a><span class="co">#&gt;  6 roc_auc_survival standard           13     0.574</span></span>
+<span id="cb8-12"><a></a><span class="co">#&gt;  7 roc_auc_survival standard           14     0.678</span></span>
+<span id="cb8-13"><a></a><span class="co">#&gt;  8 roc_auc_survival standard           15     0.739</span></span>
+<span id="cb8-14"><a></a><span class="co">#&gt;  9 roc_auc_survival standard           16     0.643</span></span>
+<span id="cb8-15"><a></a><span class="co">#&gt; 10 roc_auc_survival standard           17     0.630</span></span>
+<span id="cb8-16"><a></a><span class="co">#&gt; # ℹ 303 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="roc-auc-over-time" class="slide level2">
+<h2>ROC AUC Over Time</h2>
+
+<img data-src="figures/auc-time-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:60.0%"></section>
+<section id="using-evaluation-times" class="slide level2">
+<h2>Using Evaluation Times</h2>
+<p>When predicting, you can get predictions at any values of <span class="math inline">\(\tau\)</span>.</p>
+<p><br></p>
+<p>During model development, we suggest picking a more focused set of evaluation times (for computational time).</p>
+<p><br></p>
+<p>You should also pick a time to perform your optimizations/comparisons and list that value first in the vector. If 90 days was of interest, you might use</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a>times <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">30</span>, <span class="dv">60</span>, <span class="dv">120</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section>
+<section id="dangers-of-overfitting" class="title-slide slide level1 center">
+<h1>⚠️ DANGERS OF OVERFITTING ⚠️</h1>
+
+</section>
+<section id="your-turn" class="slide level2" data-transition="slide-in">
+<h2>Your turn</h2>
+<p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
+<p><em>Why haven’t we done this?</em></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a>cph_spline_fit <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a></a>  <span class="fu">augment</span>(cat_train, <span class="at">eval_time =</span> <span class="dv">8</span><span class="sc">:</span><span class="dv">320</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a></a>  <span class="fu">brier_survival</span>(<span class="at">truth =</span> event_time, .pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div class="countdown" id="overfitting" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
+<div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+</div>
+</div>
 <aside class="notes">
-<p>ROC curves are insensitive to class imbalance.</p>
+<ul>
+<li>repredicting the training set is overly optimistic</li>
+<li>optimising that leads to overfitting</li>
+</ul>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -614,218 +709,6 @@
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</div>
-</section>
-<section id="roc-curves-1" class="slide level2">
-<h2>ROC curves <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="co"># Assumes _first_ factor level is event; there are options to change that</span></span>
-<span id="cb11-2"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-3"><a></a>  <span class="fu">roc_curve</span>(<span class="at">truth =</span> tip, .pred_yes) <span class="sc">%&gt;%</span></span>
-<span id="cb11-4"><a></a>  <span class="fu">slice</span>(<span class="dv">1</span>, <span class="dv">20</span>, <span class="dv">50</span>)</span>
-<span id="cb11-5"><a></a><span class="co">#&gt; # A tibble: 3 × 3</span></span>
-<span id="cb11-6"><a></a><span class="co">#&gt;   .threshold specificity sensitivity</span></span>
-<span id="cb11-7"><a></a><span class="co">#&gt;        &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;</span></span>
-<span id="cb11-8"><a></a><span class="co">#&gt; 1   -Inf           0         1      </span></span>
-<span id="cb11-9"><a></a><span class="co">#&gt; 2      0.783       0.209     0.981  </span></span>
-<span id="cb11-10"><a></a><span class="co">#&gt; 3      1           1         0.00135</span></span>
-<span id="cb11-11"><a></a></span>
-<span id="cb11-12"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-13"><a></a>  <span class="fu">roc_auc</span>(<span class="at">truth =</span> tip, .pred_yes)</span>
-<span id="cb11-14"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb11-15"><a></a><span class="co">#&gt;   .metric .estimator .estimate</span></span>
-<span id="cb11-16"><a></a><span class="co">#&gt;   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb11-17"><a></a><span class="co">#&gt; 1 roc_auc binary         0.691</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="roc-curve-plot" class="slide level2">
-<h2>ROC curve plot <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="cell columns column-output-location">
-<div class="column">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">augment</span>(taxi_fit, <span class="at">new_data =</span> taxi_train) <span class="sc">%&gt;%</span> </span>
-<span id="cb12-2"><a></a>  <span class="fu">roc_curve</span>(<span class="at">truth =</span> tip, .pred_yes) <span class="sc">%&gt;%</span></span>
-<span id="cb12-3"><a></a>  <span class="fu">autoplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div><div class="column">
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="figures/roc-curve-1.svg"></p>
-</figure>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="your-turn" class="slide level2" data-transition="slide-in">
-<h2>Your turn</h2>
-<p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
-<p><em>Compute and plot an ROC curve for your current model.</em></p>
-<p><em>What data are being used for this ROC curve plot?</em></p>
-<div class="cell">
-<div class="cell-output-display">
-<div class="countdown" id="roc-curve" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
-<div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
-<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
-</div>
-</div>
-</section>
-<section id="section" class="slide level2" data-background-iframe="https://yardstick.tidymodels.org/reference/index.html">
-<h2></h2>
-<div class="footer">
-
-</div>
-</section>
-<section>
-<section id="dangers-of-overfitting" class="title-slide slide level1 center">
-<h1>⚠️ DANGERS OF OVERFITTING ⚠️</h1>
-
-</section>
-<section id="dangers-of-overfitting-1" class="slide level2">
-<h2>Dangers of overfitting ⚠️</h2>
-
-<img data-src="https://raw.githubusercontent.com/topepo/2022-nyr-workshop/main/images/tuning-overfitting-train-1.svg" class="r-stretch"></section>
-<section id="dangers-of-overfitting-2" class="slide level2">
-<h2>Dangers of overfitting ⚠️</h2>
-
-<img data-src="https://raw.githubusercontent.com/topepo/2022-nyr-workshop/main/images/tuning-overfitting-test-1.svg" class="r-stretch"></section>
-<section id="dangers-of-overfitting-3" class="slide level2">
-<h2>Dangers of overfitting ⚠️ <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a>taxi_fit <span class="sc">%&gt;%</span></span>
-<span id="cb13-2"><a></a>  <span class="fu">augment</span>(taxi_train)</span>
-<span id="cb13-3"><a></a><span class="co">#&gt; # A tibble: 8,000 × 10</span></span>
-<span id="cb13-4"><a></a><span class="co">#&gt;    .pred_class .pred_yes .pred_no tip   distance company local dow   month  hour</span></span>
-<span id="cb13-5"><a></a><span class="co">#&gt;    &lt;fct&gt;           &lt;dbl&gt;    &lt;dbl&gt; &lt;fct&gt;    &lt;dbl&gt; &lt;fct&gt;   &lt;fct&gt; &lt;fct&gt; &lt;fct&gt; &lt;int&gt;</span></span>
-<span id="cb13-6"><a></a><span class="co">#&gt;  1 yes             0.967   0.0333 yes      17.2  Chicag… no    Thu   Feb      16</span></span>
-<span id="cb13-7"><a></a><span class="co">#&gt;  2 yes             0.935   0.0646 yes       0.88 City S… yes   Thu   Mar       8</span></span>
-<span id="cb13-8"><a></a><span class="co">#&gt;  3 yes             0.967   0.0333 yes      18.1  other   no    Mon   Feb      18</span></span>
-<span id="cb13-9"><a></a><span class="co">#&gt;  4 yes             0.949   0.0507 yes      12.2  Chicag… no    Sun   Mar      21</span></span>
-<span id="cb13-10"><a></a><span class="co">#&gt;  5 yes             0.821   0.179  yes       0.94 Sun Ta… yes   Sat   Apr      23</span></span>
-<span id="cb13-11"><a></a><span class="co">#&gt;  6 yes             0.967   0.0333 yes      17.5  Flash … no    Fri   Mar      12</span></span>
-<span id="cb13-12"><a></a><span class="co">#&gt;  7 yes             0.967   0.0333 yes      17.7  other   no    Sun   Jan       6</span></span>
-<span id="cb13-13"><a></a><span class="co">#&gt;  8 yes             0.938   0.0616 yes       1.85 Taxica… no    Fri   Apr      12</span></span>
-<span id="cb13-14"><a></a><span class="co">#&gt;  9 yes             0.938   0.0616 yes       0.53 Sun Ta… no    Tue   Mar      18</span></span>
-<span id="cb13-15"><a></a><span class="co">#&gt; 10 yes             0.931   0.0694 yes       6.65 Taxica… no    Sun   Apr      11</span></span>
-<span id="cb13-16"><a></a><span class="co">#&gt; # ℹ 7,990 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>We call this “resubstitution” or “repredicting the training set”</p>
-</section>
-<section id="dangers-of-overfitting-4" class="slide level2">
-<h2>Dangers of overfitting ⚠️ <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a>taxi_fit <span class="sc">%&gt;%</span></span>
-<span id="cb14-2"><a></a>  <span class="fu">augment</span>(taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb14-3"><a></a>  <span class="fu">accuracy</span>(tip, .pred_class)</span>
-<span id="cb14-4"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb14-5"><a></a><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
-<span id="cb14-6"><a></a><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb14-7"><a></a><span class="co">#&gt; 1 accuracy binary         0.928</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>We call this a “resubstitution estimate”</p>
-</section>
-<section id="dangers-of-overfitting-5" class="slide level2">
-<h2>Dangers of overfitting ⚠️ <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a>taxi_fit <span class="sc">%&gt;%</span></span>
-<span id="cb15-2"><a></a>  <span class="fu">augment</span>(taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb15-3"><a></a>  <span class="fu">accuracy</span>(tip, .pred_class)</span>
-<span id="cb15-4"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb15-5"><a></a><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
-<span id="cb15-6"><a></a><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb15-7"><a></a><span class="co">#&gt; 1 accuracy binary         0.928</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div><div class="column" style="width:50%;">
-
-</div>
-</div>
-</section>
-<section id="dangers-of-overfitting-6" class="slide level2">
-<h2>Dangers of overfitting ⚠️ <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a>taxi_fit <span class="sc">%&gt;%</span></span>
-<span id="cb16-2"><a></a>  <span class="fu">augment</span>(taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb16-3"><a></a>  <span class="fu">accuracy</span>(tip, .pred_class)</span>
-<span id="cb16-4"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb16-5"><a></a><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
-<span id="cb16-6"><a></a><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb16-7"><a></a><span class="co">#&gt; 1 accuracy binary         0.928</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div><div class="column" style="width:50%;">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a>taxi_fit <span class="sc">%&gt;%</span></span>
-<span id="cb17-2"><a></a>  <span class="fu">augment</span>(taxi_test) <span class="sc">%&gt;%</span></span>
-<span id="cb17-3"><a></a>  <span class="fu">accuracy</span>(tip, .pred_class)</span>
-<span id="cb17-4"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb17-5"><a></a><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
-<span id="cb17-6"><a></a><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb17-7"><a></a><span class="co">#&gt; 1 accuracy binary         0.908</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div>
-</div>
-<div class="fragment">
-<p>⚠️ Remember that we’re demonstrating overfitting</p>
-</div>
-<div class="fragment">
-<p>⚠️ Don’t use the test set until the <em>end</em> of your modeling analysis</p>
-</div>
-</section>
-<section id="section-1" class="slide level2" data-background-image="https://media.giphy.com/media/55itGuoAJiZEEen9gg/giphy.gif" data-background-size="70%">
-<h2></h2>
-</section>
-<section id="your-turn-1" class="slide level2" data-transition="slide-in">
-<h2>Your turn</h2>
-<p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="left: 0px; bottom: 0px; width: 150px; height: 150px; "></p>
-<p><em>Use <code>augment()</code> and a metric function to compute a classification metric like <code>brier_class()</code>.</em></p>
-<p><em>Compute the metrics for both training and testing data to demonstrate overfitting!</em></p>
-<p><em>Notice the evidence of overfitting!</em> ⚠️</p>
-<div class="cell">
-<div class="cell-output-display">
-<div class="countdown" id="augment-metrics" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
-<div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
-<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
-</div>
-</div>
-</section>
-<section id="dangers-of-overfitting-7" class="slide level2">
-<h2>Dangers of overfitting ⚠️ <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a>taxi_fit <span class="sc">%&gt;%</span></span>
-<span id="cb18-2"><a></a>  <span class="fu">augment</span>(taxi_train) <span class="sc">%&gt;%</span></span>
-<span id="cb18-3"><a></a>  <span class="fu">brier_class</span>(tip, .pred_yes)</span>
-<span id="cb18-4"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb18-5"><a></a><span class="co">#&gt;   .metric     .estimator .estimate</span></span>
-<span id="cb18-6"><a></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb18-7"><a></a><span class="co">#&gt; 1 brier_class binary        0.0632</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div><div class="column" style="width:50%;">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a>taxi_fit <span class="sc">%&gt;%</span></span>
-<span id="cb19-2"><a></a>  <span class="fu">augment</span>(taxi_test) <span class="sc">%&gt;%</span></span>
-<span id="cb19-3"><a></a>  <span class="fu">brier_class</span>(tip, .pred_yes)</span>
-<span id="cb19-4"><a></a><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span id="cb19-5"><a></a><span class="co">#&gt;   .metric     .estimator .estimate</span></span>
-<span id="cb19-6"><a></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb19-7"><a></a><span class="co">#&gt; 1 brier_class binary        0.0782</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div>
-</div>
-<div class="fragment">
-<p>What if we want to compare more models?</p>
-</div>
-<div class="fragment">
-<p>And/or more model configurations?</p>
-</div>
-<div class="fragment">
-<p>And we want to understand if these are important differences?</p>
-</div>
 </section></section>
 <section id="the-testing-data-are-precious" class="title-slide slide level1 center">
 <h1>The testing data are precious 💎</h1>
@@ -837,73 +720,46 @@
 <h1>How can we use the <em>training</em> data to compare and evaluate different models? 🤔</h1>
 
 </section>
-<section id="section-2" class="slide level2" data-background-color="white" data-background-image="https://www.tmwr.org/premade/resampling.svg" data-background-size="80%">
+<section id="section" class="slide level2" data-background-color="white" data-background-image="https://www.tmwr.org/premade/resampling.svg" data-background-size="80%">
 <h2></h2>
 </section>
 <section id="cross-validation" class="slide level2">
-<h2>Cross-validation</h2>
-
-<img data-src="https://www.tmwr.org/premade/three-CV.svg" class="r-stretch"></section>
-<section id="cross-validation-1" class="slide level2">
-<h2>Cross-validation</h2>
-
-<img data-src="https://www.tmwr.org/premade/three-CV-iter.svg" class="r-stretch"></section>
-<section id="your-turn-2" class="slide level2" data-transition="slide-in">
-<h2>Your turn</h2>
-<p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
-<p><em>If we use 10 folds, what percent of the training data</em></p>
-<ul>
-<li><em>ends up in analysis</em></li>
-<li><em>ends up in assessment</em></li>
-</ul>
-<p><em>for</em> <strong>each</strong> <em>fold?</em></p>
-<p><img data-src="images/taxi_spinning.svg" width="300"></p>
-<div class="cell">
-<div class="cell-output-display">
-<div class="countdown" id="percent-in-folds" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
-<div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
-<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
-</div>
-</div>
-</section>
-<section id="cross-validation-2" class="slide level2">
 <h2>Cross-validation <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a><span class="fu">vfold_cv</span>(taxi_train) <span class="co"># v = 10 is default</span></span>
-<span id="cb20-2"><a></a><span class="co">#&gt; #  10-fold cross-validation </span></span>
-<span id="cb20-3"><a></a><span class="co">#&gt; # A tibble: 10 × 2</span></span>
-<span id="cb20-4"><a></a><span class="co">#&gt;    splits             id    </span></span>
-<span id="cb20-5"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt; </span></span>
-<span id="cb20-6"><a></a><span class="co">#&gt;  1 &lt;split [7200/800]&gt; Fold01</span></span>
-<span id="cb20-7"><a></a><span class="co">#&gt;  2 &lt;split [7200/800]&gt; Fold02</span></span>
-<span id="cb20-8"><a></a><span class="co">#&gt;  3 &lt;split [7200/800]&gt; Fold03</span></span>
-<span id="cb20-9"><a></a><span class="co">#&gt;  4 &lt;split [7200/800]&gt; Fold04</span></span>
-<span id="cb20-10"><a></a><span class="co">#&gt;  5 &lt;split [7200/800]&gt; Fold05</span></span>
-<span id="cb20-11"><a></a><span class="co">#&gt;  6 &lt;split [7200/800]&gt; Fold06</span></span>
-<span id="cb20-12"><a></a><span class="co">#&gt;  7 &lt;split [7200/800]&gt; Fold07</span></span>
-<span id="cb20-13"><a></a><span class="co">#&gt;  8 &lt;split [7200/800]&gt; Fold08</span></span>
-<span id="cb20-14"><a></a><span class="co">#&gt;  9 &lt;split [7200/800]&gt; Fold09</span></span>
-<span id="cb20-15"><a></a><span class="co">#&gt; 10 &lt;split [7200/800]&gt; Fold10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">vfold_cv</span>(cat_train) <span class="co"># v = 10 is default</span></span>
+<span id="cb11-2"><a></a><span class="co">#&gt; #  10-fold cross-validation </span></span>
+<span id="cb11-3"><a></a><span class="co">#&gt; # A tibble: 10 × 2</span></span>
+<span id="cb11-4"><a></a><span class="co">#&gt;    splits             id    </span></span>
+<span id="cb11-5"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt; </span></span>
+<span id="cb11-6"><a></a><span class="co">#&gt;  1 &lt;split [1588/177]&gt; Fold01</span></span>
+<span id="cb11-7"><a></a><span class="co">#&gt;  2 &lt;split [1588/177]&gt; Fold02</span></span>
+<span id="cb11-8"><a></a><span class="co">#&gt;  3 &lt;split [1588/177]&gt; Fold03</span></span>
+<span id="cb11-9"><a></a><span class="co">#&gt;  4 &lt;split [1588/177]&gt; Fold04</span></span>
+<span id="cb11-10"><a></a><span class="co">#&gt;  5 &lt;split [1588/177]&gt; Fold05</span></span>
+<span id="cb11-11"><a></a><span class="co">#&gt;  6 &lt;split [1589/176]&gt; Fold06</span></span>
+<span id="cb11-12"><a></a><span class="co">#&gt;  7 &lt;split [1589/176]&gt; Fold07</span></span>
+<span id="cb11-13"><a></a><span class="co">#&gt;  8 &lt;split [1589/176]&gt; Fold08</span></span>
+<span id="cb11-14"><a></a><span class="co">#&gt;  9 &lt;split [1589/176]&gt; Fold09</span></span>
+<span id="cb11-15"><a></a><span class="co">#&gt; 10 &lt;split [1589/176]&gt; Fold10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="cross-validation-3" class="slide level2">
+<section id="cross-validation-1" class="slide level2">
 <h2>Cross-validation <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <p>What is in this?</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a>taxi_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(taxi_train)</span>
-<span id="cb21-2"><a></a>taxi_folds<span class="sc">$</span>splits[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span>
-<span id="cb21-3"><a></a><span class="co">#&gt; [[1]]</span></span>
-<span id="cb21-4"><a></a><span class="co">#&gt; &lt;Analysis/Assess/Total&gt;</span></span>
-<span id="cb21-5"><a></a><span class="co">#&gt; &lt;7200/800/8000&gt;</span></span>
-<span id="cb21-6"><a></a><span class="co">#&gt; </span></span>
-<span id="cb21-7"><a></a><span class="co">#&gt; [[2]]</span></span>
-<span id="cb21-8"><a></a><span class="co">#&gt; &lt;Analysis/Assess/Total&gt;</span></span>
-<span id="cb21-9"><a></a><span class="co">#&gt; &lt;7200/800/8000&gt;</span></span>
-<span id="cb21-10"><a></a><span class="co">#&gt; </span></span>
-<span id="cb21-11"><a></a><span class="co">#&gt; [[3]]</span></span>
-<span id="cb21-12"><a></a><span class="co">#&gt; &lt;Analysis/Assess/Total&gt;</span></span>
-<span id="cb21-13"><a></a><span class="co">#&gt; &lt;7200/800/8000&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a>cat_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(cat_train)</span>
+<span id="cb12-2"><a></a>cat_folds<span class="sc">$</span>splits[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span>
+<span id="cb12-3"><a></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb12-4"><a></a><span class="co">#&gt; &lt;Analysis/Assess/Total&gt;</span></span>
+<span id="cb12-5"><a></a><span class="co">#&gt; &lt;1588/177/1765&gt;</span></span>
+<span id="cb12-6"><a></a><span class="co">#&gt; </span></span>
+<span id="cb12-7"><a></a><span class="co">#&gt; [[2]]</span></span>
+<span id="cb12-8"><a></a><span class="co">#&gt; &lt;Analysis/Assess/Total&gt;</span></span>
+<span id="cb12-9"><a></a><span class="co">#&gt; &lt;1588/177/1765&gt;</span></span>
+<span id="cb12-10"><a></a><span class="co">#&gt; </span></span>
+<span id="cb12-11"><a></a><span class="co">#&gt; [[3]]</span></span>
+<span id="cb12-12"><a></a><span class="co">#&gt; &lt;Analysis/Assess/Total&gt;</span></span>
+<span id="cb12-13"><a></a><span class="co">#&gt; &lt;1588/177/1765&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <aside class="notes">
 <p>Talk about a list column, storing non-atomic types in dataframe</p>
@@ -919,70 +775,116 @@
           display:block!important;
       }</style></aside>
 </section>
-<section id="cross-validation-4" class="slide level2">
-<h2>Cross-validation <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
+<section id="bootstrapping" class="slide level2">
+<h2>Bootstrapping <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a><span class="fu">vfold_cv</span>(taxi_train, <span class="at">v =</span> <span class="dv">5</span>)</span>
-<span id="cb22-2"><a></a><span class="co">#&gt; #  5-fold cross-validation </span></span>
-<span id="cb22-3"><a></a><span class="co">#&gt; # A tibble: 5 × 2</span></span>
-<span id="cb22-4"><a></a><span class="co">#&gt;   splits              id   </span></span>
-<span id="cb22-5"><a></a><span class="co">#&gt;   &lt;list&gt;              &lt;chr&gt;</span></span>
-<span id="cb22-6"><a></a><span class="co">#&gt; 1 &lt;split [6400/1600]&gt; Fold1</span></span>
-<span id="cb22-7"><a></a><span class="co">#&gt; 2 &lt;split [6400/1600]&gt; Fold2</span></span>
-<span id="cb22-8"><a></a><span class="co">#&gt; 3 &lt;split [6400/1600]&gt; Fold3</span></span>
-<span id="cb22-9"><a></a><span class="co">#&gt; 4 &lt;split [6400/1600]&gt; Fold4</span></span>
-<span id="cb22-10"><a></a><span class="co">#&gt; 5 &lt;split [6400/1600]&gt; Fold5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="fu">set.seed</span>(<span class="dv">3214</span>)</span>
+<span id="cb13-2"><a></a><span class="fu">bootstraps</span>(cat_train)</span>
+<span id="cb13-3"><a></a><span class="co">#&gt; # Bootstrap sampling </span></span>
+<span id="cb13-4"><a></a><span class="co">#&gt; # A tibble: 25 × 2</span></span>
+<span id="cb13-5"><a></a><span class="co">#&gt;    splits             id         </span></span>
+<span id="cb13-6"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt;      </span></span>
+<span id="cb13-7"><a></a><span class="co">#&gt;  1 &lt;split [1765/657]&gt; Bootstrap01</span></span>
+<span id="cb13-8"><a></a><span class="co">#&gt;  2 &lt;split [1765/644]&gt; Bootstrap02</span></span>
+<span id="cb13-9"><a></a><span class="co">#&gt;  3 &lt;split [1765/625]&gt; Bootstrap03</span></span>
+<span id="cb13-10"><a></a><span class="co">#&gt;  4 &lt;split [1765/638]&gt; Bootstrap04</span></span>
+<span id="cb13-11"><a></a><span class="co">#&gt;  5 &lt;split [1765/647]&gt; Bootstrap05</span></span>
+<span id="cb13-12"><a></a><span class="co">#&gt;  6 &lt;split [1765/655]&gt; Bootstrap06</span></span>
+<span id="cb13-13"><a></a><span class="co">#&gt;  7 &lt;split [1765/655]&gt; Bootstrap07</span></span>
+<span id="cb13-14"><a></a><span class="co">#&gt;  8 &lt;split [1765/637]&gt; Bootstrap08</span></span>
+<span id="cb13-15"><a></a><span class="co">#&gt;  9 &lt;split [1765/669]&gt; Bootstrap09</span></span>
+<span id="cb13-16"><a></a><span class="co">#&gt; 10 &lt;split [1765/638]&gt; Bootstrap10</span></span>
+<span id="cb13-17"><a></a><span class="co">#&gt; # ℹ 15 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="cross-validation-5" class="slide level2">
-<h2>Cross-validation <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
+<section id="section-1" class="slide level2" data-background-iframe="https://rsample.tidymodels.org/reference/index.html">
+<h2></h2>
+<div class="footer">
+
+</div>
+</section>
+<section id="your-turn-1" class="slide level2" data-transition="slide-in">
+<h2>Your turn</h2>
+<p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
+<p><em>Create Monte Carlo cross-validation sets.</em></p>
+<p><em>(Use the reference guide to find the functions.)</em></p>
+<p><br><br></p>
+<p><em>Extension/Challenge: Create a validation set. How is this different, how is this similar to other resampling schemes?</em></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a><span class="fu">vfold_cv</span>(taxi_train, <span class="at">strata =</span> tip)</span>
-<span id="cb23-2"><a></a><span class="co">#&gt; #  10-fold cross-validation using stratification </span></span>
-<span id="cb23-3"><a></a><span class="co">#&gt; # A tibble: 10 × 2</span></span>
-<span id="cb23-4"><a></a><span class="co">#&gt;    splits             id    </span></span>
-<span id="cb23-5"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt; </span></span>
-<span id="cb23-6"><a></a><span class="co">#&gt;  1 &lt;split [7200/800]&gt; Fold01</span></span>
-<span id="cb23-7"><a></a><span class="co">#&gt;  2 &lt;split [7200/800]&gt; Fold02</span></span>
-<span id="cb23-8"><a></a><span class="co">#&gt;  3 &lt;split [7200/800]&gt; Fold03</span></span>
-<span id="cb23-9"><a></a><span class="co">#&gt;  4 &lt;split [7200/800]&gt; Fold04</span></span>
-<span id="cb23-10"><a></a><span class="co">#&gt;  5 &lt;split [7200/800]&gt; Fold05</span></span>
-<span id="cb23-11"><a></a><span class="co">#&gt;  6 &lt;split [7200/800]&gt; Fold06</span></span>
-<span id="cb23-12"><a></a><span class="co">#&gt;  7 &lt;split [7200/800]&gt; Fold07</span></span>
-<span id="cb23-13"><a></a><span class="co">#&gt;  8 &lt;split [7200/800]&gt; Fold08</span></span>
-<span id="cb23-14"><a></a><span class="co">#&gt;  9 &lt;split [7200/800]&gt; Fold09</span></span>
-<span id="cb23-15"><a></a><span class="co">#&gt; 10 &lt;split [7200/800]&gt; Fold10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="countdown" id="try-rsample" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
+<div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+</div>
+</div>
+</section>
+<section id="monte-carlo-cross-validation" class="slide level2">
+<h2>Monte Carlo Cross-Validation <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="fu">set.seed</span>(<span class="dv">322</span>)</span>
+<span id="cb14-2"><a></a><span class="fu">mc_cv</span>(cat_train, <span class="at">times =</span> <span class="dv">10</span>)</span>
+<span id="cb14-3"><a></a><span class="co">#&gt; # Monte Carlo cross-validation (0.75/0.25) with 10 resamples  </span></span>
+<span id="cb14-4"><a></a><span class="co">#&gt; # A tibble: 10 × 2</span></span>
+<span id="cb14-5"><a></a><span class="co">#&gt;    splits             id        </span></span>
+<span id="cb14-6"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt;     </span></span>
+<span id="cb14-7"><a></a><span class="co">#&gt;  1 &lt;split [1323/442]&gt; Resample01</span></span>
+<span id="cb14-8"><a></a><span class="co">#&gt;  2 &lt;split [1323/442]&gt; Resample02</span></span>
+<span id="cb14-9"><a></a><span class="co">#&gt;  3 &lt;split [1323/442]&gt; Resample03</span></span>
+<span id="cb14-10"><a></a><span class="co">#&gt;  4 &lt;split [1323/442]&gt; Resample04</span></span>
+<span id="cb14-11"><a></a><span class="co">#&gt;  5 &lt;split [1323/442]&gt; Resample05</span></span>
+<span id="cb14-12"><a></a><span class="co">#&gt;  6 &lt;split [1323/442]&gt; Resample06</span></span>
+<span id="cb14-13"><a></a><span class="co">#&gt;  7 &lt;split [1323/442]&gt; Resample07</span></span>
+<span id="cb14-14"><a></a><span class="co">#&gt;  8 &lt;split [1323/442]&gt; Resample08</span></span>
+<span id="cb14-15"><a></a><span class="co">#&gt;  9 &lt;split [1323/442]&gt; Resample09</span></span>
+<span id="cb14-16"><a></a><span class="co">#&gt; 10 &lt;split [1323/442]&gt; Resample10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="validation-set" class="slide level2">
+<h2>Validation set <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="fu">set.seed</span>(<span class="dv">853</span>)</span>
+<span id="cb15-2"><a></a>cat_val_split <span class="ot">&lt;-</span> <span class="fu">initial_validation_split</span>(cat_adoption)</span>
+<span id="cb15-3"><a></a><span class="fu">validation_set</span>(cat_val_split)</span>
+<span id="cb15-4"><a></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
+<span id="cb15-5"><a></a><span class="co">#&gt;   splits             id        </span></span>
+<span id="cb15-6"><a></a><span class="co">#&gt;   &lt;list&gt;             &lt;chr&gt;     </span></span>
+<span id="cb15-7"><a></a><span class="co">#&gt; 1 &lt;split [1354/451]&gt; validation</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
-<p>Stratification often helps, with very little downside</p>
+<p>A validation set is just another type of resample</p>
 </div>
 </section>
-<section id="cross-validation-6" class="slide level2">
+<section id="cross-validation-2" class="slide level2">
 <h2>Cross-validation <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <p>We’ll use this setup:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb24-2"><a></a>taxi_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(taxi_train, <span class="at">v =</span> <span class="dv">10</span>, <span class="at">strata =</span> tip)</span>
-<span id="cb24-3"><a></a>taxi_folds</span>
-<span id="cb24-4"><a></a><span class="co">#&gt; #  10-fold cross-validation using stratification </span></span>
-<span id="cb24-5"><a></a><span class="co">#&gt; # A tibble: 10 × 2</span></span>
-<span id="cb24-6"><a></a><span class="co">#&gt;    splits             id    </span></span>
-<span id="cb24-7"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt; </span></span>
-<span id="cb24-8"><a></a><span class="co">#&gt;  1 &lt;split [7200/800]&gt; Fold01</span></span>
-<span id="cb24-9"><a></a><span class="co">#&gt;  2 &lt;split [7200/800]&gt; Fold02</span></span>
-<span id="cb24-10"><a></a><span class="co">#&gt;  3 &lt;split [7200/800]&gt; Fold03</span></span>
-<span id="cb24-11"><a></a><span class="co">#&gt;  4 &lt;split [7200/800]&gt; Fold04</span></span>
-<span id="cb24-12"><a></a><span class="co">#&gt;  5 &lt;split [7200/800]&gt; Fold05</span></span>
-<span id="cb24-13"><a></a><span class="co">#&gt;  6 &lt;split [7200/800]&gt; Fold06</span></span>
-<span id="cb24-14"><a></a><span class="co">#&gt;  7 &lt;split [7200/800]&gt; Fold07</span></span>
-<span id="cb24-15"><a></a><span class="co">#&gt;  8 &lt;split [7200/800]&gt; Fold08</span></span>
-<span id="cb24-16"><a></a><span class="co">#&gt;  9 &lt;split [7200/800]&gt; Fold09</span></span>
-<span id="cb24-17"><a></a><span class="co">#&gt; 10 &lt;split [7200/800]&gt; Fold10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb16-2"><a></a>cat_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(cat_train, <span class="at">v =</span> <span class="dv">10</span>)</span>
+<span id="cb16-3"><a></a>cat_folds</span>
+<span id="cb16-4"><a></a><span class="co">#&gt; #  10-fold cross-validation </span></span>
+<span id="cb16-5"><a></a><span class="co">#&gt; # A tibble: 10 × 2</span></span>
+<span id="cb16-6"><a></a><span class="co">#&gt;    splits             id    </span></span>
+<span id="cb16-7"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt; </span></span>
+<span id="cb16-8"><a></a><span class="co">#&gt;  1 &lt;split [1588/177]&gt; Fold01</span></span>
+<span id="cb16-9"><a></a><span class="co">#&gt;  2 &lt;split [1588/177]&gt; Fold02</span></span>
+<span id="cb16-10"><a></a><span class="co">#&gt;  3 &lt;split [1588/177]&gt; Fold03</span></span>
+<span id="cb16-11"><a></a><span class="co">#&gt;  4 &lt;split [1588/177]&gt; Fold04</span></span>
+<span id="cb16-12"><a></a><span class="co">#&gt;  5 &lt;split [1588/177]&gt; Fold05</span></span>
+<span id="cb16-13"><a></a><span class="co">#&gt;  6 &lt;split [1589/176]&gt; Fold06</span></span>
+<span id="cb16-14"><a></a><span class="co">#&gt;  7 &lt;split [1589/176]&gt; Fold07</span></span>
+<span id="cb16-15"><a></a><span class="co">#&gt;  8 &lt;split [1589/176]&gt; Fold08</span></span>
+<span id="cb16-16"><a></a><span class="co">#&gt;  9 &lt;split [1589/176]&gt; Fold09</span></span>
+<span id="cb16-17"><a></a><span class="co">#&gt; 10 &lt;split [1589/176]&gt; Fold10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <p>Set the seed when creating resamples</p>
 </div>
-</section></section>
+</section>
+<section id="the-whole-game---status-update" class="slide level2">
+<h2>The whole game - status update</h2>
+
+<img data-src="images/whole-game-transparent-resamples.jpg" class="quarto-figure quarto-figure-center r-stretch" width="3543"></section></section>
 <section>
 <section id="we-are-equipped-with-metrics-and-resamples" class="title-slide slide level1 center">
 <h1>We are equipped with metrics and resamples!</h1>
@@ -991,36 +893,37 @@
 <section id="fit-our-model-to-the-resamples" class="slide level2">
 <h2>Fit our model to the resamples</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a>taxi_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(taxi_wflow, taxi_folds)</span>
-<span id="cb25-2"><a></a>taxi_res</span>
-<span id="cb25-3"><a></a><span class="co">#&gt; # Resampling results</span></span>
-<span id="cb25-4"><a></a><span class="co">#&gt; # 10-fold cross-validation using stratification </span></span>
-<span id="cb25-5"><a></a><span class="co">#&gt; # A tibble: 10 × 4</span></span>
-<span id="cb25-6"><a></a><span class="co">#&gt;    splits             id     .metrics         .notes          </span></span>
-<span id="cb25-7"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;          </span></span>
-<span id="cb25-8"><a></a><span class="co">#&gt;  1 &lt;split [7200/800]&gt; Fold01 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt;</span></span>
-<span id="cb25-9"><a></a><span class="co">#&gt;  2 &lt;split [7200/800]&gt; Fold02 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt;</span></span>
-<span id="cb25-10"><a></a><span class="co">#&gt;  3 &lt;split [7200/800]&gt; Fold03 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt;</span></span>
-<span id="cb25-11"><a></a><span class="co">#&gt;  4 &lt;split [7200/800]&gt; Fold04 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt;</span></span>
-<span id="cb25-12"><a></a><span class="co">#&gt;  5 &lt;split [7200/800]&gt; Fold05 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt;</span></span>
-<span id="cb25-13"><a></a><span class="co">#&gt;  6 &lt;split [7200/800]&gt; Fold06 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt;</span></span>
-<span id="cb25-14"><a></a><span class="co">#&gt;  7 &lt;split [7200/800]&gt; Fold07 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt;</span></span>
-<span id="cb25-15"><a></a><span class="co">#&gt;  8 &lt;split [7200/800]&gt; Fold08 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt;</span></span>
-<span id="cb25-16"><a></a><span class="co">#&gt;  9 &lt;split [7200/800]&gt; Fold09 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt;</span></span>
-<span id="cb25-17"><a></a><span class="co">#&gt; 10 &lt;split [7200/800]&gt; Fold10 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a>cat_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(cat_wflow, cat_folds, <span class="at">eval_time =</span> <span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">30</span>, <span class="dv">60</span>, <span class="dv">120</span>))</span>
+<span id="cb17-2"><a></a>cat_res</span>
+<span id="cb17-3"><a></a><span class="co">#&gt; # Resampling results</span></span>
+<span id="cb17-4"><a></a><span class="co">#&gt; # 10-fold cross-validation </span></span>
+<span id="cb17-5"><a></a><span class="co">#&gt; # A tibble: 10 × 4</span></span>
+<span id="cb17-6"><a></a><span class="co">#&gt;    splits             id     .metrics         .notes          </span></span>
+<span id="cb17-7"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;          </span></span>
+<span id="cb17-8"><a></a><span class="co">#&gt;  1 &lt;split [1588/177]&gt; Fold01 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb17-9"><a></a><span class="co">#&gt;  2 &lt;split [1588/177]&gt; Fold02 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb17-10"><a></a><span class="co">#&gt;  3 &lt;split [1588/177]&gt; Fold03 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb17-11"><a></a><span class="co">#&gt;  4 &lt;split [1588/177]&gt; Fold04 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb17-12"><a></a><span class="co">#&gt;  5 &lt;split [1588/177]&gt; Fold05 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb17-13"><a></a><span class="co">#&gt;  6 &lt;split [1589/176]&gt; Fold06 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb17-14"><a></a><span class="co">#&gt;  7 &lt;split [1589/176]&gt; Fold07 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb17-15"><a></a><span class="co">#&gt;  8 &lt;split [1589/176]&gt; Fold08 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb17-16"><a></a><span class="co">#&gt;  9 &lt;split [1589/176]&gt; Fold09 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb17-17"><a></a><span class="co">#&gt; 10 &lt;split [1589/176]&gt; Fold10 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="evaluating-model-performance" class="slide level2">
 <h2>Evaluating model performance <img data-src="hexes/tune.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a>taxi_res <span class="sc">%&gt;%</span></span>
-<span id="cb26-2"><a></a>  <span class="fu">collect_metrics</span>()</span>
-<span id="cb26-3"><a></a><span class="co">#&gt; # A tibble: 3 × 6</span></span>
-<span id="cb26-4"><a></a><span class="co">#&gt;   .metric     .estimator   mean     n std_err .config             </span></span>
-<span id="cb26-5"><a></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               </span></span>
-<span id="cb26-6"><a></a><span class="co">#&gt; 1 accuracy    binary     0.915     10 0.00309 Preprocessor1_Model1</span></span>
-<span id="cb26-7"><a></a><span class="co">#&gt; 2 brier_class binary     0.0721    10 0.00245 Preprocessor1_Model1</span></span>
-<span id="cb26-8"><a></a><span class="co">#&gt; 3 roc_auc     binary     0.624     10 0.0105  Preprocessor1_Model1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a>cat_res <span class="sc">%&gt;%</span></span>
+<span id="cb18-2"><a></a>  <span class="fu">collect_metrics</span>()</span>
+<span id="cb18-3"><a></a><span class="co">#&gt; # A tibble: 4 × 7</span></span>
+<span id="cb18-4"><a></a><span class="co">#&gt;   .metric        .estimator .eval_time  mean     n std_err .config             </span></span>
+<span id="cb18-5"><a></a><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               </span></span>
+<span id="cb18-6"><a></a><span class="co">#&gt; 1 brier_survival standard           30 0.212    10 0.00487 Preprocessor1_Model1</span></span>
+<span id="cb18-7"><a></a><span class="co">#&gt; 2 brier_survival standard           60 0.245    10 0.00756 Preprocessor1_Model1</span></span>
+<span id="cb18-8"><a></a><span class="co">#&gt; 3 brier_survival standard           90 0.205    10 0.00990 Preprocessor1_Model1</span></span>
+<span id="cb18-9"><a></a><span class="co">#&gt; 4 brier_survival standard          120 0.158    10 0.0106  Preprocessor1_Model1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <aside class="notes">
 <p><code>collect_metrics()</code> is one of a suite of <code>collect_*()</code> functions that can be used to work with columns of tuning results. Most columns in a tuning result prefixed with <code>.</code> have a corresponding <code>collect_*()</code> function with options for common summaries.</p>
@@ -1039,223 +942,75 @@
 <p>We can reliably measure performance using only the <strong>training</strong> data 🎉</p>
 </div>
 </section>
-<section id="comparing-metrics" class="slide level2">
-<h2>Comparing metrics <img data-src="hexes/yardstick.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<p>How do the metrics from resampling compare to the metrics from training and testing?</p>
-<div class="columns">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a>taxi_res <span class="sc">%&gt;%</span></span>
-<span id="cb27-2"><a></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb27-3"><a></a>  <span class="fu">select</span>(.metric, mean, n)</span>
-<span id="cb27-4"><a></a><span class="co">#&gt; # A tibble: 3 × 3</span></span>
-<span id="cb27-5"><a></a><span class="co">#&gt;   .metric       mean     n</span></span>
-<span id="cb27-6"><a></a><span class="co">#&gt;   &lt;chr&gt;        &lt;dbl&gt; &lt;int&gt;</span></span>
-<span id="cb27-7"><a></a><span class="co">#&gt; 1 accuracy    0.915     10</span></span>
-<span id="cb27-8"><a></a><span class="co">#&gt; 2 brier_class 0.0721    10</span></span>
-<span id="cb27-9"><a></a><span class="co">#&gt; 3 roc_auc     0.624     10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</div><div class="column" style="width:50%;">
-<p>The ROC AUC previously was</p>
-<ul>
-<li>0.69 for the training set</li>
-<li>0.64 for test set</li>
-</ul>
-</div>
-</div>
-<div class="fragment">
-<p>Remember that:</p>
-<p>⚠️ the training set gives you overly optimistic metrics</p>
-<p>⚠️ the test set is precious</p>
-</div>
-</section>
-<section id="evaluating-model-performance-1" class="slide level2">
-<h2>Evaluating model performance <img data-src="hexes/tune.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a><span class="co"># Save the assessment set results</span></span>
-<span id="cb28-2"><a></a>ctrl_taxi <span class="ot">&lt;-</span> <span class="fu">control_resamples</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb28-3"><a></a>taxi_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(taxi_wflow, taxi_folds, <span class="at">control =</span> ctrl_taxi)</span>
-<span id="cb28-4"><a></a></span>
-<span id="cb28-5"><a></a>taxi_res</span>
-<span id="cb28-6"><a></a><span class="co">#&gt; # Resampling results</span></span>
-<span id="cb28-7"><a></a><span class="co">#&gt; # 10-fold cross-validation using stratification </span></span>
-<span id="cb28-8"><a></a><span class="co">#&gt; # A tibble: 10 × 5</span></span>
-<span id="cb28-9"><a></a><span class="co">#&gt;    splits             id     .metrics         .notes           .predictions</span></span>
-<span id="cb28-10"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;           &lt;list&gt;      </span></span>
-<span id="cb28-11"><a></a><span class="co">#&gt;  1 &lt;split [7200/800]&gt; Fold01 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb28-12"><a></a><span class="co">#&gt;  2 &lt;split [7200/800]&gt; Fold02 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb28-13"><a></a><span class="co">#&gt;  3 &lt;split [7200/800]&gt; Fold03 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb28-14"><a></a><span class="co">#&gt;  4 &lt;split [7200/800]&gt; Fold04 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb28-15"><a></a><span class="co">#&gt;  5 &lt;split [7200/800]&gt; Fold05 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb28-16"><a></a><span class="co">#&gt;  6 &lt;split [7200/800]&gt; Fold06 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb28-17"><a></a><span class="co">#&gt;  7 &lt;split [7200/800]&gt; Fold07 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb28-18"><a></a><span class="co">#&gt;  8 &lt;split [7200/800]&gt; Fold08 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb28-19"><a></a><span class="co">#&gt;  9 &lt;split [7200/800]&gt; Fold09 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb28-20"><a></a><span class="co">#&gt; 10 &lt;split [7200/800]&gt; Fold10 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="evaluating-model-performance-2" class="slide level2">
-<h2>Evaluating model performance <img data-src="hexes/tune.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a></a><span class="co"># Save the assessment set results</span></span>
-<span id="cb29-2"><a></a>taxi_preds <span class="ot">&lt;-</span> <span class="fu">collect_predictions</span>(taxi_res)</span>
-<span id="cb29-3"><a></a>taxi_preds</span>
-<span id="cb29-4"><a></a><span class="co">#&gt; # A tibble: 8,000 × 7</span></span>
-<span id="cb29-5"><a></a><span class="co">#&gt;    .pred_class .pred_yes .pred_no id      .row tip   .config             </span></span>
-<span id="cb29-6"><a></a><span class="co">#&gt;    &lt;fct&gt;           &lt;dbl&gt;    &lt;dbl&gt; &lt;chr&gt;  &lt;int&gt; &lt;fct&gt; &lt;chr&gt;               </span></span>
-<span id="cb29-7"><a></a><span class="co">#&gt;  1 yes             0.938   0.0615 Fold01    14 yes   Preprocessor1_Model1</span></span>
-<span id="cb29-8"><a></a><span class="co">#&gt;  2 yes             0.946   0.0544 Fold01    19 yes   Preprocessor1_Model1</span></span>
-<span id="cb29-9"><a></a><span class="co">#&gt;  3 yes             0.973   0.0269 Fold01    33 yes   Preprocessor1_Model1</span></span>
-<span id="cb29-10"><a></a><span class="co">#&gt;  4 yes             0.903   0.0971 Fold01    43 yes   Preprocessor1_Model1</span></span>
-<span id="cb29-11"><a></a><span class="co">#&gt;  5 yes             0.973   0.0269 Fold01    74 yes   Preprocessor1_Model1</span></span>
-<span id="cb29-12"><a></a><span class="co">#&gt;  6 yes             0.903   0.0971 Fold01   103 yes   Preprocessor1_Model1</span></span>
-<span id="cb29-13"><a></a><span class="co">#&gt;  7 yes             0.915   0.0851 Fold01   104 no    Preprocessor1_Model1</span></span>
-<span id="cb29-14"><a></a><span class="co">#&gt;  8 yes             0.903   0.0971 Fold01   124 yes   Preprocessor1_Model1</span></span>
-<span id="cb29-15"><a></a><span class="co">#&gt;  9 yes             0.667   0.333  Fold01   126 yes   Preprocessor1_Model1</span></span>
-<span id="cb29-16"><a></a><span class="co">#&gt; 10 yes             0.949   0.0510 Fold01   128 yes   Preprocessor1_Model1</span></span>
-<span id="cb29-17"><a></a><span class="co">#&gt; # ℹ 7,990 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="evaluating-model-performance-3" class="slide level2">
-<h2>Evaluating model performance <img data-src="hexes/tune.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a>taxi_preds <span class="sc">%&gt;%</span> </span>
-<span id="cb30-2"><a></a>  <span class="fu">group_by</span>(id) <span class="sc">%&gt;%</span></span>
-<span id="cb30-3"><a></a>  <span class="fu">taxi_metrics</span>(<span class="at">truth =</span> tip, <span class="at">estimate =</span> .pred_class)</span>
-<span id="cb30-4"><a></a><span class="co">#&gt; # A tibble: 30 × 4</span></span>
-<span id="cb30-5"><a></a><span class="co">#&gt;    id     .metric  .estimator .estimate</span></span>
-<span id="cb30-6"><a></a><span class="co">#&gt;    &lt;chr&gt;  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb30-7"><a></a><span class="co">#&gt;  1 Fold01 accuracy binary         0.905</span></span>
-<span id="cb30-8"><a></a><span class="co">#&gt;  2 Fold02 accuracy binary         0.925</span></span>
-<span id="cb30-9"><a></a><span class="co">#&gt;  3 Fold03 accuracy binary         0.926</span></span>
-<span id="cb30-10"><a></a><span class="co">#&gt;  4 Fold04 accuracy binary         0.915</span></span>
-<span id="cb30-11"><a></a><span class="co">#&gt;  5 Fold05 accuracy binary         0.902</span></span>
-<span id="cb30-12"><a></a><span class="co">#&gt;  6 Fold06 accuracy binary         0.912</span></span>
-<span id="cb30-13"><a></a><span class="co">#&gt;  7 Fold07 accuracy binary         0.906</span></span>
-<span id="cb30-14"><a></a><span class="co">#&gt;  8 Fold08 accuracy binary         0.91 </span></span>
-<span id="cb30-15"><a></a><span class="co">#&gt;  9 Fold09 accuracy binary         0.918</span></span>
-<span id="cb30-16"><a></a><span class="co">#&gt; 10 Fold10 accuracy binary         0.931</span></span>
-<span id="cb30-17"><a></a><span class="co">#&gt; # ℹ 20 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
 <section id="where-are-the-fitted-models" class="slide level2 annotation">
 <h2>Where are the fitted models? <img data-src="hexes/tune.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a></a>taxi_res</span>
-<span id="cb31-2"><a></a><span class="co">#&gt; # Resampling results</span></span>
-<span id="cb31-3"><a></a><span class="co">#&gt; # 10-fold cross-validation using stratification </span></span>
-<span id="cb31-4"><a></a><span class="co">#&gt; # A tibble: 10 × 5</span></span>
-<span id="cb31-5"><a></a><span class="co">#&gt;    splits             id     .metrics         .notes           .predictions</span></span>
-<span id="cb31-6"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;           &lt;list&gt;      </span></span>
-<span id="cb31-7"><a></a><span class="co">#&gt;  1 &lt;split [7200/800]&gt; Fold01 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb31-8"><a></a><span class="co">#&gt;  2 &lt;split [7200/800]&gt; Fold02 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb31-9"><a></a><span class="co">#&gt;  3 &lt;split [7200/800]&gt; Fold03 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb31-10"><a></a><span class="co">#&gt;  4 &lt;split [7200/800]&gt; Fold04 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb31-11"><a></a><span class="co">#&gt;  5 &lt;split [7200/800]&gt; Fold05 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb31-12"><a></a><span class="co">#&gt;  6 &lt;split [7200/800]&gt; Fold06 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb31-13"><a></a><span class="co">#&gt;  7 &lt;split [7200/800]&gt; Fold07 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb31-14"><a></a><span class="co">#&gt;  8 &lt;split [7200/800]&gt; Fold08 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb31-15"><a></a><span class="co">#&gt;  9 &lt;split [7200/800]&gt; Fold09 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
-<span id="cb31-16"><a></a><span class="co">#&gt; 10 &lt;split [7200/800]&gt; Fold10 &lt;tibble [3 × 4]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a>cat_res</span>
+<span id="cb19-2"><a></a><span class="co">#&gt; # Resampling results</span></span>
+<span id="cb19-3"><a></a><span class="co">#&gt; # 10-fold cross-validation </span></span>
+<span id="cb19-4"><a></a><span class="co">#&gt; # A tibble: 10 × 4</span></span>
+<span id="cb19-5"><a></a><span class="co">#&gt;    splits             id     .metrics         .notes          </span></span>
+<span id="cb19-6"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;          </span></span>
+<span id="cb19-7"><a></a><span class="co">#&gt;  1 &lt;split [1588/177]&gt; Fold01 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb19-8"><a></a><span class="co">#&gt;  2 &lt;split [1588/177]&gt; Fold02 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb19-9"><a></a><span class="co">#&gt;  3 &lt;split [1588/177]&gt; Fold03 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb19-10"><a></a><span class="co">#&gt;  4 &lt;split [1588/177]&gt; Fold04 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb19-11"><a></a><span class="co">#&gt;  5 &lt;split [1588/177]&gt; Fold05 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb19-12"><a></a><span class="co">#&gt;  6 &lt;split [1589/176]&gt; Fold06 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb19-13"><a></a><span class="co">#&gt;  7 &lt;split [1589/176]&gt; Fold07 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb19-14"><a></a><span class="co">#&gt;  8 &lt;split [1589/176]&gt; Fold08 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb19-15"><a></a><span class="co">#&gt;  9 &lt;split [1589/176]&gt; Fold09 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span>
+<span id="cb19-16"><a></a><span class="co">#&gt; 10 &lt;split [1589/176]&gt; Fold10 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <p>🗑️</p>
 </div>
-</section></section>
-<section>
-<section id="alternate-resampling-schemes" class="title-slide slide level1 center">
-<h1>Alternate resampling schemes</h1>
-
 </section>
-<section id="bootstrapping" class="slide level2">
-<h2>Bootstrapping</h2>
-
-<img data-src="https://www.tmwr.org/premade/bootstraps.svg" class="r-stretch"></section>
-<section id="bootstrapping-1" class="slide level2">
-<h2>Bootstrapping <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
+<section id="but-its-easy-to-save-the-predictions" class="slide level2">
+<h2>But it’s easy to save the predictions <img data-src="hexes/tune.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a></a><span class="fu">set.seed</span>(<span class="dv">3214</span>)</span>
-<span id="cb32-2"><a></a><span class="fu">bootstraps</span>(taxi_train)</span>
-<span id="cb32-3"><a></a><span class="co">#&gt; # Bootstrap sampling </span></span>
-<span id="cb32-4"><a></a><span class="co">#&gt; # A tibble: 25 × 2</span></span>
-<span id="cb32-5"><a></a><span class="co">#&gt;    splits              id         </span></span>
-<span id="cb32-6"><a></a><span class="co">#&gt;    &lt;list&gt;              &lt;chr&gt;      </span></span>
-<span id="cb32-7"><a></a><span class="co">#&gt;  1 &lt;split [8000/2902]&gt; Bootstrap01</span></span>
-<span id="cb32-8"><a></a><span class="co">#&gt;  2 &lt;split [8000/2916]&gt; Bootstrap02</span></span>
-<span id="cb32-9"><a></a><span class="co">#&gt;  3 &lt;split [8000/3004]&gt; Bootstrap03</span></span>
-<span id="cb32-10"><a></a><span class="co">#&gt;  4 &lt;split [8000/2979]&gt; Bootstrap04</span></span>
-<span id="cb32-11"><a></a><span class="co">#&gt;  5 &lt;split [8000/2961]&gt; Bootstrap05</span></span>
-<span id="cb32-12"><a></a><span class="co">#&gt;  6 &lt;split [8000/2962]&gt; Bootstrap06</span></span>
-<span id="cb32-13"><a></a><span class="co">#&gt;  7 &lt;split [8000/3026]&gt; Bootstrap07</span></span>
-<span id="cb32-14"><a></a><span class="co">#&gt;  8 &lt;split [8000/2926]&gt; Bootstrap08</span></span>
-<span id="cb32-15"><a></a><span class="co">#&gt;  9 &lt;split [8000/2972]&gt; Bootstrap09</span></span>
-<span id="cb32-16"><a></a><span class="co">#&gt; 10 &lt;split [8000/2972]&gt; Bootstrap10</span></span>
-<span id="cb32-17"><a></a><span class="co">#&gt; # ℹ 15 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a><span class="co"># Save the assessment set results</span></span>
+<span id="cb20-2"><a></a>ctrl_cat <span class="ot">&lt;-</span> <span class="fu">control_resamples</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb20-3"><a></a>cat_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(cat_wflow, cat_folds, <span class="at">eval_time =</span> <span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">30</span>, <span class="dv">60</span>, <span class="dv">120</span>),</span>
+<span id="cb20-4"><a></a>                         <span class="at">control =</span> ctrl_cat)</span>
+<span id="cb20-5"><a></a></span>
+<span id="cb20-6"><a></a>cat_res</span>
+<span id="cb20-7"><a></a><span class="co">#&gt; # Resampling results</span></span>
+<span id="cb20-8"><a></a><span class="co">#&gt; # 10-fold cross-validation </span></span>
+<span id="cb20-9"><a></a><span class="co">#&gt; # A tibble: 10 × 5</span></span>
+<span id="cb20-10"><a></a><span class="co">#&gt;    splits             id     .metrics         .notes           .predictions</span></span>
+<span id="cb20-11"><a></a><span class="co">#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;           &lt;list&gt;      </span></span>
+<span id="cb20-12"><a></a><span class="co">#&gt;  1 &lt;split [1588/177]&gt; Fold01 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
+<span id="cb20-13"><a></a><span class="co">#&gt;  2 &lt;split [1588/177]&gt; Fold02 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
+<span id="cb20-14"><a></a><span class="co">#&gt;  3 &lt;split [1588/177]&gt; Fold03 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
+<span id="cb20-15"><a></a><span class="co">#&gt;  4 &lt;split [1588/177]&gt; Fold04 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
+<span id="cb20-16"><a></a><span class="co">#&gt;  5 &lt;split [1588/177]&gt; Fold05 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
+<span id="cb20-17"><a></a><span class="co">#&gt;  6 &lt;split [1589/176]&gt; Fold06 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
+<span id="cb20-18"><a></a><span class="co">#&gt;  7 &lt;split [1589/176]&gt; Fold07 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
+<span id="cb20-19"><a></a><span class="co">#&gt;  8 &lt;split [1589/176]&gt; Fold08 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
+<span id="cb20-20"><a></a><span class="co">#&gt;  9 &lt;split [1589/176]&gt; Fold09 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    </span></span>
+<span id="cb20-21"><a></a><span class="co">#&gt; 10 &lt;split [1589/176]&gt; Fold10 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="section-3" class="slide level2" data-background-iframe="https://rsample.tidymodels.org/reference/index.html">
-<h2></h2>
-<div class="footer">
-
-</div>
-</section>
-<section id="the-whole-game---status-update" class="slide level2">
-<h2>The whole game - status update</h2>
-
-<img data-src="images/whole-game-transparent-resamples.jpg" class="quarto-figure quarto-figure-center r-stretch" width="3543"></section>
-<section id="your-turn-3" class="slide level2" data-transition="slide-in">
-<h2>Your turn</h2>
-<p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
-<p><em>Create:</em></p>
-<ul>
-<li><em>Monte Carlo Cross-Validation sets</em></li>
-<li><em>validation set</em></li>
-</ul>
-<p>(use the reference guide to find the functions)</p>
-<p><em>Don’t forget to set a seed when you resample!</em></p>
+<section id="but-its-easy-to-collect-the-predictions" class="slide level2">
+<h2>But it’s easy to collect the predictions <img data-src="hexes/tune.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="cell-output-display">
-<div class="countdown" id="try-rsample" data-update-every="1" tabindex="0" style="right:0;bottom:0;">
-<div class="countdown-controls"><button class="countdown-bump-down">−</button><button class="countdown-bump-up">+</button></div>
-<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
-</div>
-</div>
-</section>
-<section id="monte-carlo-cross-validation" class="slide level2">
-<h2>Monte Carlo Cross-Validation <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a></a><span class="fu">set.seed</span>(<span class="dv">322</span>)</span>
-<span id="cb33-2"><a></a><span class="fu">mc_cv</span>(taxi_train, <span class="at">times =</span> <span class="dv">10</span>)</span>
-<span id="cb33-3"><a></a><span class="co">#&gt; # Monte Carlo cross-validation (0.75/0.25) with 10 resamples  </span></span>
-<span id="cb33-4"><a></a><span class="co">#&gt; # A tibble: 10 × 2</span></span>
-<span id="cb33-5"><a></a><span class="co">#&gt;    splits              id        </span></span>
-<span id="cb33-6"><a></a><span class="co">#&gt;    &lt;list&gt;              &lt;chr&gt;     </span></span>
-<span id="cb33-7"><a></a><span class="co">#&gt;  1 &lt;split [6000/2000]&gt; Resample01</span></span>
-<span id="cb33-8"><a></a><span class="co">#&gt;  2 &lt;split [6000/2000]&gt; Resample02</span></span>
-<span id="cb33-9"><a></a><span class="co">#&gt;  3 &lt;split [6000/2000]&gt; Resample03</span></span>
-<span id="cb33-10"><a></a><span class="co">#&gt;  4 &lt;split [6000/2000]&gt; Resample04</span></span>
-<span id="cb33-11"><a></a><span class="co">#&gt;  5 &lt;split [6000/2000]&gt; Resample05</span></span>
-<span id="cb33-12"><a></a><span class="co">#&gt;  6 &lt;split [6000/2000]&gt; Resample06</span></span>
-<span id="cb33-13"><a></a><span class="co">#&gt;  7 &lt;split [6000/2000]&gt; Resample07</span></span>
-<span id="cb33-14"><a></a><span class="co">#&gt;  8 &lt;split [6000/2000]&gt; Resample08</span></span>
-<span id="cb33-15"><a></a><span class="co">#&gt;  9 &lt;split [6000/2000]&gt; Resample09</span></span>
-<span id="cb33-16"><a></a><span class="co">#&gt; 10 &lt;split [6000/2000]&gt; Resample10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="validation-set" class="slide level2">
-<h2>Validation set <img data-src="hexes/rsample.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a></a><span class="fu">set.seed</span>(<span class="dv">853</span>)</span>
-<span id="cb34-2"><a></a>taxi_val_split <span class="ot">&lt;-</span> <span class="fu">initial_validation_split</span>(taxi, <span class="at">strata =</span> tip)</span>
-<span id="cb34-3"><a></a><span class="fu">validation_set</span>(taxi_val_split)</span>
-<span id="cb34-4"><a></a><span class="co">#&gt; # A tibble: 1 × 2</span></span>
-<span id="cb34-5"><a></a><span class="co">#&gt;   splits              id        </span></span>
-<span id="cb34-6"><a></a><span class="co">#&gt;   &lt;list&gt;              &lt;chr&gt;     </span></span>
-<span id="cb34-7"><a></a><span class="co">#&gt; 1 &lt;split [6000/2000]&gt; validation</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="fragment">
-<p>A validation set is just another type of resample</p>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a>cat_preds <span class="ot">&lt;-</span> <span class="fu">collect_predictions</span>(cat_res)</span>
+<span id="cb21-2"><a></a>cat_preds</span>
+<span id="cb21-3"><a></a><span class="co">#&gt; # A tibble: 1,765 × 5</span></span>
+<span id="cb21-4"><a></a><span class="co">#&gt;    .pred            id      .row event_time .config             </span></span>
+<span id="cb21-5"><a></a><span class="co">#&gt;    &lt;list&gt;           &lt;chr&gt;  &lt;int&gt;     &lt;Surv&gt; &lt;chr&gt;               </span></span>
+<span id="cb21-6"><a></a><span class="co">#&gt;  1 &lt;tibble [4 × 3]&gt; Fold01    17        35  Preprocessor1_Model1</span></span>
+<span id="cb21-7"><a></a><span class="co">#&gt;  2 &lt;tibble [4 × 3]&gt; Fold01    29        60  Preprocessor1_Model1</span></span>
+<span id="cb21-8"><a></a><span class="co">#&gt;  3 &lt;tibble [4 × 3]&gt; Fold01    51         8  Preprocessor1_Model1</span></span>
+<span id="cb21-9"><a></a><span class="co">#&gt;  4 &lt;tibble [4 × 3]&gt; Fold01    55        39+ Preprocessor1_Model1</span></span>
+<span id="cb21-10"><a></a><span class="co">#&gt;  5 &lt;tibble [4 × 3]&gt; Fold01    62        36+ Preprocessor1_Model1</span></span>
+<span id="cb21-11"><a></a><span class="co">#&gt;  6 &lt;tibble [4 × 3]&gt; Fold01    63        14  Preprocessor1_Model1</span></span>
+<span id="cb21-12"><a></a><span class="co">#&gt;  7 &lt;tibble [4 × 3]&gt; Fold01    92        14+ Preprocessor1_Model1</span></span>
+<span id="cb21-13"><a></a><span class="co">#&gt;  8 &lt;tibble [4 × 3]&gt; Fold01    95        37  Preprocessor1_Model1</span></span>
+<span id="cb21-14"><a></a><span class="co">#&gt;  9 &lt;tibble [4 × 3]&gt; Fold01    96        19+ Preprocessor1_Model1</span></span>
+<span id="cb21-15"><a></a><span class="co">#&gt; 10 &lt;tibble [4 × 3]&gt; Fold01   101        83  Preprocessor1_Model1</span></span>
+<span id="cb21-16"><a></a><span class="co">#&gt; # ℹ 1,755 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section></section>
 <section id="decision-tree" class="title-slide slide level1 center">
@@ -1277,45 +1032,47 @@
 </ul>
 <div class="fragment">
 <ul>
-<li>Often works well without tuning hyperparameters (more on this in Advanced tidymodels!), as long as there are enough trees</li>
+<li>Often works well without tuning hyperparameters (more on this in a moment), as long as there are enough trees</li>
 </ul>
 </div>
 </section>
 <section id="create-a-random-forest-model" class="slide level2">
 <h2>Create a random forest model <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a></a>rf_spec <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(<span class="at">trees =</span> <span class="dv">1000</span>, <span class="at">mode =</span> <span class="st">"classification"</span>)</span>
-<span id="cb35-2"><a></a>rf_spec</span>
-<span id="cb35-3"><a></a><span class="co">#&gt; Random Forest Model Specification (classification)</span></span>
-<span id="cb35-4"><a></a><span class="co">#&gt; </span></span>
-<span id="cb35-5"><a></a><span class="co">#&gt; Main Arguments:</span></span>
-<span id="cb35-6"><a></a><span class="co">#&gt;   trees = 1000</span></span>
-<span id="cb35-7"><a></a><span class="co">#&gt; </span></span>
-<span id="cb35-8"><a></a><span class="co">#&gt; Computational engine: ranger</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a>rf_spec <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>(<span class="at">trees =</span> <span class="dv">1000</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-2"><a></a>  <span class="fu">set_engine</span>(<span class="st">"aorsf"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb22-3"><a></a>  <span class="fu">set_mode</span>(<span class="st">"censored regression"</span>)</span>
+<span id="cb22-4"><a></a>rf_spec</span>
+<span id="cb22-5"><a></a><span class="co">#&gt; Random Forest Model Specification (censored regression)</span></span>
+<span id="cb22-6"><a></a><span class="co">#&gt; </span></span>
+<span id="cb22-7"><a></a><span class="co">#&gt; Main Arguments:</span></span>
+<span id="cb22-8"><a></a><span class="co">#&gt;   trees = 1000</span></span>
+<span id="cb22-9"><a></a><span class="co">#&gt; </span></span>
+<span id="cb22-10"><a></a><span class="co">#&gt; Computational engine: aorsf</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="create-a-random-forest-model-1" class="slide level2">
 <h2>Create a random forest model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a></a>rf_wflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>(tip <span class="sc">~</span> ., rf_spec)</span>
-<span id="cb36-2"><a></a>rf_wflow</span>
-<span id="cb36-3"><a></a><span class="co">#&gt; ══ Workflow ══════════════════════════════════════════════════════════</span></span>
-<span id="cb36-4"><a></a><span class="co">#&gt; Preprocessor: Formula</span></span>
-<span id="cb36-5"><a></a><span class="co">#&gt; Model: rand_forest()</span></span>
-<span id="cb36-6"><a></a><span class="co">#&gt; </span></span>
-<span id="cb36-7"><a></a><span class="co">#&gt; ── Preprocessor ──────────────────────────────────────────────────────</span></span>
-<span id="cb36-8"><a></a><span class="co">#&gt; tip ~ .</span></span>
-<span id="cb36-9"><a></a><span class="co">#&gt; </span></span>
-<span id="cb36-10"><a></a><span class="co">#&gt; ── Model ─────────────────────────────────────────────────────────────</span></span>
-<span id="cb36-11"><a></a><span class="co">#&gt; Random Forest Model Specification (classification)</span></span>
-<span id="cb36-12"><a></a><span class="co">#&gt; </span></span>
-<span id="cb36-13"><a></a><span class="co">#&gt; Main Arguments:</span></span>
-<span id="cb36-14"><a></a><span class="co">#&gt;   trees = 1000</span></span>
-<span id="cb36-15"><a></a><span class="co">#&gt; </span></span>
-<span id="cb36-16"><a></a><span class="co">#&gt; Computational engine: ranger</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a>rf_wflow <span class="ot">&lt;-</span> <span class="fu">workflow</span>(event_time <span class="sc">~</span> ., rf_spec)</span>
+<span id="cb23-2"><a></a>rf_wflow</span>
+<span id="cb23-3"><a></a><span class="co">#&gt; ══ Workflow ══════════════════════════════════════════════════════════</span></span>
+<span id="cb23-4"><a></a><span class="co">#&gt; Preprocessor: Formula</span></span>
+<span id="cb23-5"><a></a><span class="co">#&gt; Model: rand_forest()</span></span>
+<span id="cb23-6"><a></a><span class="co">#&gt; </span></span>
+<span id="cb23-7"><a></a><span class="co">#&gt; ── Preprocessor ──────────────────────────────────────────────────────</span></span>
+<span id="cb23-8"><a></a><span class="co">#&gt; event_time ~ .</span></span>
+<span id="cb23-9"><a></a><span class="co">#&gt; </span></span>
+<span id="cb23-10"><a></a><span class="co">#&gt; ── Model ─────────────────────────────────────────────────────────────</span></span>
+<span id="cb23-11"><a></a><span class="co">#&gt; Random Forest Model Specification (censored regression)</span></span>
+<span id="cb23-12"><a></a><span class="co">#&gt; </span></span>
+<span id="cb23-13"><a></a><span class="co">#&gt; Main Arguments:</span></span>
+<span id="cb23-14"><a></a><span class="co">#&gt;   trees = 1000</span></span>
+<span id="cb23-15"><a></a><span class="co">#&gt; </span></span>
+<span id="cb23-16"><a></a><span class="co">#&gt; Computational engine: aorsf</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="your-turn-4" class="slide level2" data-transition="slide-in">
+<section id="your-turn-2" class="slide level2" data-transition="slide-in">
 <h2>Your turn</h2>
 <p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
 <p><em>Use <code>fit_resamples()</code> and <code>rf_wflow</code> to:</em></p>
@@ -1332,22 +1089,23 @@
 </div>
 </div>
 </section>
-<section id="evaluating-model-performance-4" class="slide level2">
+<section id="evaluating-model-performance-1" class="slide level2">
 <h2>Evaluating model performance <img data-src="hexes/tune.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a></a>ctrl_taxi <span class="ot">&lt;-</span> <span class="fu">control_resamples</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb37-2"><a></a></span>
-<span id="cb37-3"><a></a><span class="co"># Random forest uses random numbers so set the seed first</span></span>
-<span id="cb37-4"><a></a></span>
-<span id="cb37-5"><a></a><span class="fu">set.seed</span>(<span class="dv">2</span>)</span>
-<span id="cb37-6"><a></a>rf_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(rf_wflow, taxi_folds, <span class="at">control =</span> ctrl_taxi)</span>
-<span id="cb37-7"><a></a><span class="fu">collect_metrics</span>(rf_res)</span>
-<span id="cb37-8"><a></a><span class="co">#&gt; # A tibble: 3 × 6</span></span>
-<span id="cb37-9"><a></a><span class="co">#&gt;   .metric     .estimator   mean     n std_err .config             </span></span>
-<span id="cb37-10"><a></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               </span></span>
-<span id="cb37-11"><a></a><span class="co">#&gt; 1 accuracy    binary     0.923     10 0.00317 Preprocessor1_Model1</span></span>
-<span id="cb37-12"><a></a><span class="co">#&gt; 2 brier_class binary     0.0706    10 0.00243 Preprocessor1_Model1</span></span>
-<span id="cb37-13"><a></a><span class="co">#&gt; 3 roc_auc     binary     0.616     10 0.0147  Preprocessor1_Model1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a>ctrl_cat <span class="ot">&lt;-</span> <span class="fu">control_resamples</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-2"><a></a></span>
+<span id="cb24-3"><a></a><span class="co"># Random forest uses random numbers so set the seed first</span></span>
+<span id="cb24-4"><a></a><span class="fu">set.seed</span>(<span class="dv">2</span>)</span>
+<span id="cb24-5"><a></a>rf_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(rf_wflow, cat_folds, <span class="at">eval_time =</span> <span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">30</span>, <span class="dv">60</span>, <span class="dv">120</span>), <span class="at">control =</span> ctrl_cat)</span>
+<span id="cb24-6"><a></a></span>
+<span id="cb24-7"><a></a><span class="fu">collect_metrics</span>(rf_res)</span>
+<span id="cb24-8"><a></a><span class="co">#&gt; # A tibble: 4 × 7</span></span>
+<span id="cb24-9"><a></a><span class="co">#&gt;   .metric        .estimator .eval_time  mean     n std_err .config             </span></span>
+<span id="cb24-10"><a></a><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               </span></span>
+<span id="cb24-11"><a></a><span class="co">#&gt; 1 brier_survival standard           30 0.210    10 0.00455 Preprocessor1_Model1</span></span>
+<span id="cb24-12"><a></a><span class="co">#&gt; 2 brier_survival standard           60 0.241    10 0.00796 Preprocessor1_Model1</span></span>
+<span id="cb24-13"><a></a><span class="co">#&gt; 3 brier_survival standard           90 0.199    10 0.00960 Preprocessor1_Model1</span></span>
+<span id="cb24-14"><a></a><span class="co">#&gt; 4 brier_survival standard          120 0.151    10 0.00840 Preprocessor1_Model1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="the-whole-game---status-update-1" class="slide level2">
@@ -1361,29 +1119,30 @@
 <div class="fragment">
 <p>We’ve shown you <code>fit()</code> and <code>predict()</code> (+ <code>augment()</code>) but there is a shortcut:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a></a><span class="co"># taxi_split has train + test info</span></span>
-<span id="cb38-2"><a></a>final_fit <span class="ot">&lt;-</span> <span class="fu">last_fit</span>(rf_wflow, taxi_split) </span>
-<span id="cb38-3"><a></a></span>
-<span id="cb38-4"><a></a>final_fit</span>
-<span id="cb38-5"><a></a><span class="co">#&gt; # Resampling results</span></span>
-<span id="cb38-6"><a></a><span class="co">#&gt; # Manual resampling </span></span>
-<span id="cb38-7"><a></a><span class="co">#&gt; # A tibble: 1 × 6</span></span>
-<span id="cb38-8"><a></a><span class="co">#&gt;   splits              id               .metrics .notes   .predictions .workflow </span></span>
-<span id="cb38-9"><a></a><span class="co">#&gt;   &lt;list&gt;              &lt;chr&gt;            &lt;list&gt;   &lt;list&gt;   &lt;list&gt;       &lt;list&gt;    </span></span>
-<span id="cb38-10"><a></a><span class="co">#&gt; 1 &lt;split [8000/2000]&gt; train/test split &lt;tibble&gt; &lt;tibble&gt; &lt;tibble&gt;     &lt;workflow&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a><span class="co"># cat_split has train + test info</span></span>
+<span id="cb25-2"><a></a>final_fit <span class="ot">&lt;-</span> <span class="fu">last_fit</span>(rf_wflow, cat_split, <span class="at">eval_time =</span> <span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">30</span>, <span class="dv">60</span>, <span class="dv">120</span>)) </span>
+<span id="cb25-3"><a></a></span>
+<span id="cb25-4"><a></a>final_fit</span>
+<span id="cb25-5"><a></a><span class="co">#&gt; # Resampling results</span></span>
+<span id="cb25-6"><a></a><span class="co">#&gt; # Manual resampling </span></span>
+<span id="cb25-7"><a></a><span class="co">#&gt; # A tibble: 1 × 6</span></span>
+<span id="cb25-8"><a></a><span class="co">#&gt;   splits             id               .metrics .notes   .predictions .workflow </span></span>
+<span id="cb25-9"><a></a><span class="co">#&gt;   &lt;list&gt;             &lt;chr&gt;            &lt;list&gt;   &lt;list&gt;   &lt;list&gt;       &lt;list&gt;    </span></span>
+<span id="cb25-10"><a></a><span class="co">#&gt; 1 &lt;split [1765/442]&gt; train/test split &lt;tibble&gt; &lt;tibble&gt; &lt;tibble&gt;     &lt;workflow&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </section>
 <section id="what-is-in-final_fit" class="slide level2">
 <h2>What is in <code>final_fit</code>? <img data-src="hexes/tune.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a></a><span class="fu">collect_metrics</span>(final_fit)</span>
-<span id="cb39-2"><a></a><span class="co">#&gt; # A tibble: 3 × 4</span></span>
-<span id="cb39-3"><a></a><span class="co">#&gt;   .metric     .estimator .estimate .config             </span></span>
-<span id="cb39-4"><a></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               </span></span>
-<span id="cb39-5"><a></a><span class="co">#&gt; 1 accuracy    binary        0.914  Preprocessor1_Model1</span></span>
-<span id="cb39-6"><a></a><span class="co">#&gt; 2 roc_auc     binary        0.638  Preprocessor1_Model1</span></span>
-<span id="cb39-7"><a></a><span class="co">#&gt; 3 brier_class binary        0.0772 Preprocessor1_Model1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a><span class="fu">collect_metrics</span>(final_fit)</span>
+<span id="cb26-2"><a></a><span class="co">#&gt; # A tibble: 4 × 5</span></span>
+<span id="cb26-3"><a></a><span class="co">#&gt;   .metric        .estimator .eval_time .estimate .config             </span></span>
+<span id="cb26-4"><a></a><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;               </span></span>
+<span id="cb26-5"><a></a><span class="co">#&gt; 1 brier_survival standard           30     0.217 Preprocessor1_Model1</span></span>
+<span id="cb26-6"><a></a><span class="co">#&gt; 2 brier_survival standard           60     0.225 Preprocessor1_Model1</span></span>
+<span id="cb26-7"><a></a><span class="co">#&gt; 3 brier_survival standard           90     0.160 Preprocessor1_Model1</span></span>
+<span id="cb26-8"><a></a><span class="co">#&gt; 4 brier_survival standard          120     0.108 Preprocessor1_Model1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <p>These are metrics computed with the <strong>test</strong> set</p>
@@ -1392,49 +1151,31 @@
 <section id="what-is-in-final_fit-1" class="slide level2">
 <h2>What is in <code>final_fit</code>? <img data-src="hexes/tune.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a></a><span class="fu">collect_predictions</span>(final_fit)</span>
-<span id="cb40-2"><a></a><span class="co">#&gt; # A tibble: 2,000 × 7</span></span>
-<span id="cb40-3"><a></a><span class="co">#&gt;    .pred_class .pred_yes .pred_no id                .row tip   .config          </span></span>
-<span id="cb40-4"><a></a><span class="co">#&gt;    &lt;fct&gt;           &lt;dbl&gt;    &lt;dbl&gt; &lt;chr&gt;            &lt;int&gt; &lt;fct&gt; &lt;chr&gt;            </span></span>
-<span id="cb40-5"><a></a><span class="co">#&gt;  1 yes             0.957   0.0426 train/test split     4 yes   Preprocessor1_Mo…</span></span>
-<span id="cb40-6"><a></a><span class="co">#&gt;  2 yes             0.938   0.0621 train/test split    10 yes   Preprocessor1_Mo…</span></span>
-<span id="cb40-7"><a></a><span class="co">#&gt;  3 yes             0.958   0.0416 train/test split    19 yes   Preprocessor1_Mo…</span></span>
-<span id="cb40-8"><a></a><span class="co">#&gt;  4 yes             0.894   0.106  train/test split    23 yes   Preprocessor1_Mo…</span></span>
-<span id="cb40-9"><a></a><span class="co">#&gt;  5 yes             0.943   0.0573 train/test split    28 yes   Preprocessor1_Mo…</span></span>
-<span id="cb40-10"><a></a><span class="co">#&gt;  6 yes             0.979   0.0213 train/test split    34 yes   Preprocessor1_Mo…</span></span>
-<span id="cb40-11"><a></a><span class="co">#&gt;  7 yes             0.954   0.0463 train/test split    35 yes   Preprocessor1_Mo…</span></span>
-<span id="cb40-12"><a></a><span class="co">#&gt;  8 yes             0.928   0.0722 train/test split    38 yes   Preprocessor1_Mo…</span></span>
-<span id="cb40-13"><a></a><span class="co">#&gt;  9 yes             0.985   0.0147 train/test split    40 yes   Preprocessor1_Mo…</span></span>
-<span id="cb40-14"><a></a><span class="co">#&gt; 10 yes             0.948   0.0523 train/test split    42 no    Preprocessor1_Mo…</span></span>
-<span id="cb40-15"><a></a><span class="co">#&gt; # ℹ 1,990 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="what-is-in-final_fit-2" class="slide level2">
-<h2>What is in <code>final_fit</code>? <img data-src="hexes/tune.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a></a><span class="fu">extract_workflow</span>(final_fit)</span>
-<span id="cb41-2"><a></a><span class="co">#&gt; ══ Workflow [trained] ════════════════════════════════════════════════</span></span>
-<span id="cb41-3"><a></a><span class="co">#&gt; Preprocessor: Formula</span></span>
-<span id="cb41-4"><a></a><span class="co">#&gt; Model: rand_forest()</span></span>
-<span id="cb41-5"><a></a><span class="co">#&gt; </span></span>
-<span id="cb41-6"><a></a><span class="co">#&gt; ── Preprocessor ──────────────────────────────────────────────────────</span></span>
-<span id="cb41-7"><a></a><span class="co">#&gt; tip ~ .</span></span>
-<span id="cb41-8"><a></a><span class="co">#&gt; </span></span>
-<span id="cb41-9"><a></a><span class="co">#&gt; ── Model ─────────────────────────────────────────────────────────────</span></span>
-<span id="cb41-10"><a></a><span class="co">#&gt; Ranger result</span></span>
-<span id="cb41-11"><a></a><span class="co">#&gt; </span></span>
-<span id="cb41-12"><a></a><span class="co">#&gt; Call:</span></span>
-<span id="cb41-13"><a></a><span class="co">#&gt;  ranger::ranger(x = maybe_data_frame(x), y = y, num.trees = ~1000,      num.threads = 1, verbose = FALSE, seed = sample.int(10^5,          1), probability = TRUE) </span></span>
-<span id="cb41-14"><a></a><span class="co">#&gt; </span></span>
-<span id="cb41-15"><a></a><span class="co">#&gt; Type:                             Probability estimation </span></span>
-<span id="cb41-16"><a></a><span class="co">#&gt; Number of trees:                  1000 </span></span>
-<span id="cb41-17"><a></a><span class="co">#&gt; Sample size:                      8000 </span></span>
-<span id="cb41-18"><a></a><span class="co">#&gt; Number of independent variables:  6 </span></span>
-<span id="cb41-19"><a></a><span class="co">#&gt; Mtry:                             2 </span></span>
-<span id="cb41-20"><a></a><span class="co">#&gt; Target node size:                 10 </span></span>
-<span id="cb41-21"><a></a><span class="co">#&gt; Variable importance mode:         none </span></span>
-<span id="cb41-22"><a></a><span class="co">#&gt; Splitrule:                        gini </span></span>
-<span id="cb41-23"><a></a><span class="co">#&gt; OOB prediction error (Brier s.):  0.07069778</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a><span class="fu">extract_workflow</span>(final_fit)</span>
+<span id="cb27-2"><a></a><span class="co">#&gt; ══ Workflow [trained] ════════════════════════════════════════════════</span></span>
+<span id="cb27-3"><a></a><span class="co">#&gt; Preprocessor: Formula</span></span>
+<span id="cb27-4"><a></a><span class="co">#&gt; Model: rand_forest()</span></span>
+<span id="cb27-5"><a></a><span class="co">#&gt; </span></span>
+<span id="cb27-6"><a></a><span class="co">#&gt; ── Preprocessor ──────────────────────────────────────────────────────</span></span>
+<span id="cb27-7"><a></a><span class="co">#&gt; event_time ~ .</span></span>
+<span id="cb27-8"><a></a><span class="co">#&gt; </span></span>
+<span id="cb27-9"><a></a><span class="co">#&gt; ── Model ─────────────────────────────────────────────────────────────</span></span>
+<span id="cb27-10"><a></a><span class="co">#&gt; ---------- Oblique random survival forest</span></span>
+<span id="cb27-11"><a></a><span class="co">#&gt; </span></span>
+<span id="cb27-12"><a></a><span class="co">#&gt;      Linear combinations: Accelerated Cox regression</span></span>
+<span id="cb27-13"><a></a><span class="co">#&gt;           N observations: 1765</span></span>
+<span id="cb27-14"><a></a><span class="co">#&gt;                 N events: 1116</span></span>
+<span id="cb27-15"><a></a><span class="co">#&gt;                  N trees: 1000</span></span>
+<span id="cb27-16"><a></a><span class="co">#&gt;       N predictors total: 18</span></span>
+<span id="cb27-17"><a></a><span class="co">#&gt;    N predictors per node: 6</span></span>
+<span id="cb27-18"><a></a><span class="co">#&gt;  Average leaves per tree: 142.739</span></span>
+<span id="cb27-19"><a></a><span class="co">#&gt; Min observations in leaf: 5</span></span>
+<span id="cb27-20"><a></a><span class="co">#&gt;       Min events in leaf: 1</span></span>
+<span id="cb27-21"><a></a><span class="co">#&gt;           OOB stat value: 0.63</span></span>
+<span id="cb27-22"><a></a><span class="co">#&gt;            OOB stat type: Harrell's C-index</span></span>
+<span id="cb27-23"><a></a><span class="co">#&gt;      Variable importance: anova</span></span>
+<span id="cb27-24"><a></a><span class="co">#&gt; </span></span>
+<span id="cb27-25"><a></a><span class="co">#&gt; -----------------------------------------</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <p>Use this for <strong>prediction</strong> on new data, like for deploying</p>
@@ -1634,7 +1375,7 @@
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
