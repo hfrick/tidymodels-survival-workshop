@@ -23,10 +23,9 @@ knitr:
 #| file: setup.R
 ```
 
-## Previously
-
 ```{r}
-#| label: pref-previous
+#| label: setup-previous
+#| echo: false
 library(tidymodels)
 library(censored)
 library(splines)
