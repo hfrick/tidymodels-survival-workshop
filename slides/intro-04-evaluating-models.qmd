@@ -359,15 +359,6 @@ demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
 demo_brier %>% filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
-and also
-
-```{r}
-#| label: brier-int-ex
-brier_survival_integrated(demo_cat_preds, truth = event_time, .pred)
-```
-
-
-
 ## Brier Scores Over Time
 
 ```{r}
@@ -384,6 +375,12 @@ demo_brier %>%
   labs(x = "Evaluation time", y = "Brier score")
 ```
 
+## Integrated Brier Score
+
+```{r}
+#| label: brier-int-ex
+brier_survival_integrated(demo_cat_preds, truth = event_time, .pred)
+```
 
 ## Area Under the ROC Curve
 
