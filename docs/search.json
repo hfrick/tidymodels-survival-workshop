@@ -4,7 +4,7 @@
     "href": "slides/intro-04-evaluating-models.html#previously",
     "title": "4 - Evaluating models",
     "section": "Previously",
-    "text": "Previously\n\nlibrary(tidymodels)\nlibrary(censored)\nlibrary(splines)\n\ndata(cat_adoption)\n\ncat_adoption &lt;- \n  cat_adoption %&gt;% \n  mutate(event_time = Surv(time, event), .keep = \"unused\", .before = everything()) \n\nset.seed(27)\nin_demo &lt;- sample.int(nrow(cat_adoption), 50)\ndemo_cats &lt;- cat_adoption %&gt;% slice(in_demo)\n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption %&gt;% slice(-in_demo), prop = 0.8)\ncat_train &lt;- training(cat_split)\ncat_test &lt;- testing(cat_split)"
+    "text": "Previously\n\nlibrary(tidymodels)\nlibrary(censored)\nlibrary(splines)\n\ndata(cat_adoption)\n\ncat_adoption &lt;- \n  cat_adoption %&gt;% \n  mutate(event_time = Surv(time, event), .keep = \"unused\", .before = everything()) \n\nset.seed(27)\nin_demo &lt;- sample.int(nrow(cat_adoption), 50)\ndemo_cats &lt;- cat_adoption %&gt;% slice(in_demo)\n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption %&gt;% slice(-in_demo), prop = 0.8)\ncat_train &lt;- training(cat_split)\ncat_test &lt;- training(cat_split)"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#an-example-model-fit",
@@ -579,5 +579,173 @@
     "title": "3 - What makes a model?",
     "section": "The whole game - status update",
     "text": "The whole game - status update\n\n\nStress that fitting a model on the entire training set was only for illustrating how to fit a model\n\n\n\n\nhttps://workshops.tidymodels.org"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#data-on-shelter-cats",
+    "href": "slides/intro-02-data-budget.html#data-on-shelter-cats",
+    "title": "2 - Your data budget",
+    "section": "Data on shelter cats",
+    "text": "Data on shelter cats\n\n\n\nThe city of Long Beach releases data on animals at the Long Beach Animal Shelter.\nOur dataset is a sample of the cats entering and leaving the shelter.\nType ?cat_adoption or check the sources to learn more about this dataset, including references.\n\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/194185/pet-house-kennel"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#data-on-shelter-cats-1",
+    "href": "slides/intro-02-data-budget.html#data-on-shelter-cats-1",
+    "title": "2 - Your data budget",
+    "section": "Data on shelter cats",
+    "text": "Data on shelter cats\n\nN = 2257\nA time-to-event outcome, consisting of the time spent at the shelter and the event status.\nAn event is a cat being homed by the Long Beach animal shelter.\nIf a cat is transfered to a different organization that works to home them, this is recorded as a non-event.\nSeveral nominal variables like sex, intake type and condition, as well as fur color.\nTwo numeric variables for the location of the intake or capture, latitiude and logitude."
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#data-on-shelter-cats-2",
+    "href": "slides/intro-02-data-budget.html#data-on-shelter-cats-2",
+    "title": "2 - Your data budget",
+    "section": "Data on shelter cats",
+    "text": "Data on shelter cats\n\nlibrary(tidymodels)\nlibrary(survival)\nlibrary(modeldata)\n\ncat_adoption\n#&gt; # A tibble: 2,257 × 20\n#&gt;     time event sex    neutered intake_condition intake_type   latitude longitude\n#&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt;  &lt;fct&gt;    &lt;fct&gt;            &lt;fct&gt;            &lt;dbl&gt;     &lt;dbl&gt;\n#&gt;  1    17     1 male   yes      fractious        owner_surren…     33.8     -118.\n#&gt;  2    98     1 male   yes      normal           stray             33.8     -118.\n#&gt;  3    15     0 male   yes      ill_moderatete   owner_surren…     33.8     -118.\n#&gt;  4    72     1 female yes      fractious        owner_surren…     33.8     -118.\n#&gt;  5    22     0 male   yes      normal           owner_surren…     33.8     -118.\n#&gt;  6    66     1 male   yes      normal           owner_surren…     33.8     -118.\n#&gt;  7   200     1 female yes      other            other             33.9     -118.\n#&gt;  8     9     0 female yes      normal           owner_surren…     33.9     -118.\n#&gt;  9    45     1 male   yes      ill_mild         stray             33.8     -118.\n#&gt; 10    38     1 male   no       ill_mild         stray             33.9     -118.\n#&gt; # ℹ 2,247 more rows\n#&gt; # ℹ 12 more variables: black &lt;int&gt;, brown &lt;int&gt;, brown_tabby &lt;int&gt;,\n#&gt; #   calico &lt;int&gt;, cream &lt;int&gt;, gray &lt;int&gt;, gray_tabby &lt;int&gt;, orange &lt;int&gt;,\n#&gt; #   orange_tabby &lt;int&gt;, tan &lt;int&gt;, tortie &lt;int&gt;, white &lt;int&gt;"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#make-the-outcome",
+    "href": "slides/intro-02-data-budget.html#make-the-outcome",
+    "title": "2 - Your data budget",
+    "section": "Make the outcome ",
+    "text": "Make the outcome \n\ncat_adoption &lt;- cat_adoption %&gt;% \n  mutate(event_time = Surv(time, event), .keep = \"unused\", .before = everything())"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#data-splitting-and-spending",
+    "href": "slides/intro-02-data-budget.html#data-splitting-and-spending",
+    "title": "2 - Your data budget",
+    "section": "Data splitting and spending",
+    "text": "Data splitting and spending\nFor machine learning, we typically split data into training and test sets:\n\n\nThe training set is used to estimate model parameters.\nThe test set is used to find an independent assessment of model performance.\n\n\n\nDo not 🚫 use the test set during training."
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#data-splitting-and-spending-1",
+    "href": "slides/intro-02-data-budget.html#data-splitting-and-spending-1",
+    "title": "2 - Your data budget",
+    "section": "Data splitting and spending",
+    "text": "Data splitting and spending"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#data-splitting-and-spending-2",
+    "href": "slides/intro-02-data-budget.html#data-splitting-and-spending-2",
+    "title": "2 - Your data budget",
+    "section": "Data splitting and spending",
+    "text": "Data splitting and spending\n\nSpending too much data in training prevents us from computing a good assessment of predictive performance.\n\n\n\nSpending too much data in testing prevents us from computing a good estimate of model parameters."
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#your-turn",
+    "href": "slides/intro-02-data-budget.html#your-turn",
+    "title": "2 - Your data budget",
+    "section": "Your turn",
+    "text": "Your turn\n\nWhen is a good time to split your data?\n\n\n\n−+\n03:00"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#the-initial-split",
+    "href": "slides/intro-02-data-budget.html#the-initial-split",
+    "title": "2 - Your data budget",
+    "section": "The initial split ",
+    "text": "The initial split \n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption)\ncat_split\n#&gt; &lt;Training/Testing/Total&gt;\n#&gt; &lt;1692/565/2257&gt;\n\n\nHow much data in training vs testing? This function uses a good default, but this depends on your specific goal/data We will talk about more powerful ways of splitting, like stratification, later"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#accessing-the-data",
+    "href": "slides/intro-02-data-budget.html#accessing-the-data",
+    "title": "2 - Your data budget",
+    "section": "Accessing the data ",
+    "text": "Accessing the data \n\ncat_train &lt;- training(cat_split)\ncat_test &lt;- testing(cat_split)"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#the-training-set",
+    "href": "slides/intro-02-data-budget.html#the-training-set",
+    "title": "2 - Your data budget",
+    "section": "The training set",
+    "text": "The training set\n\ncat_train\n#&gt; # A tibble: 1,692 × 19\n#&gt;    event_time sex     neutered intake_condition   intake_type latitude longitude\n#&gt;        &lt;Surv&gt; &lt;fct&gt;   &lt;fct&gt;    &lt;fct&gt;              &lt;fct&gt;          &lt;dbl&gt;     &lt;dbl&gt;\n#&gt;  1        33  male    yes      under_age_or_weig… stray           33.8     -118.\n#&gt;  2        37  female  yes      normal             stray           33.8     -118.\n#&gt;  3        65  female  yes      feral              stray           33.9     -118.\n#&gt;  4        10  male    yes      other              stray           33.8     -118.\n#&gt;  5         8  female  yes      fractious          stray           33.8     -118.\n#&gt;  6        58+ unknown unknown  normal             stray           33.8     -118.\n#&gt;  7       452  male    no       under_age_or_weig… stray           33.8     -118.\n#&gt;  8        66  male    yes      normal             owner_surr…     33.8     -118.\n#&gt;  9        25+ male    no       normal             stray           33.9     -118.\n#&gt; 10       111+ male    no       ill_mild           stray           33.8     -118.\n#&gt; # ℹ 1,682 more rows\n#&gt; # ℹ 12 more variables: black &lt;int&gt;, brown &lt;int&gt;, brown_tabby &lt;int&gt;,\n#&gt; #   calico &lt;int&gt;, cream &lt;int&gt;, gray &lt;int&gt;, gray_tabby &lt;int&gt;, orange &lt;int&gt;,\n#&gt; #   orange_tabby &lt;int&gt;, tan &lt;int&gt;, tortie &lt;int&gt;, white &lt;int&gt;"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#the-test-set",
+    "href": "slides/intro-02-data-budget.html#the-test-set",
+    "title": "2 - Your data budget",
+    "section": "The test set ",
+    "text": "The test set \n🙈\n\nThere are 565 rows and 19 columns in the test set."
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#your-turn-1",
+    "href": "slides/intro-02-data-budget.html#your-turn-1",
+    "title": "2 - Your data budget",
+    "section": "Your turn",
+    "text": "Your turn\n\nSplit your data so 20% is held out for the test set.\nTry out different values in set.seed() to see how the results change.\n\nExtension/Challenge: This is a simple random split. Which other types of splits can you think of and does rsample offer corresponding functions?\n\n\n\n−+\n05:00"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#data-splitting-and-spending-3",
+    "href": "slides/intro-02-data-budget.html#data-splitting-and-spending-3",
+    "title": "2 - Your data budget",
+    "section": "Data splitting and spending ",
+    "text": "Data splitting and spending \n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption, prop = 0.8)\ncat_train &lt;- training(cat_split)\ncat_test &lt;- testing(cat_split)\n\nnrow(cat_train)\n#&gt; [1] 1805\nnrow(cat_test)\n#&gt; [1] 452"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#data-splitting-and-spending-4",
+    "href": "slides/intro-02-data-budget.html#data-splitting-and-spending-4",
+    "title": "2 - Your data budget",
+    "section": "Data splitting and spending ",
+    "text": "Data splitting and spending \nWe’ll use this setup:\n\nset.seed(27)\nin_demo &lt;- sample.int(nrow(cat_adoption), 50)\ndemo_cats &lt;- cat_adoption %&gt;% slice(in_demo)\n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption %&gt;% slice(-in_demo), prop = 0.8)\ncat_train &lt;- training(cat_split)\ncat_test &lt;- testing(cat_split)"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#your-turn-2",
+    "href": "slides/intro-02-data-budget.html#your-turn-2",
+    "title": "2 - Your data budget",
+    "section": "Your turn",
+    "text": "Your turn\n\nExplore the cat_train data on your own!\n\nWhat does the Kaplan-Meier curve look like for the outcome, event_time?\nHow does event_time differ across the categorical variables?\nWhat’s the distribution of the location information, latitude and longitude?\n\n\nExtension/Challenge: How would you visualize the relelationship between the outcome and longitude and latitude, respectively?\n\n\n\n−+\n08:00\n\n\n\n\nMake a plot or summary and then share with neighbor"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#time-to-adoption",
+    "href": "slides/intro-02-data-budget.html#time-to-adoption",
+    "title": "2 - Your data budget",
+    "section": "Time to adoption ",
+    "text": "Time to adoption \n\nlibrary(ggsurvfit)\nsurvfit(event_time ~ 1, data = cat_adoption) %&gt;% ggsurvfit()"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#section",
+    "href": "slides/intro-02-data-budget.html#section",
+    "title": "2 - Your data budget",
+    "section": "",
+    "text": "survfit(event_time ~ neutered, data = cat_train) %&gt;% ggsurvfit()"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#section-1",
+    "href": "slides/intro-02-data-budget.html#section-1",
+    "title": "2 - Your data budget",
+    "section": "",
+    "text": "survfit(event_time ~ brown_tabby, data = cat_train) %&gt;% ggsurvfit()"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#section-2",
+    "href": "slides/intro-02-data-budget.html#section-2",
+    "title": "2 - Your data budget",
+    "section": "",
+    "text": "survfit(event_time ~ gray, data = cat_train) %&gt;% ggsurvfit()"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#section-3",
+    "href": "slides/intro-02-data-budget.html#section-3",
+    "title": "2 - Your data budget",
+    "section": "",
+    "text": "library(leaflet)\ncat_train %&gt;% \n  leaflet() %&gt;%\n  addProviderTiles(\"CartoDB.Positron\") %&gt;%  \n  addCircles(lng = ~ longitude, lat = ~ latitude)"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#section-4",
+    "href": "slides/intro-02-data-budget.html#section-4",
+    "title": "2 - Your data budget",
+    "section": "",
+    "text": "smooth_ph_linear_pred(event_time ~ latitude, data = cat_adoption, deg_free = 6)\n\n\nsmooth_ph_linear_pred() a custom function, available\nin slides/setup.R. \n\nlatitude ~ “y-axis”"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#section-5",
+    "href": "slides/intro-02-data-budget.html#section-5",
+    "title": "2 - Your data budget",
+    "section": "",
+    "text": "smooth_ph_linear_pred(event_time ~ longitude, data = cat_adoption, deg_free = 5)\n\n\n\nlongitude ~ “x-axis”"
+  },
+  {
+    "objectID": "slides/intro-02-data-budget.html#the-whole-game---status-update",
+    "href": "slides/intro-02-data-budget.html#the-whole-game---status-update",
+    "title": "2 - Your data budget",
+    "section": "The whole game - status update",
+    "text": "The whole game - status update\n\n\n\n\nhttps://workshops.tidymodels.org"
   }
 ]

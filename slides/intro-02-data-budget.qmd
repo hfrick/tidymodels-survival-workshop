@@ -70,7 +70,7 @@ cat_adoption
 
 ```{r cats-surv-outcome}
 cat_adoption <- cat_adoption %>% 
-  mutate(event_time = Surv(time, event), .keep = "unused")
+  mutate(event_time = Surv(time, event), .keep = "unused", .before = everything()) 
 ```
 
 ## Data splitting and spending
@@ -205,6 +205,21 @@ cat_test <- testing(cat_split)
 
 nrow(cat_train)
 nrow(cat_test)
+```
+
+## Data splitting and spending `r hexes("rsample")`
+
+We'll use this setup:
+
+```{r cat-split-demo}
+set.seed(27)
+in_demo <- sample.int(nrow(cat_adoption), 50)
+demo_cats <- cat_adoption %>% slice(in_demo)
+
+set.seed(123)
+cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_train <- training(cat_split)
+cat_test <- testing(cat_split)
 ```
 
 # Exploratory data analysis for ML 🧐
