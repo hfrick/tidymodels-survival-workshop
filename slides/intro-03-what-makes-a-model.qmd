@@ -80,11 +80,14 @@ library(censored)
 library(modeldata)
 
 cat_adoption <- cat_adoption %>% 
-  mutate(event_time = Surv(time, event), .keep = "unused")
+  mutate(event_time = Surv(time, event), .keep = "unused", .before = everything())
+
+set.seed(27)
+in_demo <- sample.int(nrow(cat_adoption), 50)
+demo_cats <- cat_adoption %>% slice(in_demo)
 
 set.seed(123)
-
-cat_split <- initial_split(cat_adoption, prop = 0.8)
+cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- testing(cat_split)
 ```
@@ -259,6 +262,7 @@ p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_tr
   tidyr::unnest(cols = .pred) %>% 
   ggplot() +
   geom_line(aes(.eval_time, .pred_survival, col = intake_condition)) +
+  scale_color_discrete(guide = guide_legend(nrow = 3)) + 
   labs(x = "Time", y = "Probability of remaining in the shelter") +
   theme_bw(base_size = 18) +
   theme(legend.position = "bottom")
@@ -301,7 +305,7 @@ $\lambda(t | x_i) = \lambda_0(t) \cdot \exp (x_i^T \beta)$
 ```{r tree-fit}
 #| echo: false
 
-fit_dt <- decision_tree(cost_complexity = 0.01) %>%
+fit_dt <- decision_tree(cost_complexity = 0.008) %>%
   set_mode("censored regression") %>% 
   fit(event_time ~ intake_condition, data = cat_train) 
 ```
@@ -384,13 +388,13 @@ cat_new_3 <- tibble(
 )
 p_dt <- fit_dt %>% 
   augment(new_data = cat_new_3, eval_time = seq(0, 360, 1)) %>% 
-  mutate(intake_condition = factor(intake_condition, levels = c("ill_mild", "normal", "feral"))) %>% 
+  mutate(intake_condition = factor(intake_condition, levels = c("feral", "normal", "ill_mild"))) %>% 
   tidyr::unnest(cols = .pred) %>% 
   ggplot() +
   geom_step(aes(.eval_time, .pred_survival, color = intake_condition)) +
   scale_color_discrete(
-    labels = c("ill_mild, under_age_or_weight", "ill_moderatete, normal, other", "fractious, feral"),
-    guide = guide_legend(ncol = 2)
+    labels = c("fractious, feral", "normal, other", "ill_mild, ill_moderatete, under_age_or_weight"),
+    guide = guide_legend(ncol = 1)
     ) + 
   labs(x = "Time", y = "Probability of remaining in the shelter") +
   theme_bw(base_size = 18) +
@@ -546,7 +550,7 @@ tree_fit <-
 How do you use your new `tree_fit` model?
 
 ```{r tree-wflow-predict}
-predict(tree_fit, new_data = cat_test)
+predict(tree_fit, new_data = demo_cats)
 ```
 
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
@@ -554,22 +558,43 @@ predict(tree_fit, new_data = cat_test)
 How do you use your new `tree_fit` model?
 
 ```{r tree-wflow-predict-time}
-predict(tree_fit, new_data = cat_test, type = "time")
+predict(tree_fit, new_data = demo_cats, type = "time")
 ```
 
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-predict-survival}
-preds <- predict(tree_fit, new_data = cat_test, type = "survival", eval_time = c(30, 365))
+preds <- predict(tree_fit, new_data = demo_cats, type = "survival", eval_time = c(30, 365))
 preds
 ```
 
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-predict-survival-2}
-preds <- predict(tree_fit, new_data = cat_test, type = "survival", eval_time = c(30, 365))
+preds <- predict(tree_fit, new_data = demo_cats, type = "survival", eval_time = c(30, 365))
 
 preds$.pred[[1]]
+```
+
+## Predict with your model `r hexes("censored", "parsnip", "workflows")`
+
+```{r predict-survival-curve}
+#| code-line-numbers: "1-3|4-6|7|8-11"
+#| fig.width: 8
+#| fig.height: 6
+#| fig.align: "center"
+#| output-location: slide
+predict(tree_fit, new_data = demo_cats, type = "survival", 
+  eval_time = seq(0, 365, by = 5)
+) %>% 
+  slice(c(1,2,5)) %>% 
+  add_rowindex() %>% 
+  mutate(cat = paste0("#", .row)) %>% 
+  unnest(.pred) %>% 
+  ggplot(aes(.eval_time, .pred_survival, col = cat)) +
+  geom_step() +
+  labs(x = "Time", y = "Probability of remaining in the shelter") +
+  theme_bw(base_size = 18)
 ```
 
 ##  {background-iframe="https://censored.tidymodels.org/#available-models-engines-and-prediction-types"}

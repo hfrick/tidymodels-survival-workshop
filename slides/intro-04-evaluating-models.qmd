@@ -44,7 +44,7 @@ demo_cats <- cat_adoption %>% slice(in_demo)
 set.seed(123)
 cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
-cat_test <- training(cat_split)
+cat_test <- testing(cat_split)
 ```
 
 ## An Example Model Fit {.annotation} 
@@ -82,34 +82,6 @@ demo_cat_preds %>% select(1:3) %>% slice(1:5)
 #| include: false
 
 save(demo_cat_preds, file = "RData/demo_cat_preds.RData")
-```
-
-## Dynamic Predictions
-
-```{r}
-#| label: demo-cat-dot-pred
-demo_cat_preds$.pred[[1]]
-```
-
-
-## Predicted Survival Probabilities
-
-
-```{r}
-#| label: demo-probs
-#| echo: false
-#| fig-width: 6
-#| fig-height: 4
-#| out-width: 80%
-#| fig-align: center
-demo_cat_preds %>% 
-  slice(1:4) %>% 
-  add_rowindex() %>% 
-  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
-  unnest(.pred) %>% 
-  ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
-  geom_line() +
-  labs(x = "Evaluation Time", y = "Pr[Not Adopted Yet]")
 ```
 
 ## Concordance

@@ -2,6 +2,10 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-04-evaluating-models.html</loc>
-    <lastmod>2024-06-28T09:51:21.749Z</lastmod>
+    <lastmod>2024-06-28T11:06:09.332Z</lastmod>
+  </url>
+  <url>
+    <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-03-what-makes-a-model.html</loc>
+    <lastmod>2024-06-28T11:05:49.550Z</lastmod>
   </url>
 </urlset>
