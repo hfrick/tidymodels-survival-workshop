@@ -44,7 +44,7 @@ demo_cats <- cat_adoption %>% slice(in_demo)
 set.seed(123)
 cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
-cat_test <- training(cat_split)
+cat_test <- testing(cat_split)
 ```
 
 ## An Example Model Fit {.annotation} 
