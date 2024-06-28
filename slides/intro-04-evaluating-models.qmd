@@ -351,7 +351,7 @@ $$
 Brier(\tau) = \frac{1}{W}\sum_{i=1}^N \sum_{k=0}^1w_i(\tau)I(y_{i\tau} = k)(y_{i\tau} - \hat{\pi}_{i\tau})^2
 $$
 
-## Demonstration Cat Brier Scores
+## Brier Scores
 
 ```{r}
 #| label: brier-ex
@@ -359,7 +359,7 @@ demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
 demo_brier %>% filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
-## Brier Scores Over Time
+## Brier Scores Over Evaluation Time
 
 ```{r}
 #| label: brier-time
@@ -395,14 +395,14 @@ We can use the standard ROC curve machinery once we have the indicators, probabi
 ROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are.  
 
 
-## Demonstration Cat ROC AUC 
+## Area Under the ROC Curve 
 
 ```{r auc-survival}
 demo_row_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
 demo_row_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
-## ROC AUC Over Time
+## ROC AUC Over Evaluation Time
 
 ```{r}
 #| label: auc-time
