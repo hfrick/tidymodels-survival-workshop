@@ -80,11 +80,14 @@ library(censored)
 library(modeldata)
 
 cat_adoption <- cat_adoption %>% 
-  mutate(event_time = Surv(time, event), .keep = "unused")
+  mutate(event_time = Surv(time, event), .keep = "unused", .before = everything())
+
+set.seed(27)
+in_demo <- sample.int(nrow(cat_adoption), 50)
+demo_cats <- cat_adoption %>% slice(in_demo)
 
 set.seed(123)
-
-cat_split <- initial_split(cat_adoption, prop = 0.8)
+cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- testing(cat_split)
 ```
@@ -546,7 +549,7 @@ tree_fit <-
 How do you use your new `tree_fit` model?
 
 ```{r tree-wflow-predict}
-predict(tree_fit, new_data = cat_test)
+predict(tree_fit, new_data = demo_cats)
 ```
 
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
@@ -554,20 +557,20 @@ predict(tree_fit, new_data = cat_test)
 How do you use your new `tree_fit` model?
 
 ```{r tree-wflow-predict-time}
-predict(tree_fit, new_data = cat_test, type = "time")
+predict(tree_fit, new_data = demo_cats, type = "time")
 ```
 
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-predict-survival}
-preds <- predict(tree_fit, new_data = cat_test, type = "survival", eval_time = c(30, 365))
+preds <- predict(tree_fit, new_data = demo_cats, type = "survival", eval_time = c(30, 365))
 preds
 ```
 
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-predict-survival-2}
-preds <- predict(tree_fit, new_data = cat_test, type = "survival", eval_time = c(30, 365))
+preds <- predict(tree_fit, new_data = demo_cats, type = "survival", eval_time = c(30, 365))
 
 preds$.pred[[1]]
 ```
@@ -575,23 +578,21 @@ preds$.pred[[1]]
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 ```{r predict-survival-curve}
-#| code-line-numbers: "1-3|4-6|7|8-13"
+#| code-line-numbers: "1-3|4-6|7|8-11"
 #| fig.width: 8
 #| fig.height: 6
 #| fig.align: "center"
 #| output-location: slide
-predict(tree_fit, new_data = cat_test, type = "survival", 
+predict(tree_fit, new_data = demo_cats, type = "survival", 
   eval_time = seq(0, 365, by = 5)
 ) %>% 
-  slice_sample(n = 4) %>% 
+  slice(c(1,2,5)) %>% 
   add_rowindex() %>% 
   mutate(cat = paste0("#", .row)) %>% 
   unnest(.pred) %>% 
-  ggplot(aes(.eval_time, .pred_survival, 
-             col = cat)) +
+  ggplot(aes(.eval_time, .pred_survival, col = cat)) +
   geom_step() +
-  labs(x = "Time", 
-       y = "Probability of remaining in the shelter") +
+  labs(x = "Time", y = "Probability of remaining in the shelter") +
   theme_bw(base_size = 18)
 ```
 
