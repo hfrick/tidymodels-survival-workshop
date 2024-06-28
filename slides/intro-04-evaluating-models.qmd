@@ -356,7 +356,7 @@ $$
 ```{r}
 #| label: brier-ex
 demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
-demo_brier %>% slice(1:5)
+demo_brier %>% filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
 and also
@@ -402,7 +402,7 @@ ROC curves measure the separation between events and non-events and are ignorant
 
 ```{r auc-survival}
 demo_row_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
-demo_row_auc
+demo_row_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
 ## ROC AUC Over Time
