@@ -115,7 +115,7 @@ demo_cat_preds %>%
   ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
   geom_line() +
   geom_vline(xintercept = (1:12) * 30, col = "black", lty = 3, alpha = 7 / 10) +
-  labs(x = "Evaluation Time", y = "Pr[Survival]")
+  labs(x = "Evaluation time", y = "Probability of not adopted")
 ```
 
 
@@ -381,7 +381,7 @@ demo_brier %>%
   ggplot(aes(.eval_time, .estimate)) + 
   geom_line() + 
   geom_hline(yintercept = 0, col = "green")+
-  labs(x = "Evaluation Time", y = "Brier Score")
+  labs(x = "Evaluation time", y = "Brier score")
 ```
 
 
@@ -419,7 +419,7 @@ demo_row_auc %>%
   geom_line() + 
   geom_hline(yintercept = 1, col = "green")+
   geom_hline(yintercept = 1/2, col = "red")+
-  labs(x = "Evaluation Time", y = "ROC AUC")
+  labs(x = "Evaluation time", y = "ROC AUC")
 ```
 
 ## Using Evaluation Times
