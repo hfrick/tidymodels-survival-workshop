@@ -1,6 +1,6 @@
 ---
 title: "4 - Evaluating models"
-subtitle: "Introduction to tidymodels"
+subtitle: "Survival analysis with tidymodels"
 format:
   revealjs: 
     slide-number: true
@@ -23,352 +23,478 @@ knitr:
 #| file: setup.R
 ```
 
-## Looking at predictions
+## Previously
 
-```{r setup-previous}
-#| echo: false
+```{r}
+#| label: pref-previous
 library(tidymodels)
+library(censored)
+library(splines)
+
+data(cat_adoption)
+
+cat_adoption <- 
+  cat_adoption %>% 
+  mutate(event_time = Surv(time, event), .keep = "unused", .before = everything()) 
+
+set.seed(27)
+in_demo <- sample.int(nrow(cat_adoption), 50)
+demo_cats <- cat_adoption %>% slice(in_demo)
 
 set.seed(123)
-taxi_split <- initial_split(taxi, prop = 0.8, strata = tip)
-taxi_train <- training(taxi_split)
-taxi_test <- testing(taxi_split)
-
-tree_spec <- decision_tree(cost_complexity = 0.0001, mode = "classification")
-taxi_wflow <- workflow(tip ~ ., tree_spec)
-taxi_fit <- fit(taxi_wflow, taxi_train)
+cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_train <- training(cat_split)
+cat_test <- training(cat_split)
 ```
 
-```{r taxi-fit-augment}
-augment(taxi_fit, new_data = taxi_train) %>%
-  relocate(tip, .pred_class, .pred_yes, .pred_no)
+## An Example Model Fit {.annotation} 
+
+Let's fit another PH and add some nonlinear terms via [splines](https://aml4td.org/chapters/interactions-nonlinear.html#sec-splines):
+
+```{r}
+#| label: example-fit
+# First add all of the predictors...
+f <- event_time ~ . -
+  # Then remove geocoded columns
+  longitude - latitude +
+  # Then add them back as spline terms
+  ns(longitude, df = 5) + ns(latitude, df = 5)
+
+cat_wflow <- workflow(f, proportional_hazards())
+
+cph_spline_fit <- cat_wflow %>%
+  fit(data = cat_train)
 ```
 
-## Confusion matrix `r hexes("yardstick")`
+## Predictions
 
-![](images/confusion-matrix.png)
+For our demo data set of n = `r nrow(demo_cats)` cats, the largest event time was `r max(demo_cats$event_time[,1][demo_cats$event_time[,2] ==1])`. 
 
-## Confusion matrix `r hexes("yardstick")`
+We'll make predictions from 8 days to 320 days: 
 
-```{r conf-mat}
-augment(taxi_fit, new_data = taxi_train) %>%
-  conf_mat(truth = tip, estimate = .pred_class)
+```{r}
+#| label: demo-cat-preds
+demo_cat_preds <- augment(cph_spline_fit, demo_cats, eval_time = 8:320)
+demo_cat_preds %>% select(1:3) %>% slice(1:5)
+```
+```{r}
+#| label: save-pred-for-annotations
+#| include: false
+
+save(demo_cat_preds, file = "RData/demo_cat_preds.RData")
 ```
 
-## Confusion matrix `r hexes("yardstick")`
+## Dynamic Predictions
 
-```{r conf-mat-plot}
-augment(taxi_fit, new_data = taxi_train) %>%
-  conf_mat(truth = tip, estimate = .pred_class) %>%
-  autoplot(type = "heatmap")
+```{r}
+#| label: demo-cat-dot-pred
+demo_cat_preds$.pred[[1]]
 ```
 
-## Metrics for model performance `r hexes("yardstick")`
 
-::: columns
-::: {.column width="60%"}
-```{r acc}
-augment(taxi_fit, new_data = taxi_train) %>%
-  accuracy(truth = tip, estimate = .pred_class)
-```
-:::
+## Predicted Survival Probabilities
 
-::: {.column width="40%"}
-![](images/confusion-matrix-accuracy.png)
-:::
-:::
 
-## Dangers of accuracy `r hexes("yardstick")`
-
-We need to be careful of using `accuracy()` since it can give "good" performance by only predicting one way with imbalanced data
-
-```{r acc-2}
-augment(taxi_fit, new_data = taxi_train) %>%
-  mutate(.pred_class = factor("yes", levels = c("yes", "no"))) %>%
-  accuracy(truth = tip, estimate = .pred_class)
+```{r}
+#| label: demo-probs
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4
+#| out-width: 80%
+#| fig-align: center
+demo_cat_preds %>% 
+  slice(1:4) %>% 
+  add_rowindex() %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
+  unnest(.pred) %>% 
+  ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
+  geom_line() +
+  labs(x = "Evaluation Time", y = "Pr[Not Adopted Yet]")
 ```
 
-## Metrics for model performance `r hexes("yardstick")`
+## Concordance
 
-::: columns
-::: {.column width="60%"}
-```{r sens}
-augment(taxi_fit, new_data = taxi_train) %>%
-  sensitivity(truth = tip, estimate = .pred_class)
+The concordance statistic (“c-index”, [Harrell _et al_ (1996)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22multivariable+prognostic+models%3A+issues+in+developing+models%2C+evaluating+assumptions+and+adequacy%2C+and+measuring+and+reducing+errors%22&btnG=)) is a metric that quantifies that the rank order of the times is consistent with some model score (e.g., a survival probability). 
+
+<br> 
+
+It takes into account censoring and does not depend on a specific evaluation time. The range of values is $[-1, 1]$. 
+
+```{r}
+#| label: concordance
+demo_cat_preds %>% 
+  concordance_survival(event_time, estimate = .pred_time)
 ```
-:::
 
-::: {.column width="40%"}
-![](images/confusion-matrix-sensitivity.png)
-:::
-:::
+## Time-dependent metrics
 
+We pick specific time points to evaluate the model (depending on our problem) such as every 30 days: 
 
-## Metrics for model performance `r hexes("yardstick")`
-
-::: columns
-::: {.column width="60%"}
-```{r sens-2}
-#| code-line-numbers: "3-6"
-augment(taxi_fit, new_data = taxi_train) %>%
-  sensitivity(truth = tip, estimate = .pred_class)
+```{r}
+#| label: demo-probs-again
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4
+#| out-width: 80%
+#| fig-align: center
+demo_cat_preds %>% 
+  slice(1:4) %>% 
+  add_rowindex() %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
+  unnest(.pred) %>% 
+  ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
+  geom_line() +
+  geom_vline(xintercept = (1:12) * 30, col = "black", lty = 3, alpha = 7 / 10) +
+  labs(x = "Evaluation Time", y = "Pr[Survival]")
 ```
+
+
+## Classification(ish) Metrics
+
+Most dynamic metrics convert the survival probabilities to events and non-events based on some probability threshold. 
+
+From there, we can apply existing classification metrics, such as
+
+- Brier Score (for calibration)
+- Area under the ROC curve (for separation)
+
+We’ll talk about both of these. 
+
+There are more details on dynamics metrics at [tidymodels.org](https://www.tidymodels.org/learn/#category=survival%20analysis). 
+
+## Using the Right Evaluation Strategy
+
+There are _a lot_ of papers with different methods of evaluating survival data with dynamic metrics. Almost all of these are created to help score/screen predictors. 
+
+The problem is that these metrics are not derived for estimated model probabilities. Statistically, this is a very different problem (and not applicable here).
+
+Instead, tidymodels uses an approach similar to causal inference called _inverse probability of censoring weights_ (IPCW). The main reference is [Graf _et al_ (1999)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=graf+1999+%22Assessment+and+comparison+of+prognostic+classification+schemes+for+survival+data%22&btnG=).
+
+## Converting to Events
+
+For a specific time point $\tau$, we convert the observed event time to a binary event/non-event version (if possible) ($y_{i\tau} \in \{0, 1\}$). 
+
+$$
+y_{i\tau} = 
+\begin{cases}
+1 & \text{if } t_{i} \leq \tau\text{ and  event} \notag \\ 
+0 & \text{if } t_{i} \gt \tau \text{ and } either \notag \\ 
+N/A & \text{if } t_{i} \leq \tau\text{ and censored }
+\end{cases}
+$$
+
+## Converting to Events
+
+```{r}
+#| label: plot-graf-categories
+#| echo: false
+#| warning: false
+#| fig-width: 8
+#| fig-height: 4
+#| out-width: 70%
+#| fig-align: center
+obs_time <- c(4, 2)
+obs_status <- c("censored", "event")
+
+df1 <- tibble::tibble(
+  obs_id = 1:2,
+  obs_time = obs_time,
+  obs_status = obs_status,
+  eval_time = 1,
+  eval_status = c("censored", "censored")
+)
+df2 <- tibble::tibble(
+  obs_id = 1:2,
+  obs_time = obs_time,
+  obs_status = obs_status,
+  eval_time = 3,
+  eval_status = c("censored", "event")
+)
+df3 <- tibble::tibble(
+  obs_id = 1:2,
+  obs_time = obs_time,
+  obs_status = obs_status,
+  eval_time = 5,
+  eval_status = c(NA, "event")
+)
+df <- bind_rows(df1, df2, df3)
+
+pch_dot_empty <- 1
+pch_dot_solid <- 19
+pch_triangle_empty <- 2
+pch_triangle_solid <- 17
+
+df %>% 
+  dplyr::mutate(
+    obs_status = dplyr::if_else(obs_status == "censored", pch_dot_empty, pch_dot_solid),
+    eval_status = dplyr::if_else(eval_status == "censored", pch_triangle_empty, pch_triangle_solid)
+  ) %>% 
+  ggplot() +
+  geom_point(aes(obs_time, obs_id, shape = obs_status, size = I(5))) +
+  geom_segment(aes(x = rep(0, 6), y = obs_id, xend = obs_time, yend = obs_id)) +
+  geom_vline(aes(xintercept = eval_time, col = I("red"), linetype = I("dashed"), linewidth = I(0.8))) +
+  geom_point(aes(eval_time, obs_id, shape = eval_status, col = I("red"), size = I(5))) +
+  scale_shape_identity("Status",
+                       labels = c("Observation: censored", "Observation: event",
+                                  "Evaluation: non-event", "Evaluation: event"),
+                       breaks = c(1, 19, 2, 17),
+                       guide = "legend") +
+  scale_x_continuous(limits = c(0, 7)) +
+  scale_y_continuous(limits = c(0.5, 2.5)) +
+  labs(x = "Time", y = "Sample") +
+  theme_bw() +
+  theme(axis.text.y = element_blank(), legend.position = "top") +
+  facet_grid(~ eval_time) 
+```
+
+
+
+## Class Probability Estimates
+
+The predicted class probabilities are then: 
+
+$$
+\begin{align}
+Pr[y_{i\tau} = 1] &= 1- \hat{S}(\tau; \boldsymbol{x}_{i})\notag \\
+Pr[y_{i\tau} = 0] &= \hat{S}(\tau; \boldsymbol{x}_{i}) \notag 
+\end{align}
+$$
+
+## Inverse Probability Weighting
+
+Without censored data points, this conversion would yield appropriate performance estimates. 
 
 <br>
 
-```{r spec}
-augment(taxi_fit, new_data = taxi_train) %>%
-  specificity(truth = tip, estimate = .pred_class)
-```
-:::
+Otherwise, there is the potential for bias due to missingness. 
 
-::: {.column width="40%"}
-![](images/confusion-matrix-specificity.png)
-:::
-:::
+<br>
 
-## Metrics for model performance `r hexes("yardstick")`
+One approach is to weight observations based on the likelihood that _each sample_ is censored (regardless of their actual status).
 
-We can use `metric_set()` to combine multiple calculations into one
 
-```{r taxi-metrics}
-taxi_metrics <- metric_set(accuracy, specificity, sensitivity)
 
-augment(taxi_fit, new_data = taxi_train) %>%
-  taxi_metrics(truth = tip, estimate = .pred_class)
-```
+## Probability of Censoring
 
-## Metrics for model performance `r hexes("yardstick")`
+$\hat{C}(t^*;\boldsymbol{x}_{i})$ is the probability that sample $i$ is censored at some time $t^*$ where
 
-```{r taxi-metrics-grouped}
-taxi_metrics <- metric_set(accuracy, specificity, sensitivity)
+$$
+t^*= 
+\begin{cases}
+t_i - \epsilon &  \text{if }t_i \le \tau \\ \notag
+\tau           &  \text{if }t_i > \tau  \notag 
+\end{cases}
+$$
+(default: $\epsilon = 10^{-10}$)
 
-augment(taxi_fit, new_data = taxi_train) %>%
-  group_by(local) %>%
-  taxi_metrics(truth = tip, estimate = .pred_class)
-```
+<br>
 
-## Two class data
+Case weights $w_i(\tau)$ are the inverse of these probabilities and $W(\tau)$ is their sum.
 
-These metrics assume that we know the threshold for converting "soft" probability predictions into "hard" class predictions.
 
-. . .
 
-Is a 50% threshold good? 
+## Probability of Censoring Model
 
-What happens if we say that we need to be 80% sure to declare an event?
+We currently only estimate the probability of non-informative right censoring (i.e. the predictors $x_i$ are ignored). 
 
--   sensitivity ⬇️, specificity ⬆️
+ - Our estimator $\hat{C}(T;x_i)$ is the “reverse Kaplan-Meier” (RKM, [Korn (1986)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Korn+1986+%22Censoring+distributions+as+a+measure+of+follow-up+in+survival+analysis%22&btnG=)) curve that inverts the event indicator. 
+ - This is the same for each sample at time $\tau$. 
 
-. . .
+(We may expand this API in the future)
 
-What happens for a 20% threshold?
+The RKM curve is attached to the parsnip model object. For our data set...
 
--   sensitivity ⬆️, specificity ⬇️
-
-## Varying the threshold
+## Reverse Kaplan-Meier Curve
 
 ```{r}
-#| label: thresholds
+#| label: reverse-km
 #| echo: false
-
-augment(taxi_fit, new_data = taxi_train) %>% 
-  roc_curve(truth = tip, .pred_yes) %>% 
-  filter(is.finite(.threshold)) %>% 
-  pivot_longer(c(specificity, sensitivity), names_to = "statistic", values_to = "value") %>% 
-  rename(`event threshold` = .threshold) %>% 
-  ggplot(aes(x = `event threshold`, y = value, col = statistic, group = statistic)) + 
-  geom_line() +
-  scale_color_brewer(palette = "Dark2") +
-  labs(y = NULL) +
-  coord_equal() +
-  theme(legend.position = "top")
-```
-
-## ROC curves
-
-To make an ROC (receiver operator characteristic) curve, we:
-
-- calculate the sensitivity and specificity for all possible thresholds
-
-- plot false positive rate (x-axis) versus true positive rate (y-axis)
-
-given that sensitivity is the true positive rate, and specificity is the true negative rate. Hence `1 - specificity` is the false positive rate.
-
-. . .
-
-We can use the area under the ROC curve as a classification metric: 
-
-- ROC AUC = 1 💯 
-- ROC AUC = 1/2 😢
-
-:::notes
-ROC curves are insensitive to class imbalance.
-:::
-
-## ROC curves `r hexes("yardstick")`
-
-```{r roc-auc}
-# Assumes _first_ factor level is event; there are options to change that
-augment(taxi_fit, new_data = taxi_train) %>% 
-  roc_curve(truth = tip, .pred_yes) %>%
-  slice(1, 20, 50)
-
-augment(taxi_fit, new_data = taxi_train) %>% 
-  roc_auc(truth = tip, .pred_yes)
-```
-
-## ROC curve plot `r hexes("yardstick")`
-
-```{r roc-curve}
 #| fig-width: 6
-#| fig-height: 6
-#| output-location: "column"
+#| fig-height: 4
+#| out-width: 80%
+#| fig-align: center
+cph_spline_fit_parsnip <- extract_fit_parsnip(cph_spline_fit)
+rkm_data <- 
+  cph_spline_fit_parsnip$censor_probs$fit[c("time", "surv")] %>% 
+  as_tibble() %>% 
+  set_names(c(".eval_time", ".pred_censored"))
 
-augment(taxi_fit, new_data = taxi_train) %>% 
-  roc_curve(truth = tip, .pred_yes) %>%
-  autoplot()
+max_wt_time <- 
+  demo_cat_preds %>% 
+  slice(1:4) %>% 
+  add_rowindex() %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
+  unnest(.pred) %>% 
+  summarize(max_weight_time = max(.weight_time, na.rm = TRUE), .by = c(cat))
+
+demo_cat_preds %>% 
+  slice(1:4) %>% 
+  add_rowindex() %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
+  unnest(.pred) %>% 
+  ggplot(aes(.weight_time, .pred_censored)) +
+  geom_vline(data = max_wt_time, aes(xintercept = max_weight_time, col = cat), 
+             lty = 3, show.legend = FALSE) + 
+  geom_line(data = rkm_data, aes(x = .eval_time), alpha = 1 / 5, linewidth = 1 / 2) +
+  geom_line(aes(group = cat, col = cat), show.legend = FALSE, linewidth = 1) +
+  labs(x = "Evaluation Time", y = "Prob Censored") + 
+  lims(y = 0:1) +
+  facet_wrap(~ cat)
 ```
+
+## Inverse Weights {.annotation} 
+
+```{r}
+#| label: ipcw
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4
+#| out-width: 80%
+#| fig-align: center
+
+demo_cat_preds %>% 
+  slice(1:4) %>% 
+  add_rowindex() %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
+  unnest(.pred) %>% 
+  filter(.eval_time <= 50) %>% 
+  ggplot(aes(.eval_time, .weight_censored)) + 
+  geom_line(aes(group = cat, col = cat), show.legend = FALSE) +
+  geom_vline(data = max_wt_time, aes(xintercept = max_weight_time, col = cat), 
+             lty = 3, show.legend = FALSE) +
+  labs(x = "Evaluation Time", y = "IPCW") + 
+  facet_wrap(~ cat)
+```
+
+
+## Brier Score
+
+The Brier score is a measure of calibration originally meant for classification models:
+
+$$
+Brier = \frac{1}{N}\sum_{i=1}^N\sum_{k=1}^C (y_{ik} - \hat{\pi}_{ik})^2
+$$
+
+For our application, we have two classes (event and non-event) and case weights
+
+$$
+Brier(\tau) = \frac{1}{W}\sum_{i=1}^N \sum_{k=0}^1w_i(\tau)I(y_{i\tau} = k)(y_{i\tau} - \hat{\pi}_{i\tau})^2
+$$
+
+## Demonstration Cat Brier Scores
+
+```{r}
+#| label: brier-ex
+demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
+demo_brier %>% slice(1:5)
+```
+
+and also
+
+```{r}
+#| label: brier-int-ex
+brier_survival_integrated(demo_cat_preds, truth = event_time, .pred)
+```
+
+
+
+## Brier Scores Over Time
+
+```{r}
+#| label: brier-time
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4.25
+#| out-width: 60%
+#| fig-align: center
+demo_brier %>% 
+  ggplot(aes(.eval_time, .estimate)) + 
+  geom_line() + 
+  geom_hline(yintercept = 0, col = "green")+
+  labs(x = "Evaluation Time", y = "Brier Score")
+```
+
+
+## Area Under the ROC Curve
+
+This is more straightforward. 
+
+<br>
+
+We can use the standard ROC curve machinery once we have the indicators, probabilities, and censoring weights at time $\tau$ ([Hung and Chiang (2010)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Optimal+Composite+Markers+for+Time-Dependent+Receiver+Operating+Characteristic+Curves+with+Censored+Survival+Data%22&btnG=)). 
+
+<br>
+
+ROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are.  
+
+
+## Demonstration Cat ROC AUC 
+
+```{r auc-survival}
+demo_row_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
+demo_row_auc
+```
+
+## ROC AUC Over Time
+
+```{r}
+#| label: auc-time
+#| echo: false
+#| fig-width: 6
+#| fig-height: 4.25
+#| out-width: 60%
+#| fig-align: center
+demo_row_auc %>% 
+  ggplot(aes(.eval_time, .estimate)) + 
+  geom_line() + 
+  geom_hline(yintercept = 1, col = "green")+
+  geom_hline(yintercept = 1/2, col = "red")+
+  labs(x = "Evaluation Time", y = "ROC AUC")
+```
+
+## Using Evaluation Times
+
+When predicting, you can get predictions at any values of $\tau$. 
+
+<br>
+
+During model development, we suggest picking a more focused set of evaluation times (for computational time). 
+
+<br>
+
+You should also pick a time to perform your optimizations/comparisons and list that value first in the vector. If 90 days was of interest, you might use
+
+```{r}
+#| label: time-example
+times <- c(90, 30, 60, 120)
+```
+
+
+
+# ⚠️ DANGERS OF OVERFITTING ⚠️
 
 ## Your turn {transition="slide-in"}
 
 ![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
 
-*Compute and plot an ROC curve for your current model.*
+*Why haven't we done this?*
 
-*What data are being used for this ROC curve plot?*
-
-```{r ex-roc-curve}
-#| echo: false
-countdown::countdown(minutes = 5, id = "roc-curve")
-```
-
-##  {background-iframe="https://yardstick.tidymodels.org/reference/index.html"}
-
-::: footer
-:::
-
-# ⚠️ DANGERS OF OVERFITTING ⚠️
-
-## Dangers of overfitting ⚠️
-
-![](https://raw.githubusercontent.com/topepo/2022-nyr-workshop/main/images/tuning-overfitting-train-1.svg)
-
-## Dangers of overfitting ⚠️
-
-![](https://raw.githubusercontent.com/topepo/2022-nyr-workshop/main/images/tuning-overfitting-test-1.svg)
-
-## Dangers of overfitting ⚠️ `r hexes("yardstick")`
-
-```{r augment-train}
-taxi_fit %>%
-  augment(taxi_train)
-```
-
-We call this "resubstitution" or "repredicting the training set"
-
-## Dangers of overfitting ⚠️ `r hexes("yardstick")`
-
-```{r augment-acc}
-taxi_fit %>%
-  augment(taxi_train) %>%
-  accuracy(tip, .pred_class)
-```
-
-We call this a "resubstitution estimate"
-
-## Dangers of overfitting ⚠️ `r hexes("yardstick")`
-
-::: columns
-::: {.column width="50%"}
 ```{r augment-acc-2}
-taxi_fit %>%
-  augment(taxi_train) %>%
-  accuracy(tip, .pred_class)
+#| eval: false
+cph_spline_fit %>%
+  augment(cat_train, eval_time = 8:320) %>%
+  brier_survival(truth = event_time, .pred)
 ```
-:::
 
-::: {.column width="50%"}
-:::
-:::
-
-## Dangers of overfitting ⚠️ `r hexes("yardstick")`
-
-::: columns
-::: {.column width="50%"}
-```{r augment-acc-3}
-taxi_fit %>%
-  augment(taxi_train) %>%
-  accuracy(tip, .pred_class)
-```
-:::
-
-::: {.column width="50%"}
-```{r augment-acc-test}
-taxi_fit %>%
-  augment(taxi_test) %>%
-  accuracy(tip, .pred_class)
-```
-:::
-:::
-
-. . .
-
-⚠️ Remember that we're demonstrating overfitting 
-
-. . .
-
-⚠️ Don't use the test set until the *end* of your modeling analysis
-
-
-##  {background-image="https://media.giphy.com/media/55itGuoAJiZEEen9gg/giphy.gif" background-size="70%"}
-
-## Your turn {transition="slide-in"}
-
-![](images/parsnip-flagger.jpg){.absolute bottom="0" left="0" width="150" height="150"}
-
-*Use `augment()` and a metric function to compute a classification metric like `brier_class()`.*
-
-*Compute the metrics for both training and testing data to demonstrate overfitting!*
-
-*Notice the evidence of overfitting!* ⚠️
-
-```{r ex-augment-metrics}
+```{r ex-overfitting}
 #| echo: false
-countdown::countdown(minutes = 5, id = "augment-metrics")
+countdown::countdown(minutes = 5, id = "overfitting")
 ```
 
-## Dangers of overfitting ⚠️ `r hexes("yardstick")`
-
-::: columns
-::: {.column width="50%"}
-```{r brier-class}
-taxi_fit %>%
-  augment(taxi_train) %>%
-  brier_class(tip, .pred_yes)
-```
+::: {.notes}
+- repredicting the training set is overly optimistic
+- optimising that leads to overfitting
 :::
-
-::: {.column width="50%"}
-```{r brier-class-2}
-taxi_fit %>%
-  augment(taxi_test) %>%
-  brier_class(tip, .pred_yes)
-```
-:::
-:::
-
-. . .
-
-What if we want to compare more models?
-
-. . .
-
-And/or more model configurations?
-
-. . .
-
-And we want to understand if these are important differences?
 
 # The testing data are precious 💎
 
@@ -376,94 +502,108 @@ And we want to understand if these are important differences?
 
 ##  {background-color="white" background-image="https://www.tmwr.org/premade/resampling.svg" background-size="80%"}
 
-## Cross-validation
-
-![](https://www.tmwr.org/premade/three-CV.svg)
-
-## Cross-validation
-
-![](https://www.tmwr.org/premade/three-CV-iter.svg)
-
-## Your turn {transition="slide-in"}
-
-![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
-
-*If we use 10 folds, what percent of the training data*
-
--   *ends up in analysis*
--   *ends up in assessment*
-
-*for* **each** *fold?*
-
-![](images/taxi_spinning.svg){width="300"}
-
-```{r ex-percent-in-folds}
-#| echo: false
-countdown::countdown(minutes = 3, id = "percent-in-folds")
-```
-
 ## Cross-validation `r hexes("rsample")`
 
 ```{r vfold-cv}
-vfold_cv(taxi_train) # v = 10 is default
+vfold_cv(cat_train) # v = 10 is default
 ```
 
 ## Cross-validation `r hexes("rsample")`
 
 What is in this?
 
-```{r taxi-splits}
-taxi_folds <- vfold_cv(taxi_train)
-taxi_folds$splits[1:3]
+```{r cat-splits}
+cat_folds <- vfold_cv(cat_train)
+cat_folds$splits[1:3]
 ```
 
 ::: notes
 Talk about a list column, storing non-atomic types in dataframe
 :::
 
-## Cross-validation `r hexes("rsample")`
+## Bootstrapping `r hexes("rsample")`
 
-```{r vfold-cv-v}
-vfold_cv(taxi_train, v = 5)
+```{r bootstraps}
+set.seed(3214)
+bootstraps(cat_train)
 ```
 
-## Cross-validation `r hexes("rsample")`
+##  {background-iframe="https://rsample.tidymodels.org/reference/index.html"}
 
-```{r vfold-cv-strata}
-vfold_cv(taxi_train, strata = tip)
+::: footer
+:::
+
+## Your turn {transition="slide-in"}
+
+![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
+
+*Create Monte Carlo cross-validation sets.*
+
+*(Use the reference guide to find the functions.)*
+
+<br></br>
+
+*Extension/Challenge: Create a validation set. How is this different, how is this similar to other resampling schemes?*
+
+```{r ex-try-rsample}
+#| echo: false
+countdown::countdown(minutes = 5, id = "try-rsample")
+```
+
+## Monte Carlo Cross-Validation `r hexes("rsample")`
+
+```{r mc-cv}
+set.seed(322)
+mc_cv(cat_train, times = 10)
+```
+
+## Validation set `r hexes("rsample")`
+
+```{r validation-split}
+set.seed(853)
+cat_val_split <- initial_validation_split(cat_adoption)
+validation_set(cat_val_split)
 ```
 
 . . .
 
-Stratification often helps, with very little downside
+A validation set is just another type of resample
 
 ## Cross-validation `r hexes("rsample")`
 
 We'll use this setup:
 
-```{r taxi-folds}
+```{r cat-folds}
 set.seed(123)
-taxi_folds <- vfold_cv(taxi_train, v = 10, strata = tip)
-taxi_folds
+cat_folds <- vfold_cv(cat_train, v = 10)
+cat_folds
 ```
 
 . . .
 
 Set the seed when creating resamples
 
+## The whole game - status update
+
+```{r diagram-resamples, echo = FALSE}
+#| fig-align: "center"
+
+knitr::include_graphics("images/whole-game-transparent-resamples.jpg")
+```
+
 # We are equipped with metrics and resamples!
 
 ## Fit our model to the resamples
 
 ```{r fit-resamples}
-taxi_res <- fit_resamples(taxi_wflow, taxi_folds)
-taxi_res
+cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120))
+cat_res
 ```
 
 ## Evaluating model performance `r hexes("tune")`
 
 ```{r collect-metrics}
-taxi_res %>%
+cat_res %>%
   collect_metrics()
 ```
 
@@ -475,150 +615,33 @@ taxi_res %>%
 
 We can reliably measure performance using only the **training** data 🎉
 
-## Comparing metrics `r hexes("yardstick")`
-
-How do the metrics from resampling compare to the metrics from training and testing?
-
-```{r calc-roc-auc}
-#| echo: false
-taxi_training_roc_auc <-
-  taxi_fit %>%
-  augment(taxi_train) %>%
-  roc_auc(tip, .pred_yes) %>%
-  pull(.estimate) %>%
-  round(digits = 2)
-
-taxi_testing_roc_auc <-
-  taxi_fit %>%
-  augment(taxi_test) %>%
-  roc_auc(tip, .pred_yes) %>%
-  pull(.estimate) %>%
-  round(digits = 2)
-```
-
-::: columns
-::: {.column width="50%"}
-```{r collect-metrics-2}
-taxi_res %>%
-  collect_metrics() %>% 
-  select(.metric, mean, n)
-```
-:::
-
-::: {.column width="50%"}
-The ROC AUC previously was
-
-- `r taxi_training_roc_auc` for the training set
-- `r taxi_testing_roc_auc` for test set
-:::
-:::
-
-. . .
-
-Remember that:
-
-⚠️ the training set gives you overly optimistic metrics
-
-⚠️ the test set is precious
-
-## Evaluating model performance `r hexes("tune")`
-
-```{r save-predictions}
-# Save the assessment set results
-ctrl_taxi <- control_resamples(save_pred = TRUE)
-taxi_res <- fit_resamples(taxi_wflow, taxi_folds, control = ctrl_taxi)
-
-taxi_res
-```
-
-## Evaluating model performance `r hexes("tune")`
-
-```{r collect-predictions}
-# Save the assessment set results
-taxi_preds <- collect_predictions(taxi_res)
-taxi_preds
-```
-
-## Evaluating model performance `r hexes("tune")`
-
-```{r taxi-metrics-by-id}
-taxi_preds %>% 
-  group_by(id) %>%
-  taxi_metrics(truth = tip, estimate = .pred_class)
-```
-
 ## Where are the fitted models? `r hexes("tune")`  {.annotation}
 
-```{r taxi-res}
-taxi_res
+```{r cat-res}
+cat_res
 ```
 
 . . .
 
 🗑️
 
-# Alternate resampling schemes
+## But it's easy to save the predictions `r hexes("tune")`
 
-## Bootstrapping
+```{r save-predictions}
+# Save the assessment set results
+ctrl_cat <- control_resamples(save_pred = TRUE)
+cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120),
+                         control = ctrl_cat)
 
-![](https://www.tmwr.org/premade/bootstraps.svg)
-
-## Bootstrapping `r hexes("rsample")`
-
-```{r bootstraps}
-set.seed(3214)
-bootstraps(taxi_train)
+cat_res
 ```
 
-##  {background-iframe="https://rsample.tidymodels.org/reference/index.html"}
+## But it's easy to collect the predictions `r hexes("tune")`
 
-::: footer
-:::
-
-## The whole game - status update
-
-```{r diagram-resamples, echo = FALSE}
-#| fig-align: "center"
-
-knitr::include_graphics("images/whole-game-transparent-resamples.jpg")
+```{r collect-predictions}
+cat_preds <- collect_predictions(cat_res)
+cat_preds
 ```
-
-## Your turn {transition="slide-in"}
-
-![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
-
-*Create:*
-
--   *Monte Carlo Cross-Validation sets*
--   *validation set*
-
-(use the reference guide to find the functions)
-
-*Don't forget to set a seed when you resample!*
-
-```{r ex-try-rsample}
-#| echo: false
-countdown::countdown(minutes = 5, id = "try-rsample")
-```
-
-## Monte Carlo Cross-Validation `r hexes("rsample")`
-
-```{r mc-cv}
-set.seed(322)
-mc_cv(taxi_train, times = 10)
-```
-
-## Validation set `r hexes("rsample")`
-
-```{r validation-split}
-set.seed(853)
-taxi_val_split <- initial_validation_split(taxi, strata = tip)
-validation_set(taxi_val_split)
-```
-
-. . .
-
-A validation set is just another type of resample
 
 # Decision tree 🌳
 
@@ -634,19 +657,21 @@ A validation set is just another type of resample
 
 . . .
 
-- Often works well without tuning hyperparameters (more on this in Advanced tidymodels!), as long as there are enough trees
+- Often works well without tuning hyperparameters (more on this in a moment), as long as there are enough trees
 
 ## Create a random forest model `r hexes("parsnip")`
 
 ```{r rf-spec}
-rf_spec <- rand_forest(trees = 1000, mode = "classification")
+rf_spec <- rand_forest(trees = 1000) %>% 
+  set_engine("aorsf") %>% 
+  set_mode("censored regression")
 rf_spec
 ```
 
 ## Create a random forest model `r hexes("workflows")`
 
 ```{r rf-wflow}
-rf_wflow <- workflow(tip ~ ., rf_spec)
+rf_wflow <- workflow(event_time ~ ., rf_spec)
 rf_wflow
 ```
 
@@ -667,12 +692,12 @@ countdown::countdown(minutes = 8, id = "try-fit-resamples")
 ## Evaluating model performance `r hexes("tune")`
 
 ```{r collect-metrics-rf}
-ctrl_taxi <- control_resamples(save_pred = TRUE)
+ctrl_cat <- control_resamples(save_pred = TRUE)
 
 # Random forest uses random numbers so set the seed first
-
 set.seed(2)
-rf_res <- fit_resamples(rf_wflow, taxi_folds, control = ctrl_taxi)
+rf_res <- fit_resamples(rf_wflow, cat_folds, eval_time = c(90, 30, 60, 120), control = ctrl_cat)
+
 collect_metrics(rf_res)
 ```
 
@@ -695,8 +720,8 @@ Let's fit the model on the training set and verify our performance using the tes
 We've shown you `fit()` and `predict()` (+ `augment()`) but there is a shortcut:
 
 ```{r final-fit}
-# taxi_split has train + test info
-final_fit <- last_fit(rf_wflow, taxi_split) 
+# cat_split has train + test info
+final_fit <- last_fit(rf_wflow, cat_split, eval_time = c(90, 30, 60, 120)) 
 
 final_fit
 ```
@@ -710,12 +735,6 @@ collect_metrics(final_fit)
 . . .
 
 These are metrics computed with the **test** set
-
-## What is in `final_fit`? `r hexes("tune")`
-
-```{r collect-predictions-final-fit}
-collect_predictions(final_fit)
-```
 
 ## What is in `final_fit`? `r hexes("tune")`
 
