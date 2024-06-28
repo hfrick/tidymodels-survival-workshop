@@ -1,6 +1,6 @@
 ---
 title: "3 - What makes a model?"
-subtitle: "Introduction to tidymodels"
+subtitle: "Survival analysis with tidymodels"
 format:
   revealjs: 
     slide-number: true
@@ -28,6 +28,7 @@ knitr:
 ![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
 
 *How do you fit a linear model in R?*
+<!-- FIXME: switch this to a proportional hazards model? -->
 
 *How many different ways can you think of?*
 
@@ -55,32 +56,41 @@ countdown::countdown(minutes = 3, id = "how-to-fit-linear-model")
 . . .
 
 ::: columns
-::: {.column width="40%"}
+::: {.column width="55%"}
 -   Choose a [model]{.underline}
 -   Specify an engine
 -   Set the mode
 :::
 
-::: {.column width="60%"}
-![](images/taxi_spinning.svg)
+::: {.column width="45%"}
+<img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%">
 :::
 :::
 
-## To specify a model `r hexes("parsnip")`
+::: footer
+Credit: <https://www.svgrepo.com/svg/481270/cat-5>
+:::
+
+## To specify a model `r hexes("censored", "parsnip")`
 
 ```{r setup-previous}
 #| echo: false
 library(tidymodels)
+library(censored)
+library(modeldata)
+
+cat_adoption <- cat_adoption %>% 
+  mutate(event_time = Surv(time, event), .keep = "unused")
 
 set.seed(123)
 
-taxi_split <- initial_split(taxi, prop = 0.8, strata = tip)
-taxi_train <- training(taxi_split)
-taxi_test <- testing(taxi_split)
+cat_split <- initial_split(cat_adoption, prop = 0.8)
+cat_train <- training(cat_split)
+cat_test <- testing(cat_split)
 ```
 
-```{r logistic-reg}
-logistic_reg()
+```{r proportional-hazards}
+proportional_hazards()
 ```
 
 
@@ -91,42 +101,42 @@ Models have default engines
 ## To specify a model `r hexes("parsnip")`
 
 ::: columns
-::: {.column width="40%"}
+::: {.column width="55%"}
 -   Choose a model
 -   Specify an [engine]{.underline}
 -   Set the mode
 :::
 
-::: {.column width="60%"}
-![](images/taxi_spinning.svg)
+::: {.column width="45%"}
+<img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%">
 :::
 :::
 
-## To specify a model `r hexes("parsnip")`
+## To specify a model `r hexes("censored", "parsnip")`
 
-```{r logistic-reg-glmnet}
-logistic_reg() %>%
+```{r proportional-hazards-again}
+proportional_hazards()
+```
+
+## To specify a model `r hexes("censored", "parsnip")`
+
+```{r proportional-hazards-glmnet}
+proportional_hazards() %>%
   set_engine("glmnet")
 ```
 
-## To specify a model `r hexes("parsnip")`
-
-```{r logistic-reg-stan}
-logistic_reg() %>%
-  set_engine("stan")
-```
 
 ## To specify a model `r hexes("parsnip")`
 
 ::: columns
-::: {.column width="40%"}
+::: {.column width="55%"}
 -   Choose a model
 -   Specify an engine
 -   Set the [mode]{.underline}
 :::
 
-::: {.column width="60%"}
-![](images/taxi_spinning.svg)
+::: {.column width="45%"}
+<img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%">
 :::
 :::
 
@@ -141,11 +151,11 @@ decision_tree()
 Some models have a default mode
 :::
 
-## To specify a model `r hexes("parsnip")`
+## To specify a model `r hexes("censored", "parsnip")`
 
-```{r decision-tree-classification}
+```{r decision-tree-censored-reg}
 decision_tree() %>% 
-  set_mode("classification")
+  set_mode("censored regression")
 ```
 
 . . .
@@ -161,17 +171,22 @@ All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 ::: footer
 :::
 
+##  {background-iframe="https://censored.tidymodels.org/"}
+
+::: footer
+:::
+
 ## To specify a model `r hexes("parsnip")`
 
 ::: columns
-::: {.column width="40%"}
+::: {.column width="55%"}
 -   Choose a [model]{.underline}
 -   Specify an [engine]{.underline}
 -   Set the [mode]{.underline}
 :::
 
-::: {.column width="60%"}
-![](images/taxi_spinning.svg)
+::: {.column width="45%"}
+<img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%">
 :::
 :::
 
@@ -179,9 +194,9 @@ All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 
 ![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
 
-*Run the `tree_spec` chunk in your `.qmd`.*
+*Write the specification for a proportional hazards model.*
 
-*Edit this code to use a logistic regression model.*<br></br>
+*Choose your engine.*<br></br>
 
 ::: r-fit-text
 All available models are listed at <https://www.tidymodels.org/find/parsnip/>
@@ -189,7 +204,7 @@ All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 
 <br></br>
 
-*Extension/Challenge: Edit this code to use a different model. For example, try using a conditional inference tree as implemented in the partykit package by changing the engine - or try an entirely different model type!*
+*Extension/Challenge: Edit this code to use a different model. For example, try using a conditional inference tree as implemented in the partykit package - or try an entirely different model type!*
 
 ```{r ex-explore-tree-spec}
 #| echo: false
@@ -199,127 +214,110 @@ countdown::countdown(minutes = 5, id = "explore-tree-spec")
 
 ## Models we'll be using today
 
-* Logistic regression
-* Decision trees
+* Proportional hazards (PH) model
+* Decision tree
 
-```{r sim-model-viz}
+## Proportional hazards model
+
+::: columns
+::: {.column width="50%"}
+```{r plot-baseline}
 #| echo: false
+#| fig.width: 8
+#| fig.height: 7
 
-set.seed(1)
-dat <- sim_logistic(500, ~ .1 + 2 * A)
-dat$bin <- cut(dat$A, breaks = c(seq(-3, 3, by = 1/2)), include.lowest = TRUE)
-bin_midpoints <- data.frame(A = seq(-3, 3, by = 1/2) + 0.25)
+cat_new <- tibble(
+  intake_condition = factor(c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))
+)
 
-rates <- 
-  dat %>% 
-  nest(.by = bin) %>% 
-  mutate(
-    probs = map(data, ~ binom.test(sum(.x$class == "one"), nrow(.x))),
-    probs = map(probs, ~ tidy(.x))
-  ) %>% 
-  select(-data) %>% 
-  unnest(cols = probs) %>% 
-  arrange(bin) %>% 
-  mutate(A = seq(-3, 3, by = 1/2) + 0.25) 
-
-plot_rates <- left_join(rates, bin_midpoints, by = join_by(A)) %>% 
-  filter(-2.5 < A, A < 3) %>% 
-  ggplot() + 
-  geom_point(aes(A, estimate)) +
-  geom_errorbar(aes(A, estimate, ymin = conf.low, ymax = conf.high), width = .25)  +
-  xlim(c(-3, 3.5)) +
+fit(proportional_hazards(), event_time ~ 1, data = cat_train) %>% 
+  augment(new_data = cat_new[1,], eval_time = seq(0, 360, 1)) %>% 
+  tidyr::unnest(cols = .pred) %>% 
+  ggplot() +
+  geom_step(aes(.eval_time, .pred_survival)) +
+  labs(x = "Time", y = "Probability of remaining in the shelter") +
   theme_bw(base_size = 18)
 ```
-
-## Logistic regression
-
-::: columns
-::: {.column width="60%"}
-```{r plot-rates}
-#| echo: false
-#| fig.width: 8
-#| fig.height: 7
-
-plot_rates
-```
 :::
 
 ::: {.column width="40%"}
 :::
 :::
 
-## Logistic regression
+## Proportional hazards model
 
 ::: columns
-::: {.column width="60%"}
-```{r plot-logistic-reg}
+::: {.column width="50%"}
+```{r plot-ph}
 #| echo: false
 #| fig.width: 8
 #| fig.height: 7
 
-logistic_preds <- logistic_reg() %>% 
-  fit(class ~ A, data = dat) %>% 
-  augment(new_data = bin_midpoints) 
-
-plot_rates +
-  geom_line(aes(A, .pred_one, color = I(test_color)), linewidth = 2, alpha = 0.8, data = logistic_preds)
+p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_train) %>% 
+  augment(new_data = cat_new, eval_time = seq(0, 360, 1)) %>% 
+  mutate(intake_condition = factor(intake_condition, levels = c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))) %>% 
+  tidyr::unnest(cols = .pred) %>% 
+  ggplot() +
+  geom_line(aes(.eval_time, .pred_survival, col = intake_condition)) +
+  labs(x = "Time", y = "Probability of remaining in the shelter") +
+  theme_bw(base_size = 18) +
+  theme(legend.position = "bottom")
+p_ph
 ```
 :::
 
-::: {.column width="40%"}
+::: {.column width="50%"}
 :::
 :::
 
-## Logistic regression
+## Proportional hazards model
 
 ::: columns
-::: {.column width="60%"}
-```{r plot-logistic-reg-2}
+::: {.column width="50%"}
+```{r plot-ph-2}
 #| echo: false
 #| fig.width: 8
 #| fig.height: 7
 
-plot_rates +
-  geom_line(aes(A, .pred_one, col = I(test_color)), linewidth = 2, alpha = 0.8, data = logistic_preds)
+p_ph
 ```
 :::
 
-::: {.column width="40%"}
+::: {.column width="50%"}
 
--   Logit of outcome probability modeled as linear combination of predictors:
+-   Hazard modeled via a baseline hazard and a linear combination of predictors:
 
-$log(\frac{p}{1 - p}) = \beta_0 + \beta_1\cdot \text{A}$
+$\lambda(t | x_i) = \lambda_0(t) \cdot \exp (x_i^T \beta)$
 
--   Find a sigmoid line that separates the two classes
+-   The hazard is proportional over all time $t$, and thus also the probability of survival is proportional.
 
 :::
 :::
 
-## Decision trees
+## Decision tree
 
 ::: columns
 ::: {.column width="50%"}
 ```{r tree-fit}
 #| echo: false
-#| fig.width: 8
-#| fig.height: 7
 
-tree_fit <- decision_tree(mode = "classification") %>% 
-  fit(class ~ A, data = mutate(dat, class = forcats::fct_rev(class)))
-
-tree_preds <- augment(tree_fit, new_data = bin_midpoints)
+fit_dt <- decision_tree(cost_complexity = 0.01) %>%
+  set_mode("censored regression") %>% 
+  fit(event_time ~ intake_condition, data = cat_train) 
 ```
 
 ```{r plot-tree-fit}
 #| echo: false
-#| fig.width: 4
-#| fig.height: 3.5
+#| fig.width: 6
+#| fig.height: 5
 #| fig-align: center
 
-library(rpart.plot)
-tree_fit %>%
-  extract_fit_engine() %>%
-  rpart.plot(roundint = FALSE)
+library(partykit)
+fit_pec <- fit_dt %>% extract_fit_engine()
+fit_rpart <- fit_pec$rpart
+fit_rpart %>% 
+  as.party() %>% 
+  plot(ep_args = list(justmin = 15, abbreviate = TRUE))
 ```
 
 :::
@@ -328,24 +326,26 @@ tree_fit %>%
 :::
 :::
 
-## Decision trees
+## Decision tree
 
 ::: columns
 ::: {.column width="50%"}
 ```{r plot-tree-fit-2}
 #| echo: false
-#| fig.width: 4
-#| fig.height: 3.5
+#| fig.width: 6
+#| fig.height: 5
 #| fig-align: center
 
-library(rpart.plot)
-tree_fit %>%
-  extract_fit_engine() %>%
-  rpart.plot(roundint = FALSE)
+library(partykit)
+fit_pec <- fit_dt %>% extract_fit_engine()
+fit_rpart <- fit_pec$rpart
+fit_rpart %>% 
+  as.party() %>% 
+  plot(ep_args = list(justmin = 15, abbreviate = TRUE))
 ```
 :::
 
-::: {.column width="50%"}
+::: {.column width="40%"}
 -   Series of splits or if/then statements based on predictors
 
 -   First the tree *grows* until some condition is met (maximum depth, no more data)
@@ -354,20 +354,22 @@ tree_fit %>%
 :::
 :::
 
-## Decision trees
+## Decision tree
 
 ::: columns
 ::: {.column width="50%"}
 ```{r plot-tree-fit-3}
 #| echo: false
-#| fig.width: 4
-#| fig.height: 3.5
+#| fig.width: 6
+#| fig.height: 5
 #| fig-align: center
 
-library(rpart.plot)
-tree_fit %>%
-  extract_fit_engine() %>%
-  rpart.plot(roundint = FALSE)
+library(partykit)
+fit_pec <- fit_dt %>% extract_fit_engine()
+fit_rpart <- fit_pec$rpart
+fit_rpart %>% 
+  as.party() %>% 
+  plot(ep_args = list(justmin = 15, abbreviate = TRUE))
 ```
 :::
 
@@ -377,8 +379,23 @@ tree_fit %>%
 #| fig.width: 8
 #| fig.height: 7
 
-plot_rates +
-  geom_step(aes(A, .pred_one, col = I(test_color)), linewidth = 2, alpha = 0.8, data = tree_preds)
+cat_new_3 <- tibble(
+  intake_condition = factor(c("normal", "feral", "ill_mild"))
+)
+p_dt <- fit_dt %>% 
+  augment(new_data = cat_new_3, eval_time = seq(0, 360, 1)) %>% 
+  mutate(intake_condition = factor(intake_condition, levels = c("ill_mild", "normal", "feral"))) %>% 
+  tidyr::unnest(cols = .pred) %>% 
+  ggplot() +
+  geom_step(aes(.eval_time, .pred_survival, color = intake_condition)) +
+  scale_color_discrete(
+    labels = c("ill_mild, under_age_or_weight", "ill_moderatete, normal, other", "fractious, feral"),
+    guide = guide_legend(ncol = 2)
+    ) + 
+  labs(x = "Time", y = "Probability of remaining in the shelter") +
+  theme_bw(base_size = 18) +
+  theme(legend.position = "bottom")
+p_dt
 ```
 :::
 :::
@@ -387,26 +404,24 @@ plot_rates +
 
 ::: columns
 ::: {.column width="50%"}
-### Logistic regression
-```{r plot-logistic-reg-3}
+### PH model
+```{r plot-ph-3}
 #| echo: false
 #| fig.width: 7
 #| fig.height: 6
 
-plot_rates +
-  geom_line(aes(A, .pred_one, col = I(test_color)), linewidth = 2, alpha = 0.8, data = logistic_preds)
+p_ph
 ```
 :::
 
 ::: {.column width="50%"}
-### Decision trees
+### Decision tree
 ```{r plot-tree-preds-2}
 #| echo: false
 #| fig.width: 7
 #| fig.height: 6
 
-plot_rates +
-  geom_step(aes(A, .pred_one, col = I(test_color)), linewidth = 2, alpha = 0.8, data = tree_preds)
+p_dt
 ```
 :::
 :::
@@ -444,7 +459,7 @@ knitr::include_graphics("images/bad_workflow.png")
 
 . . .
 
--   You can use other preprocessors besides formulas (more on feature engineering in Advanced tidymodels!)
+-   You can use other preprocessors besides formulas (more on feature engineering if time permits!)
 
 . . .
 
@@ -462,48 +477,46 @@ Two ways workflows handle levels better than base R:
 -   Restores missing levels that were present at fit time, but happen to be missing at prediction time (like, if your "new" data just doesn't have an instance of that level)
 :::
 
-## A model workflow `r hexes("parsnip", "workflows")`
+## A model workflow `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-spec}
 tree_spec <-
-  decision_tree(cost_complexity = 0.002) %>% 
-  set_mode("classification")
+  decision_tree() %>% 
+  set_mode("censored regression")
 
 tree_spec %>% 
-  fit(tip ~ ., data = taxi_train) 
+  fit(event_time ~ ., data = cat_train) 
 ```
 
-## A model workflow `r hexes("parsnip", "workflows")`
+## A model workflow `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow}
 tree_spec <-
-  decision_tree(cost_complexity = 0.002) %>% 
-  set_mode("classification")
+  decision_tree() %>% 
+  set_mode("censored regression")
 
 workflow() %>%
-  add_formula(tip ~ .) %>%
+  add_formula(event_time ~ .) %>%
   add_model(tree_spec) %>%
-  fit(data = taxi_train) 
+  fit(data = cat_train) 
 ```
 
-## A model workflow `r hexes("parsnip", "workflows")`
+## A model workflow `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-fit}
 tree_spec <-
-  decision_tree(cost_complexity = 0.002) %>% 
-  set_mode("classification")
+  decision_tree() %>% 
+  set_mode("censored regression")
 
-workflow(tip ~ ., tree_spec) %>% 
-  fit(data = taxi_train) 
+workflow(event_time ~ ., tree_spec) %>% 
+  fit(data = cat_train) 
 ```
 
 ## Your turn {transition="slide-in"}
 
 ![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
 
-*Run the `tree_wflow` chunk in your `.qmd`.*
-
-*Edit this code to make a workflow with your own model of choice.*
+*Make a workflow with your own model of choice.*
 
 <br></br>
 
@@ -514,34 +527,53 @@ workflow(tip ~ ., tree_spec) %>%
 countdown::countdown(minutes = 5, id = "explore-tree-workflow")
 ```
 
-## Predict with your model `r hexes("parsnip", "workflows")`
+## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 How do you use your new `tree_fit` model?
 
 ```{r tree-wflow-fit-2}
 tree_spec <-
-  decision_tree(cost_complexity = 0.002) %>% 
-  set_mode("classification")
+  decision_tree() %>% 
+  set_mode("censored regression")
 
 tree_fit <-
-  workflow(tip ~ ., tree_spec) %>% 
-  fit(data = taxi_train) 
+  workflow(event_time ~ ., tree_spec) %>% 
+  fit(data = cat_train) 
 ```
 
-## Your turn {transition="slide-in"}
+## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
-![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
+How do you use your new `tree_fit` model?
 
-*Run:*
-
-`predict(tree_fit, new_data = taxi_test)`
-
-*What do you get?*
-
-```{r ex-predict-tree-fit}
-#| echo: false
-countdown::countdown(minutes = 3, id = "predict-tree-fit")
+```{r tree-wflow-predict}
+predict(tree_fit, new_data = cat_test)
 ```
+
+## Predict with your model `r hexes("censored", "parsnip", "workflows")`
+
+How do you use your new `tree_fit` model?
+
+```{r tree-wflow-predict-time}
+predict(tree_fit, new_data = cat_test, type = "time")
+```
+
+## Predict with your model `r hexes("censored", "parsnip", "workflows")`
+
+```{r tree-wflow-predict-survival}
+preds <- predict(tree_fit, new_data = cat_test, type = "survival", eval_time = c(30, 365))
+preds
+```
+
+## Predict with your model `r hexes("censored", "parsnip", "workflows")`
+
+```{r tree-wflow-predict-survival-2}
+preds <- predict(tree_fit, new_data = cat_test, type = "survival", eval_time = c(30, 365))
+
+preds$.pred[[1]]
+```
+
+##  {background-iframe="https://censored.tidymodels.org/#available-models-engines-and-prediction-types"}
+
 
 ## Your turn
 
@@ -549,7 +581,7 @@ countdown::countdown(minutes = 3, id = "predict-tree-fit")
 
 *Run:*
 
-`augment(tree_fit, new_data = taxi_test)`
+`augment(tree_fit, new_data = cat_test)`
 
 *What do you get?*
 
@@ -565,84 +597,6 @@ countdown::countdown(minutes = 3, id = "augment-tree-fit")
 -   The predictions will always be inside a **tibble**
 -   The column names and types are **unsurprising** and **predictable**
 -   The number of rows in `new_data` and the output **are the same**
-
-## Understand your model `r hexes("parsnip", "workflows")`
-
-How do you **understand** your new `tree_fit` model?
-
-```{r plot-tree-fit-4}
-#| echo: false
-#| fig-align: center
-library(rpart.plot)
-tree_fit %>%
-  extract_fit_engine() %>%
-  rpart.plot(roundint = FALSE)
-```
-
-## Understand your model `r hexes("parsnip", "workflows")`
-
-How do you **understand** your new `tree_fit` model?
-
-```{r plot-tree-fit-5}
-#| eval: false
-library(rpart.plot)
-tree_fit %>%
-  extract_fit_engine() %>%
-  rpart.plot(roundint = FALSE)
-```
-
-You can `extract_*()` several components of your fitted workflow.
-
-. . .
-
-⚠️ *Never `predict()` with any extracted components!*
-
-::: notes
-`roundint = FALSE` is only to quiet a warning
-:::
-
-
-## Understand your model `r hexes("parsnip", "workflows")`
-
-How do you **understand** your new `tree_fit` model?
-
-. . .
-
-You can use your fitted workflow for model and/or prediction explanations:
-
-. . .
-
--   overall variable importance, such as with the [vip](https://koalaverse.github.io/vip/) package
-
-. . .
-
--   flexible model explainers, such as with the [DALEXtra](https://dalex.drwhy.ai/) package
-
-. . .
-
-Learn more at <https://www.tmwr.org/explain.html>
-
-##  {background-iframe="https://hardhat.tidymodels.org/reference/hardhat-extract.html"}
-
-::: footer
-:::
-
-## Your turn {transition="slide-in"}
-
-![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
-
-<br>
-
-*Extract the model engine object from your fitted workflow and check it out.*
-
-```{r ex-extract-methods}
-#| echo: false
-countdown::countdown(minutes = 5, id = "extract-methods")
-```
-
-:::notes
-Afterward, ask what kind of object people got from the extraction, and what they did with it (e.g. give it to `summary()`, `plot()`, `broom::tidy()` ). Live code along
-:::
 
 ## The whole game - status update
 
