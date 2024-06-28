@@ -74,12 +74,11 @@ We'll make predictions from 8 days to 320 days:
 ```{r}
 #| label: demo-cat-preds
 demo_cat_preds <- augment(cph_spline_fit, demo_cats, eval_time = 8:320)
-demo_cat_preds %>% select(1:3) %>% slice(1:5)
+demo_cat_preds %>% select(1:3)
 ```
 ```{r}
 #| label: save-pred-for-annotations
 #| include: false
-
 save(demo_cat_preds, file = "RData/demo_cat_preds.RData")
 ```
 
