@@ -49,7 +49,7 @@ cat_test <- training(cat_split)
 
 ## An Example Model Fit {.annotation} 
 
-Let's fit another PH and add some nonlinear terms via [splines](https://aml4td.org/chapters/interactions-nonlinear.html#sec-splines) and an [interaction](https://aml4td.org/chapters/interactions-nonlinear.html#sec-interactions):
+Let's fit another PH and add some nonlinear terms via [splines](https://aml4td.org/chapters/interactions-nonlinear.html#sec-splines):
 
 ```{r}
 #| label: example-fit
@@ -58,17 +58,13 @@ f <- event_time ~ . -
   # Then remove geocoded columns
   longitude - latitude +
   # Then add them back as spline terms
-  ns(longitude, df = 5) + ns(latitude, df = 5) #+
-  ## Add an interaction
-  #neutered:sex
+  ns(longitude, df = 5) + ns(latitude, df = 5)
 
 cat_wflow <- workflow(f, proportional_hazards())
 
 cph_spline_fit <- cat_wflow %>%
   fit(data = cat_train)
 ```
-
-
 
 ## Predictions
 
