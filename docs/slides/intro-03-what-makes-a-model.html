@@ -569,20 +569,6 @@
 
 </div>
 </section>
-<section id="to-specify-a-model-8" class="slide level2">
-<h2>To specify a model <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
-<div class="columns">
-<div class="column" style="width:55%;">
-<ul>
-<li>Choose a <u>model</u></li>
-<li>Specify an <u>engine</u></li>
-<li>Set the <u>mode</u></li>
-</ul>
-</div><div class="column" style="width:45%;">
-<p><img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%"></p>
-</div>
-</div>
-</section>
 <section id="your-turn-1" class="slide level2" data-transition="slide-in">
 <h2>Your turn</h2>
 <p><img data-src="images/parsnip-flagger.jpg" class="absolute" style="top: 0px; right: 0px; width: 150px; height: 150px; "></p>
@@ -793,7 +779,7 @@
 <h2>Why a <code>workflow()</code>? <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="fragment">
 <ul>
-<li>Workflows handle new data better than base R tools in terms of new factor levels</li>
+<li><u>Most importantly</u>, a workflow captures the entire modeling process: <code>fit()</code> and <code>predict()</code> apply to the preprocessing steps in addition to the actual model fit</li>
 </ul>
 </div>
 <div class="fragment">
@@ -808,7 +794,7 @@
 </div>
 <div class="fragment">
 <ul>
-<li><u>Most importantly</u>, a workflow captures the entire modeling process: <code>fit()</code> and <code>predict()</code> apply to the preprocessing steps in addition to the actual model fit</li>
+<li>Workflows handle new data better than base R tools in terms of new factor levels</li>
 </ul>
 <aside class="notes">
 <p>Two ways workflows handle levels better than base R:</p>
@@ -1051,55 +1037,48 @@
 <section id="predict-with-your-model-3" class="slide level2">
 <h2>Predict with your model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "> <img data-src="hexes/censored.png" class="absolute" style="top: -20px; right: 128px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(tree_fit, <span class="at">new_data =</span> demo_cats, <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">eval_time =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">365</span>))</span>
-<span id="cb12-2"><a></a>preds</span>
-<span id="cb12-3"><a></a><span class="co">#&gt; # A tibble: 50 × 1</span></span>
-<span id="cb12-4"><a></a><span class="co">#&gt;    .pred           </span></span>
-<span id="cb12-5"><a></a><span class="co">#&gt;    &lt;list&gt;          </span></span>
-<span id="cb12-6"><a></a><span class="co">#&gt;  1 &lt;tibble [2 × 2]&gt;</span></span>
-<span id="cb12-7"><a></a><span class="co">#&gt;  2 &lt;tibble [2 × 2]&gt;</span></span>
-<span id="cb12-8"><a></a><span class="co">#&gt;  3 &lt;tibble [2 × 2]&gt;</span></span>
-<span id="cb12-9"><a></a><span class="co">#&gt;  4 &lt;tibble [2 × 2]&gt;</span></span>
-<span id="cb12-10"><a></a><span class="co">#&gt;  5 &lt;tibble [2 × 2]&gt;</span></span>
-<span id="cb12-11"><a></a><span class="co">#&gt;  6 &lt;tibble [2 × 2]&gt;</span></span>
-<span id="cb12-12"><a></a><span class="co">#&gt;  7 &lt;tibble [2 × 2]&gt;</span></span>
-<span id="cb12-13"><a></a><span class="co">#&gt;  8 &lt;tibble [2 × 2]&gt;</span></span>
-<span id="cb12-14"><a></a><span class="co">#&gt;  9 &lt;tibble [2 × 2]&gt;</span></span>
-<span id="cb12-15"><a></a><span class="co">#&gt; 10 &lt;tibble [2 × 2]&gt;</span></span>
-<span id="cb12-16"><a></a><span class="co">#&gt; # ℹ 40 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(tree_fit, <span class="at">new_data =</span> demo_cats, <span class="at">type =</span> <span class="st">"survival"</span>, </span>
+<span id="cb12-2"><a></a>                 <span class="at">eval_time =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">365</span>, <span class="at">by =</span> <span class="dv">5</span>))</span>
+<span id="cb12-3"><a></a>preds</span>
+<span id="cb12-4"><a></a><span class="co">#&gt; # A tibble: 50 × 1</span></span>
+<span id="cb12-5"><a></a><span class="co">#&gt;    .pred            </span></span>
+<span id="cb12-6"><a></a><span class="co">#&gt;    &lt;list&gt;           </span></span>
+<span id="cb12-7"><a></a><span class="co">#&gt;  1 &lt;tibble [74 × 2]&gt;</span></span>
+<span id="cb12-8"><a></a><span class="co">#&gt;  2 &lt;tibble [74 × 2]&gt;</span></span>
+<span id="cb12-9"><a></a><span class="co">#&gt;  3 &lt;tibble [74 × 2]&gt;</span></span>
+<span id="cb12-10"><a></a><span class="co">#&gt;  4 &lt;tibble [74 × 2]&gt;</span></span>
+<span id="cb12-11"><a></a><span class="co">#&gt;  5 &lt;tibble [74 × 2]&gt;</span></span>
+<span id="cb12-12"><a></a><span class="co">#&gt;  6 &lt;tibble [74 × 2]&gt;</span></span>
+<span id="cb12-13"><a></a><span class="co">#&gt;  7 &lt;tibble [74 × 2]&gt;</span></span>
+<span id="cb12-14"><a></a><span class="co">#&gt;  8 &lt;tibble [74 × 2]&gt;</span></span>
+<span id="cb12-15"><a></a><span class="co">#&gt;  9 &lt;tibble [74 × 2]&gt;</span></span>
+<span id="cb12-16"><a></a><span class="co">#&gt; 10 &lt;tibble [74 × 2]&gt;</span></span>
+<span id="cb12-17"><a></a><span class="co">#&gt; # ℹ 40 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="predict-with-your-model-4" class="slide level2">
 <h2>Predict with your model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "> <img data-src="hexes/censored.png" class="absolute" style="top: -20px; right: 128px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(tree_fit, <span class="at">new_data =</span> demo_cats, <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">eval_time =</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">365</span>))</span>
-<span id="cb13-2"><a></a></span>
-<span id="cb13-3"><a></a>preds<span class="sc">$</span>.pred[[<span class="dv">1</span>]]</span>
-<span id="cb13-4"><a></a><span class="co">#&gt; # A tibble: 2 × 2</span></span>
-<span id="cb13-5"><a></a><span class="co">#&gt;   .eval_time .pred_survival</span></span>
-<span id="cb13-6"><a></a><span class="co">#&gt;        &lt;dbl&gt;          &lt;dbl&gt;</span></span>
-<span id="cb13-7"><a></a><span class="co">#&gt; 1         30         0.637 </span></span>
-<span id="cb13-8"><a></a><span class="co">#&gt; 2        365         0.0163</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a>preds<span class="sc">$</span>.pred[[<span class="dv">1</span>]]</span>
+<span id="cb13-2"><a></a><span class="co">#&gt; # A tibble: 74 × 2</span></span>
+<span id="cb13-3"><a></a><span class="co">#&gt;    .eval_time .pred_survival</span></span>
+<span id="cb13-4"><a></a><span class="co">#&gt;         &lt;dbl&gt;          &lt;dbl&gt;</span></span>
+<span id="cb13-5"><a></a><span class="co">#&gt;  1          0          1    </span></span>
+<span id="cb13-6"><a></a><span class="co">#&gt;  2          5          1    </span></span>
+<span id="cb13-7"><a></a><span class="co">#&gt;  3         10          0.923</span></span>
+<span id="cb13-8"><a></a><span class="co">#&gt;  4         15          0.813</span></span>
+<span id="cb13-9"><a></a><span class="co">#&gt;  5         20          0.749</span></span>
+<span id="cb13-10"><a></a><span class="co">#&gt;  6         25          0.690</span></span>
+<span id="cb13-11"><a></a><span class="co">#&gt;  7         30          0.637</span></span>
+<span id="cb13-12"><a></a><span class="co">#&gt;  8         35          0.588</span></span>
+<span id="cb13-13"><a></a><span class="co">#&gt;  9         40          0.536</span></span>
+<span id="cb13-14"><a></a><span class="co">#&gt; 10         45          0.495</span></span>
+<span id="cb13-15"><a></a><span class="co">#&gt; # ℹ 64 more rows</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="predict-with-your-model-5" class="slide level2">
 <h2>Predict with your model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "> <img data-src="hexes/censored.png" class="absolute" style="top: -20px; right: 128px; width: 64px; height: 74.24px; "></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb14" data-code-line-numbers="1-3|4-6|7|8-11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="fu">predict</span>(tree_fit, <span class="at">new_data =</span> demo_cats, <span class="at">type =</span> <span class="st">"survival"</span>, </span>
-<span id="cb14-2"><a></a>  <span class="at">eval_time =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">365</span>, <span class="at">by =</span> <span class="dv">5</span>)</span>
-<span id="cb14-3"><a></a>) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-4"><a></a>  <span class="fu">slice</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">5</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-5"><a></a>  <span class="fu">add_rowindex</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb14-6"><a></a>  <span class="fu">mutate</span>(<span class="at">cat =</span> <span class="fu">paste0</span>(<span class="st">"#"</span>, .row)) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-7"><a></a>  <span class="fu">unnest</span>(.pred) <span class="sc">%&gt;%</span> </span>
-<span id="cb14-8"><a></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(.eval_time, .pred_survival, <span class="at">col =</span> cat)) <span class="sc">+</span></span>
-<span id="cb14-9"><a></a>  <span class="fu">geom_step</span>() <span class="sc">+</span></span>
-<span id="cb14-10"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Time"</span>, <span class="at">y =</span> <span class="st">"Probability of remaining in the shelter"</span>) <span class="sc">+</span></span>
-<span id="cb14-11"><a></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">18</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-
-</section>
-<section id="predict-with-your-model-5-output" class="slide level2 output-location-slide"><h2>Predict with your model <img data-src="hexes/workflows.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "> <img data-src="hexes/parsnip.png" class="absolute" style="top: -20px; right: 64px; width: 64px; height: 74.24px; "> <img data-src="hexes/censored.png" class="absolute" style="top: -20px; right: 128px; width: 64px; height: 74.24px; "></h2><div class="cell output-location-slide" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -1107,7 +1086,9 @@
 </figure>
 </div>
 </div>
-</div></section><section id="section-2" class="slide level2" data-background-iframe="https://censored.tidymodels.org/#available-models-engines-and-prediction-types">
+</div>
+</section>
+<section id="section-2" class="slide level2" data-background-iframe="https://censored.tidymodels.org/#available-models-engines-and-prediction-types">
 <h2></h2>
 </section>
 <section id="your-turn-3" class="slide level2">

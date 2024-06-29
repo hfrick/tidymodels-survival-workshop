@@ -487,7 +487,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#why-a-workflow",
     "title": "3 - What makes a model?",
     "section": "Why a workflow()? ",
-    "text": "Why a workflow()? \n\n\nWorkflows handle new data better than base R tools in terms of new factor levels\n\n\n\n\nYou can use other preprocessors besides formulas (more on feature engineering if time permits!)\n\n\n\n\nThey can help organize your work when working with multiple models\n\n\n\n\nMost importantly, a workflow captures the entire modeling process: fit() and predict() apply to the preprocessing steps in addition to the actual model fit\n\n\nTwo ways workflows handle levels better than base R:\n\nEnforces that new levels are not allowed at prediction time (this is an optional check that can be turned off)\nRestores missing levels that were present at fit time, but happen to be missing at prediction time (like, if your “new” data just doesn’t have an instance of that level)"
+    "text": "Why a workflow()? \n\n\nMost importantly, a workflow captures the entire modeling process: fit() and predict() apply to the preprocessing steps in addition to the actual model fit\n\n\n\n\nYou can use other preprocessors besides formulas (more on feature engineering if time permits!)\n\n\n\n\nThey can help organize your work when working with multiple models\n\n\n\n\nWorkflows handle new data better than base R tools in terms of new factor levels\n\n\nTwo ways workflows handle levels better than base R:\n\nEnforces that new levels are not allowed at prediction time (this is an optional check that can be turned off)\nRestores missing levels that were present at fit time, but happen to be missing at prediction time (like, if your “new” data just doesn’t have an instance of that level)"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#a-model-workflow-1",
@@ -543,21 +543,21 @@
     "href": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-3",
     "title": "3 - What makes a model?",
     "section": "Predict with your model   ",
-    "text": "Predict with your model   \n\npreds &lt;- predict(tree_fit, new_data = demo_cats, type = \"survival\", eval_time = c(30, 365))\npreds\n#&gt; # A tibble: 50 × 1\n#&gt;    .pred           \n#&gt;    &lt;list&gt;          \n#&gt;  1 &lt;tibble [2 × 2]&gt;\n#&gt;  2 &lt;tibble [2 × 2]&gt;\n#&gt;  3 &lt;tibble [2 × 2]&gt;\n#&gt;  4 &lt;tibble [2 × 2]&gt;\n#&gt;  5 &lt;tibble [2 × 2]&gt;\n#&gt;  6 &lt;tibble [2 × 2]&gt;\n#&gt;  7 &lt;tibble [2 × 2]&gt;\n#&gt;  8 &lt;tibble [2 × 2]&gt;\n#&gt;  9 &lt;tibble [2 × 2]&gt;\n#&gt; 10 &lt;tibble [2 × 2]&gt;\n#&gt; # ℹ 40 more rows"
+    "text": "Predict with your model   \n\npreds &lt;- predict(tree_fit, new_data = demo_cats, type = \"survival\", \n                 eval_time = seq(0, 365, by = 5))\npreds\n#&gt; # A tibble: 50 × 1\n#&gt;    .pred            \n#&gt;    &lt;list&gt;           \n#&gt;  1 &lt;tibble [74 × 2]&gt;\n#&gt;  2 &lt;tibble [74 × 2]&gt;\n#&gt;  3 &lt;tibble [74 × 2]&gt;\n#&gt;  4 &lt;tibble [74 × 2]&gt;\n#&gt;  5 &lt;tibble [74 × 2]&gt;\n#&gt;  6 &lt;tibble [74 × 2]&gt;\n#&gt;  7 &lt;tibble [74 × 2]&gt;\n#&gt;  8 &lt;tibble [74 × 2]&gt;\n#&gt;  9 &lt;tibble [74 × 2]&gt;\n#&gt; 10 &lt;tibble [74 × 2]&gt;\n#&gt; # ℹ 40 more rows"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-4",
     "href": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-4",
     "title": "3 - What makes a model?",
     "section": "Predict with your model   ",
-    "text": "Predict with your model   \n\npreds &lt;- predict(tree_fit, new_data = demo_cats, type = \"survival\", eval_time = c(30, 365))\n\npreds$.pred[[1]]\n#&gt; # A tibble: 2 × 2\n#&gt;   .eval_time .pred_survival\n#&gt;        &lt;dbl&gt;          &lt;dbl&gt;\n#&gt; 1         30         0.637 \n#&gt; 2        365         0.0163"
+    "text": "Predict with your model   \n\npreds$.pred[[1]]\n#&gt; # A tibble: 74 × 2\n#&gt;    .eval_time .pred_survival\n#&gt;         &lt;dbl&gt;          &lt;dbl&gt;\n#&gt;  1          0          1    \n#&gt;  2          5          1    \n#&gt;  3         10          0.923\n#&gt;  4         15          0.813\n#&gt;  5         20          0.749\n#&gt;  6         25          0.690\n#&gt;  7         30          0.637\n#&gt;  8         35          0.588\n#&gt;  9         40          0.536\n#&gt; 10         45          0.495\n#&gt; # ℹ 64 more rows"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-5",
     "href": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-5",
     "title": "3 - What makes a model?",
     "section": "Predict with your model   ",
-    "text": "Predict with your model   \n\npredict(tree_fit, new_data = demo_cats, type = \"survival\", \n  eval_time = seq(0, 365, by = 5)\n) %&gt;% \n  slice(c(1,2,5)) %&gt;% \n  add_rowindex() %&gt;% \n  mutate(cat = paste0(\"#\", .row)) %&gt;% \n  unnest(.pred) %&gt;% \n  ggplot(aes(.eval_time, .pred_survival, col = cat)) +\n  geom_step() +\n  labs(x = \"Time\", y = \"Probability of remaining in the shelter\") +\n  theme_bw(base_size = 18)"
+    "text": "Predict with your model"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-5-output",
@@ -620,14 +620,14 @@
     "href": "slides/intro-02-data-budget.html#data-splitting-and-spending-1",
     "title": "2 - Your data budget",
     "section": "Data splitting and spending",
-    "text": "Data splitting and spending"
+    "text": "Data splitting and spending\n\nSpending too much data in training prevents us from computing a good assessment of predictive performance.\n\n\n\nSpending too much data in testing prevents us from computing a good estimate of model parameters."
   },
   {
     "objectID": "slides/intro-02-data-budget.html#data-splitting-and-spending-2",
     "href": "slides/intro-02-data-budget.html#data-splitting-and-spending-2",
     "title": "2 - Your data budget",
-    "section": "Data splitting and spending",
-    "text": "Data splitting and spending\n\nSpending too much data in training prevents us from computing a good assessment of predictive performance.\n\n\n\nSpending too much data in testing prevents us from computing a good estimate of model parameters."
+    "section": "Data splitting and spending ",
+    "text": "Data splitting and spending \n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption, prop = 0.8)\ncat_train &lt;- training(cat_split)\ncat_test &lt;- testing(cat_split)\n\nnrow(cat_train)\n#&gt; [1] 1805\nnrow(cat_test)\n#&gt; [1] 452"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#your-turn",
@@ -676,7 +676,7 @@
     "href": "slides/intro-02-data-budget.html#data-splitting-and-spending-3",
     "title": "2 - Your data budget",
     "section": "Data splitting and spending ",
-    "text": "Data splitting and spending \n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption, prop = 0.8)\ncat_train &lt;- training(cat_split)\ncat_test &lt;- testing(cat_split)\n\nnrow(cat_train)\n#&gt; [1] 1805\nnrow(cat_test)\n#&gt; [1] 452"
+    "text": "Data splitting and spending \nWe’ll use this setup:\n\nset.seed(27)\nin_demo &lt;- sample.int(nrow(cat_adoption), 50)\ndemo_cats &lt;- cat_adoption %&gt;% slice(in_demo)\n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption %&gt;% slice(-in_demo), prop = 0.8)\ncat_train &lt;- training(cat_split)\ncat_test &lt;- testing(cat_split)"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#data-splitting-and-spending-4",
