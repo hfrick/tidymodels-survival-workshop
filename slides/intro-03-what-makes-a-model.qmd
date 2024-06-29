@@ -224,7 +224,7 @@ fit(proportional_hazards(), event_time ~ 1, data = cat_train) %>%
   tidyr::unnest(cols = .pred) %>% 
   ggplot() +
   geom_step(aes(.eval_time, .pred_survival)) +
-  labs(x = "Time", y = "Probability of remaining in the shelter") +
+  labs(x = "Time", y = "Probability of not adopted") +
   theme_bw(base_size = 18)
 ```
 :::
@@ -249,7 +249,7 @@ p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_tr
   ggplot() +
   geom_line(aes(.eval_time, .pred_survival, col = intake_condition)) +
   scale_color_discrete(guide = guide_legend(nrow = 3)) + 
-  labs(x = "Time", y = "Probability of remaining in the shelter") +
+  labs(x = "Time", y = "Probability of not adopted") +
   theme_bw(base_size = 18) +
   theme(legend.position = "bottom")
 p_ph
@@ -382,7 +382,7 @@ p_dt <- fit_dt %>%
     labels = c("fractious, feral", "normal, other", "ill_mild, ill_moderatete, under_age_or_weight"),
     guide = guide_legend(ncol = 1)
     ) + 
-  labs(x = "Time", y = "Probability of remaining in the shelter") +
+  labs(x = "Time", y = "Probability of not adopted") +
   theme_bw(base_size = 18) +
   theme(legend.position = "bottom")
 p_dt
@@ -575,7 +575,7 @@ preds %>%
   unnest(.pred) %>% 
   ggplot(aes(.eval_time, .pred_survival, col = cat)) +
   geom_step() +
-  labs(x = "Time", y = "Probability of remaining in the shelter") +
+  labs(x = "Time", y = "Probability of not adopted") +
   theme_bw(base_size = 18)
 ```
 
