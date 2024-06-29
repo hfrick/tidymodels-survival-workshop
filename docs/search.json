@@ -789,5 +789,61 @@
     "title": "4 - Evaluating models",
     "section": "ROC AUC Over Evaluation Time",
     "text": "ROC AUC Over Evaluation Time"
+  },
+  {
+    "objectID": "slides/intro-05-tuning-models.html#tuning-parameters",
+    "href": "slides/intro-05-tuning-models.html#tuning-parameters",
+    "title": "5 - Tuning models",
+    "section": "Tuning parameters",
+    "text": "Tuning parameters\nSome model or preprocessing parameters cannot be estimated directly from the data.\n\nSome examples:\n\nTree depth in decision trees\nNumber of neighbors in a K-nearest neighbor model"
+  },
+  {
+    "objectID": "slides/intro-05-tuning-models.html#optimize-tuning-parameters",
+    "href": "slides/intro-05-tuning-models.html#optimize-tuning-parameters",
+    "title": "5 - Tuning models",
+    "section": "Optimize tuning parameters",
+    "text": "Optimize tuning parameters\n\nTry different values and measure their performance.\n\n\n\nFind good values for these parameters.\n\n\n\n\nOnce the value(s) of the parameter(s) are determined, a model can be finalized by fitting the model to the entire training set."
+  },
+  {
+    "objectID": "slides/intro-05-tuning-models.html#optimize-tuning-parameters-1",
+    "href": "slides/intro-05-tuning-models.html#optimize-tuning-parameters-1",
+    "title": "5 - Tuning models",
+    "section": "Optimize tuning parameters",
+    "text": "Optimize tuning parameters\nThe main two strategies for optimization are:\n\n\nGrid search 💠 which tests a pre-defined set of candidate values\nIterative search 🌀 which suggests/estimates new values of candidate parameters to evaluate"
+  },
+  {
+    "objectID": "slides/intro-05-tuning-models.html#specifying-tuning-parameters",
+    "href": "slides/intro-05-tuning-models.html#specifying-tuning-parameters",
+    "title": "5 - Tuning models",
+    "section": "Specifying tuning parameters",
+    "text": "Specifying tuning parameters\nLet’s take our previous random forest workflow and tag for tuning the minimum number of data points in each node:\n\nrf_spec &lt;- rand_forest(min_n = tune()) %&gt;% \n  set_mode(\"classification\")\n\nrf_wflow &lt;- workflow(tip ~ ., rf_spec)\nrf_wflow\n#&gt; ══ Workflow ══════════════════════════════════════════════════════════\n#&gt; Preprocessor: Formula\n#&gt; Model: rand_forest()\n#&gt; \n#&gt; ── Preprocessor ──────────────────────────────────────────────────────\n#&gt; tip ~ .\n#&gt; \n#&gt; ── Model ─────────────────────────────────────────────────────────────\n#&gt; Random Forest Model Specification (classification)\n#&gt; \n#&gt; Main Arguments:\n#&gt;   min_n = tune()\n#&gt; \n#&gt; Computational engine: ranger"
+  },
+  {
+    "objectID": "slides/intro-05-tuning-models.html#try-out-multiple-values",
+    "href": "slides/intro-05-tuning-models.html#try-out-multiple-values",
+    "title": "5 - Tuning models",
+    "section": "Try out multiple values",
+    "text": "Try out multiple values\ntune_grid() works similar to fit_resamples() but covers multiple parameter values:\n\nset.seed(22)\nrf_res &lt;- tune_grid(\n  rf_wflow,\n  taxi_folds,\n  grid = 5\n)"
+  },
+  {
+    "objectID": "slides/intro-05-tuning-models.html#compare-results",
+    "href": "slides/intro-05-tuning-models.html#compare-results",
+    "title": "5 - Tuning models",
+    "section": "Compare results",
+    "text": "Compare results\nInspecting results and selecting the best-performing hyperparameter(s):\n\nshow_best(rf_res)\n#&gt; # A tibble: 5 × 7\n#&gt;   min_n .metric .estimator  mean     n std_err .config             \n#&gt;   &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1    33 roc_auc binary     0.623    10  0.0149 Preprocessor1_Model1\n#&gt; 2    31 roc_auc binary     0.622    10  0.0154 Preprocessor1_Model3\n#&gt; 3    21 roc_auc binary     0.620    10  0.0149 Preprocessor1_Model4\n#&gt; 4    13 roc_auc binary     0.617    10  0.0137 Preprocessor1_Model5\n#&gt; 5     6 roc_auc binary     0.611    10  0.0156 Preprocessor1_Model2\n\nbest_parameter &lt;- select_best(rf_res)\nbest_parameter\n#&gt; # A tibble: 1 × 2\n#&gt;   min_n .config             \n#&gt;   &lt;int&gt; &lt;chr&gt;               \n#&gt; 1    33 Preprocessor1_Model1\n\ncollect_metrics() and autoplot() are also available."
+  },
+  {
+    "objectID": "slides/intro-05-tuning-models.html#the-final-fit",
+    "href": "slides/intro-05-tuning-models.html#the-final-fit",
+    "title": "5 - Tuning models",
+    "section": "The final fit",
+    "text": "The final fit\n\nrf_wflow &lt;- finalize_workflow(rf_wflow, best_parameter)\n\nfinal_fit &lt;- last_fit(rf_wflow, taxi_split) \n\ncollect_metrics(final_fit)\n#&gt; # A tibble: 3 × 4\n#&gt;   .metric     .estimator .estimate .config             \n#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 accuracy    binary        0.913  Preprocessor1_Model1\n#&gt; 2 roc_auc     binary        0.648  Preprocessor1_Model1\n#&gt; 3 brier_class binary        0.0763 Preprocessor1_Model1"
+  },
+  {
+    "objectID": "slides/intro-05-tuning-models.html#your-turn",
+    "href": "slides/intro-05-tuning-models.html#your-turn",
+    "title": "5 - Tuning models",
+    "section": "Your turn",
+    "text": "Your turn\n\nModify your model workflow to tune one or more parameters.\nUse grid search to find the best parameter(s).\n\n\n\n−+\n05:00\n\n\n\n\n\n\nhttps://workshops.tidymodels.org"
   }
 ]
