@@ -76,7 +76,7 @@
 <text x='342.01' y='364.84' text-anchor='middle' style='font-size: 14.40px;fill: #4D4D4D; font-family: "Arial";' textLength='24.02px' lengthAdjust='spacingAndGlyphs'>200</text>
 <text x='468.43' y='364.84' text-anchor='middle' style='font-size: 14.40px;fill: #4D4D4D; font-family: "Arial";' textLength='24.02px' lengthAdjust='spacingAndGlyphs'>300</text>
 <text x='316.73' y='385.41' text-anchor='middle' style='font-size: 18.00px; font-family: "Arial";' textLength='40.00px' lengthAdjust='spacingAndGlyphs'>Time</text>
-<text transform='translate(21.88,177.71) rotate(-90)' text-anchor='middle' style='font-size: 18.00px; font-family: "Arial";' textLength='296.13px' lengthAdjust='spacingAndGlyphs'>Probability of remaining in the shelter</text>
+<text transform='translate(21.88,177.71) rotate(-90)' text-anchor='middle' style='font-size: 18.00px; font-family: "Arial";' textLength='204.12px' lengthAdjust='spacingAndGlyphs'>Probability of not adopted</text>
 <rect x='71.09' y='407.33' width='491.28' height='87.71' style='stroke-width: 1.75; stroke: none; fill: #FFFFFF;' />
 <text x='80.06' y='457.64' style='font-size: 18.00px; font-family: "Arial";' textLength='130.07px' lengthAdjust='spacingAndGlyphs'>intake_condition</text>
 <rect x='219.09' y='416.29' width='17.28' height='17.28' style='stroke-width: 1.75; stroke: none; fill: #FFFFFF;' />
