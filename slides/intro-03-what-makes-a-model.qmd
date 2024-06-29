@@ -459,7 +459,7 @@ knitr::include_graphics("images/bad_workflow.png")
 
 . . .
 
--   Workflows handle new data better than base R tools in terms of new factor levels
+-   [Most importantly]{.underline}, a workflow captures the entire modeling process: `fit()` and `predict()` apply to the preprocessing steps in addition to the actual model fit
 
 . . .
 
@@ -471,7 +471,7 @@ knitr::include_graphics("images/bad_workflow.png")
 
 . . .
 
--   [Most importantly]{.underline}, a workflow captures the entire modeling process: `fit()` and `predict()` apply to the preprocessing steps in addition to the actual model fit
+-   Workflows handle new data better than base R tools in terms of new factor levels
 
 ::: notes
 Two ways workflows handle levels better than base R:
