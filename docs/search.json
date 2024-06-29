@@ -845,5 +845,19 @@
     "title": "5 - Tuning models",
     "section": "Your turn",
     "text": "Your turn\n\nModify your model workflow to tune one or more parameters.\nUse grid search to find the best parameter(s).\n\n\n\n−+\n05:00\n\n\n\n\n\n\nhttps://workshops.tidymodels.org"
+  },
+  {
+    "objectID": "slides/intro-06-wrapping-up.html#your-turn",
+    "href": "slides/intro-06-wrapping-up.html#your-turn",
+    "title": "6 - Wrapping up",
+    "section": "Your turn",
+    "text": "Your turn\n\nWhat is one thing you learned that surprised you?\nWhat is one thing you learned that you plan to use?\n\n\n\n−+\n05:00"
+  },
+  {
+    "objectID": "slides/intro-06-wrapping-up.html#resources-to-keep-learning",
+    "href": "slides/intro-06-wrapping-up.html#resources-to-keep-learning",
+    "title": "6 - Wrapping up",
+    "section": "Resources to keep learning",
+    "text": "Resources to keep learning\n\n\nhttps://www.tidymodels.org/\n\n\n\n\nhttps://www.tmwr.org/\n\n\n\n\nhttp://www.feat.engineering/\n\n\n\n\nhttps://smltar.com/\n\n\n\nFollow us on Mastodon and at the tidyverse blog for updates!\n\n\n\nhttps://workshops.tidymodels.org"
   }
 ]
