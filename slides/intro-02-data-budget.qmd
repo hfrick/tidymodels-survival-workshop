@@ -107,8 +107,6 @@ Do not 🚫 use the test set during training.
 countdown::countdown(minutes = 3, id = "when-to-split")
 ```
 
-# The testing data is precious 💎
-
 ## The initial split `r hexes("rsample")` {.annotation}
 
 ```{r cat-split}
