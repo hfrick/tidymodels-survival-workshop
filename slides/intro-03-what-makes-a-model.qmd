@@ -179,20 +179,6 @@ All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 ::: footer
 :::
 
-## To specify a model `r hexes("parsnip")`
-
-::: columns
-::: {.column width="55%"}
--   Choose a [model]{.underline}
--   Specify an [engine]{.underline}
--   Set the [mode]{.underline}
-:::
-
-::: {.column width="45%"}
-<img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%">
-:::
-:::
-
 ## Your turn {transition="slide-in"}
 
 ![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
