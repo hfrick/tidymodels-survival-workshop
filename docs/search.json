@@ -816,28 +816,28 @@
     "href": "slides/intro-05-tuning-models.html#specifying-tuning-parameters",
     "title": "5 - Tuning models",
     "section": "Specifying tuning parameters",
-    "text": "Specifying tuning parameters\nLet’s take our previous random forest workflow and tag for tuning the minimum number of data points in each node:\n\nrf_spec &lt;- rand_forest(min_n = tune()) %&gt;% \n  set_mode(\"classification\")\n\nrf_wflow &lt;- workflow(tip ~ ., rf_spec)\nrf_wflow\n#&gt; ══ Workflow ══════════════════════════════════════════════════════════\n#&gt; Preprocessor: Formula\n#&gt; Model: rand_forest()\n#&gt; \n#&gt; ── Preprocessor ──────────────────────────────────────────────────────\n#&gt; tip ~ .\n#&gt; \n#&gt; ── Model ─────────────────────────────────────────────────────────────\n#&gt; Random Forest Model Specification (classification)\n#&gt; \n#&gt; Main Arguments:\n#&gt;   min_n = tune()\n#&gt; \n#&gt; Computational engine: ranger"
+    "text": "Specifying tuning parameters\nLet’s take our previous random forest workflow and tag for tuning the minimum number of data points in each node:\n\nrf_spec &lt;- rand_forest(min_n = tune()) %&gt;% \n  set_engine(\"aorsf\") %&gt;% \n  set_mode(\"censored regression\")\n\nrf_wflow &lt;- workflow(event_time ~ ., rf_spec)\nrf_wflow\n#&gt; ══ Workflow ══════════════════════════════════════════════════════════\n#&gt; Preprocessor: Formula\n#&gt; Model: rand_forest()\n#&gt; \n#&gt; ── Preprocessor ──────────────────────────────────────────────────────\n#&gt; event_time ~ .\n#&gt; \n#&gt; ── Model ─────────────────────────────────────────────────────────────\n#&gt; Random Forest Model Specification (censored regression)\n#&gt; \n#&gt; Main Arguments:\n#&gt;   min_n = tune()\n#&gt; \n#&gt; Computational engine: aorsf"
   },
   {
     "objectID": "slides/intro-05-tuning-models.html#try-out-multiple-values",
     "href": "slides/intro-05-tuning-models.html#try-out-multiple-values",
     "title": "5 - Tuning models",
     "section": "Try out multiple values",
-    "text": "Try out multiple values\ntune_grid() works similar to fit_resamples() but covers multiple parameter values:\n\nset.seed(22)\nrf_res &lt;- tune_grid(\n  rf_wflow,\n  taxi_folds,\n  grid = 5\n)"
+    "text": "Try out multiple values\ntune_grid() works similar to fit_resamples() but covers multiple parameter values:\n\nset.seed(22)\nrf_res &lt;- tune_grid(\n  rf_wflow,\n  cat_folds,\n  eval_time = c(90, 30, 60, 120),\n  grid = 5\n)"
   },
   {
     "objectID": "slides/intro-05-tuning-models.html#compare-results",
     "href": "slides/intro-05-tuning-models.html#compare-results",
     "title": "5 - Tuning models",
     "section": "Compare results",
-    "text": "Compare results\nInspecting results and selecting the best-performing hyperparameter(s):\n\nshow_best(rf_res)\n#&gt; # A tibble: 5 × 7\n#&gt;   min_n .metric .estimator  mean     n std_err .config             \n#&gt;   &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1    33 roc_auc binary     0.623    10  0.0149 Preprocessor1_Model1\n#&gt; 2    31 roc_auc binary     0.622    10  0.0154 Preprocessor1_Model3\n#&gt; 3    21 roc_auc binary     0.620    10  0.0149 Preprocessor1_Model4\n#&gt; 4    13 roc_auc binary     0.617    10  0.0137 Preprocessor1_Model5\n#&gt; 5     6 roc_auc binary     0.611    10  0.0156 Preprocessor1_Model2\n\nbest_parameter &lt;- select_best(rf_res)\nbest_parameter\n#&gt; # A tibble: 1 × 2\n#&gt;   min_n .config             \n#&gt;   &lt;int&gt; &lt;chr&gt;               \n#&gt; 1    33 Preprocessor1_Model1\n\ncollect_metrics() and autoplot() are also available."
+    "text": "Compare results\nInspecting results and selecting the best-performing hyperparameter(s):\n\nshow_best(rf_res)\n#&gt; # A tibble: 5 × 8\n#&gt;   min_n .metric        .estimator .eval_time  mean     n std_err .config        \n#&gt;   &lt;int&gt; &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;          \n#&gt; 1    33 brier_survival standard           90 0.197    10 0.00937 Preprocessor1_…\n#&gt; 2    31 brier_survival standard           90 0.198    10 0.00953 Preprocessor1_…\n#&gt; 3    13 brier_survival standard           90 0.198    10 0.00956 Preprocessor1_…\n#&gt; 4    21 brier_survival standard           90 0.199    10 0.00960 Preprocessor1_…\n#&gt; 5     6 brier_survival standard           90 0.199    10 0.00977 Preprocessor1_…\n\nbest_parameter &lt;- select_best(rf_res)\nbest_parameter\n#&gt; # A tibble: 1 × 2\n#&gt;   min_n .config             \n#&gt;   &lt;int&gt; &lt;chr&gt;               \n#&gt; 1    33 Preprocessor1_Model1\n\ncollect_metrics() and autoplot() are also available."
   },
   {
     "objectID": "slides/intro-05-tuning-models.html#the-final-fit",
     "href": "slides/intro-05-tuning-models.html#the-final-fit",
     "title": "5 - Tuning models",
     "section": "The final fit",
-    "text": "The final fit\n\nrf_wflow &lt;- finalize_workflow(rf_wflow, best_parameter)\n\nfinal_fit &lt;- last_fit(rf_wflow, taxi_split) \n\ncollect_metrics(final_fit)\n#&gt; # A tibble: 3 × 4\n#&gt;   .metric     .estimator .estimate .config             \n#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 accuracy    binary        0.913  Preprocessor1_Model1\n#&gt; 2 roc_auc     binary        0.648  Preprocessor1_Model1\n#&gt; 3 brier_class binary        0.0763 Preprocessor1_Model1"
+    "text": "The final fit\n\nrf_wflow &lt;- finalize_workflow(rf_wflow, best_parameter)\n\nfinal_fit &lt;- last_fit(rf_wflow, cat_split, eval_time = c(90, 30, 60, 120)) \n\ncollect_metrics(final_fit)\n#&gt; # A tibble: 4 × 5\n#&gt;   .metric        .estimator .eval_time .estimate .config             \n#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 brier_survival standard           30     0.221 Preprocessor1_Model1\n#&gt; 2 brier_survival standard           60     0.225 Preprocessor1_Model1\n#&gt; 3 brier_survival standard           90     0.160 Preprocessor1_Model1\n#&gt; 4 brier_survival standard          120     0.107 Preprocessor1_Model1"
   },
   {
     "objectID": "slides/intro-05-tuning-models.html#your-turn",
