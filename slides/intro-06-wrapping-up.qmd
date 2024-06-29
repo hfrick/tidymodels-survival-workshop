@@ -1,6 +1,6 @@
 ---
 title: "6 - Wrapping up"
-subtitle: "Introduction to tidymodels"
+subtitle: "Survival analysis with tidymodels"
 format:
   revealjs: 
     slide-number: true
