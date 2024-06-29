@@ -1,6 +1,6 @@
 ---
 title: "5 - Tuning models"
-subtitle: "Introduction to tidymodels"
+subtitle: "Survival analysis with tidymodels"
 format:
   revealjs: 
     slide-number: true
@@ -27,14 +27,26 @@ knitr:
 ```{r setup-previous}
 #| echo: false
 library(tidymodels)
+library(censored)
+library(splines)
+
+data(cat_adoption)
+
+cat_adoption <- 
+  cat_adoption %>% 
+  mutate(event_time = Surv(time, event), .keep = "unused", .before = everything()) 
+
+set.seed(27)
+in_demo <- sample.int(nrow(cat_adoption), 50)
+demo_cats <- cat_adoption %>% slice(in_demo)
 
 set.seed(123)
-taxi_split <- initial_split(taxi, prop = 0.8, strata = tip)
-taxi_train <- training(taxi_split)
-taxi_test <- testing(taxi_split)
+cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_train <- training(cat_split)
+cat_test <- testing(cat_split)
 
 set.seed(123)
-taxi_folds <- vfold_cv(taxi_train, v = 10, strata = tip)
+cat_folds <- vfold_cv(cat_train, v = 10)
 ```
 
 ## Tuning parameters
