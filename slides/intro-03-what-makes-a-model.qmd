@@ -564,29 +564,25 @@ predict(tree_fit, new_data = demo_cats, type = "time")
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-predict-survival}
-preds <- predict(tree_fit, new_data = demo_cats, type = "survival", eval_time = c(30, 365))
+preds <- predict(tree_fit, new_data = demo_cats, type = "survival", 
+                 eval_time = seq(0, 365, by = 5))
 preds
 ```
 
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-predict-survival-2}
-preds <- predict(tree_fit, new_data = demo_cats, type = "survival", eval_time = c(30, 365))
-
 preds$.pred[[1]]
 ```
 
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
 
 ```{r predict-survival-curve}
-#| code-line-numbers: "1-3|4-6|7|8-11"
+#| echo: false
 #| fig.width: 8
 #| fig.height: 6
 #| fig.align: "center"
-#| output-location: slide
-predict(tree_fit, new_data = demo_cats, type = "survival", 
-  eval_time = seq(0, 365, by = 5)
-) %>% 
+preds %>% 
   slice(c(1,2,5)) %>% 
   add_rowindex() %>% 
   mutate(cat = paste0("#", .row)) %>% 
