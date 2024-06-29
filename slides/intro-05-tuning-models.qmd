@@ -91,9 +91,10 @@ Let's take our previous random forest workflow and tag for tuning the minimum nu
 #| code-line-numbers: "1|"
 
 rf_spec <- rand_forest(min_n = tune()) %>% 
-  set_mode("classification")
+  set_engine("aorsf") %>% 
+  set_mode("censored regression")
 
-rf_wflow <- workflow(tip ~ ., rf_spec)
+rf_wflow <- workflow(event_time ~ ., rf_spec)
 rf_wflow
 ```
 
@@ -103,12 +104,13 @@ rf_wflow
 
 ```{r}
 #| label: rf-tune_grid
-#| code-line-numbers: "2|3-4|5|"
+#| code-line-numbers: "2|3-5|6|"
 
 set.seed(22)
 rf_res <- tune_grid(
   rf_wflow,
-  taxi_folds,
+  cat_folds,
+  eval_time = c(90, 30, 60, 120),
   grid = 5
 )
 ```
@@ -135,7 +137,7 @@ best_parameter
 
 rf_wflow <- finalize_workflow(rf_wflow, best_parameter)
 
-final_fit <- last_fit(rf_wflow, taxi_split) 
+final_fit <- last_fit(rf_wflow, cat_split, eval_time = c(90, 30, 60, 120)) 
 
 collect_metrics(final_fit)
 ```
