@@ -571,7 +571,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#your-turn-3",
     "title": "3 - What makes a model?",
     "section": "Your turn",
-    "text": "Your turn\n\nRun:\naugment(tree_fit, new_data = cat_test)\nWhat do you get?\n\n\n\n−+\n03:00"
+    "text": "Your turn\n\nRun:\naugment(tree_fit, new_data = demo_cats, eval_time = seq(0, 365, by = 5))\nWhat do you get?\n\n\n\n−+\n03:00"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#the-whole-game---status-update",

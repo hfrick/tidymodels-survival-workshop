@@ -7,12 +7,17 @@ editor_options:
 
 We recommend restarting R between each slide deck!
 
-## Data on taxi trips in Chicago in 2022
+## Data on shelter cats
 
 ```{r}
 library(tidymodels)
+library(survival)
+library(modeldata)
 
-taxi
+cat_adoption
+
+cat_adoption <- cat_adoption %>% 
+  mutate(event_time = Surv(time, event), .keep = "unused", .before = everything()) 
 ```
 
 ## Your turn
@@ -24,22 +29,15 @@ When is a good time to split your data?
 ```{r}
 set.seed(123)
 
-taxi_split <- initial_split(taxi)
-taxi_split
+cat_split <- initial_split(cat_adoption)
+cat_split
 ```
 
 Extract the training and testing sets
 
 ```{r}
-taxi_train <- training(taxi_split)
-taxi_test <- testing(taxi_split)
-```
-
-## Validation set
-
-```{r}
-set.seed(123)
-initial_validation_split(taxi, prop = c(0.6, 0.2))
+cat_train <- training(cat_split)
+cat_test <- testing(cat_split)
 ```
 
 ## Your turn
@@ -57,23 +55,15 @@ Hint: Which argument in `initial_split()` handles the proportion split into trai
 
 ## Your turn
 
-Explore the `taxi_train` data on your own!
+Explore the `cat_train` data on your own!
 
-- What's the distribution of the outcome, tip?
-- What's the distribution of numeric variables like distance?
-- How does tip differ across the categorical variables?
+- What does the Kaplan-Meier curve look like for the outcome, `event_time`?
+- How does `event_time` differ across the categorical variables?
+- What's the distribution of the location information, `latitude` and `longitude`?
+
+Extension/Challenge: How would you visualize the relelationship between the outcome and longitude and latitude, respectively?
 
 ```{r}
 # Your code here!
 
-```
-
-## Stratification
-
-```{r}
-set.seed(123)
-
-taxi_split <- initial_split(taxi, prop = 0.8, strata = tip)
-taxi_train <- training(taxi_split)
-taxi_test <- testing(taxi_split)
 ```
