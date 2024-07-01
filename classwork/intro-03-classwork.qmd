@@ -13,11 +13,20 @@ Setup from deck 2
 
 ```{r}
 library(tidymodels)
+library(censored)
+library(modeldata)
+
+cat_adoption <- cat_adoption %>% 
+  mutate(event_time = Surv(time, event), .keep = "unused", .before = everything())
+
+set.seed(27)
+in_demo <- sample.int(nrow(cat_adoption), 50)
+demo_cats <- cat_adoption %>% slice(in_demo)
 
 set.seed(123)
-taxi_split <- initial_split(taxi, prop = 0.8, strata = tip)
-taxi_train <- training(taxi_split)
-taxi_test <- testing(taxi_split)
+cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_train <- training(cat_split)
+cat_test <- testing(cat_split)
 ```
 
 ## Your turn
@@ -32,128 +41,98 @@ Discuss with your neighbor!
 
 ```{r}
 # Model
-linear_reg()
+proportional_hazards()
 
 # Engine
-linear_reg() %>%
+proportional_hazards() %>%
   set_engine("glmnet")
 
 # Mode - Some models have a default mode, others don't
 decision_tree() %>% 
-  set_mode("regression")
+  set_mode("censored regression")
 ```
 
 ## Your turn
 
-Edit the chunk below to use a logistic regression model.
+Write the specification for a proportional hazards model. Choose your engine.
 
 Extension/Challenge: Edit this code to use a different model. For example, try using a conditional inference tree as implemented in the partykit package by changing the engine - or try an entirely different model type!
 
 All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 
-```{r tree_spec}
-tree_spec <- decision_tree() %>% 
-  set_mode("classification")
+```{r}
+# Your code here!
 
-tree_spec
 ```
 
 ## A model workflow
 
 ```{r}
 tree_spec <-
-  decision_tree(cost_complexity = 0.002) %>% 
-  set_mode("classification")
+  decision_tree() %>% 
+  set_mode("censored regression")
 ```
 
 Fit parsnip specification:
 
 ```{r}
 tree_spec %>% 
-  fit(tip ~ ., data = taxi_train) 
+  fit(event_time ~ ., data = cat_train) 
 ```
 
 Fit with a workflow:
 
 ```{r}
 workflow() %>%
-  add_formula(tip ~ .) %>%
+  add_formula(event_time ~ .) %>%
   add_model(tree_spec) %>%
-  fit(data = taxi_train) 
+  fit(data = cat_train) 
 ```
 
 "Shortcut" by specifying the preprocessor and model spec directly in the `workflow()` call:
 
 ```{r}
-workflow(tip ~ ., tree_spec) %>% 
-  fit(data = taxi_train) 
+workflow(event_time ~ ., tree_spec) %>% 
+  fit(data = cat_train) 
 ```
 
 ## Your turn
 
-Edit the chunk below to make a workflow with your own model of choice!
+Make a workflow with your own model of choice.
 
 Extension/Challenge: Other than formulas, what kinds of preprocessors are supported?
 
-```{r tree_wflow}
-tree_spec <-
-  decision_tree(cost_complexity = 0.002) %>% 
-  set_mode("classification")
+```{r}
+# Your code here!
 
-tree_wflow <- workflow() %>%
-  add_formula(tip ~ .) %>%
-  add_model(tree_spec)
-
-tree_wflow
 ```
 
 ## Predict with your model
 
 ```{r}
 tree_fit <-
-  workflow(tip ~ ., tree_spec) %>% 
-  fit(data = taxi_train) 
+  workflow(event_time ~ ., tree_spec) %>% 
+  fit(data = cat_train) 
 ```
 
-## Your turn
-
-What do you get from running the following code? What do you notice about the structure of the result?
+Predict time to event
 
 ```{r}
-predict(tree_fit, new_data = taxi_test)
+predict(tree_fit, new_data = demo_cats, type = "time")
 ```
+
+Predict survival probability at time `eval_time`
+
+```{r}
+predict(tree_fit, new_data = demo_cats, type = "survival", 
+        eval_time = seq(0, 365, by = 5))
+```
+
 
 ## Your turn
 
 What do you get from running the following code? How is `augment()` different from `predict()`?
 
 ```{r}
-augment(tree_fit, new_data = taxi_test)
+augment(tree_fit, new_data = demo_cats, eval_time = seq(0, 365, by = 5))
 ```
-
-## Understand your model
-
-```{r}
-library(rpart.plot)
-
-tree_fit %>%
-  extract_fit_engine() %>%
-  rpart.plot(roundint = FALSE)
-```
-
-## Your turn
-
-Try extracting the model engine object from your fitted workflow!
-
-```{r}
-### Your code here
-
-```
-
-What kind of object is it? What can you do with it?
-
-⚠️ Never `predict()` with any extracted components!
-
-You can also read the documentation for object extraction:
-https://workflows.tidymodels.org/reference/extract-workflow.html
-
