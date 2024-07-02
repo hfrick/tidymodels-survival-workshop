@@ -859,5 +859,96 @@
     "title": "6 - Wrapping up",
     "section": "Resources to keep learning",
     "text": "Resources to keep learning\n\n\nhttps://www.tidymodels.org/\n\n\n\n\nhttps://www.tmwr.org/\n\n\n\n\nhttp://www.feat.engineering/\n\n\n\n\nhttps://smltar.com/\n\n\n\nFollow us on Mastodon and at the tidyverse blog for updates!\n\n\n\nhttps://workshops.tidymodels.org"
+  },
+  {
+    "objectID": "slides/annotations.html#section",
+    "href": "slides/annotations.html#section",
+    "title": "Annotations",
+    "section": "👀",
+    "text": "👀\nThis page contains annotations for selected slides.\nThere’s a lot that we want to tell you. We don’t want people to have to frantically scribble down things that we say that are not on the slides.\nWe’ve added sections to this document with longer explanations and links to other resources."
+  },
+  {
+    "objectID": "slides/annotations.html#the-initial-split",
+    "href": "slides/annotations.html#the-initial-split",
+    "title": "Annotations",
+    "section": "The initial split",
+    "text": "The initial split\nWhat does set.seed() do?\nWe’ll use pseudo-random numbers (PRN) to partition the data into training and testing. PRN are numbers that emulate truly random numbers (but really are not truly random).\nThink of PRN as a box that takes a starting value (the “seed”) that produces random numbers using that starting value as an input into its process.\nIf we know a seed value, we can reproduce our “random” numbers. To use a different set of random numbers, choose a different seed value.\nFor example:\n\nset.seed(1)\nrunif(3)\n#&gt; [1] 0.2655087 0.3721239 0.5728534\n\n# Get a new set of random numbers:\nset.seed(2)\nrunif(3)\n#&gt; [1] 0.1848823 0.7023740 0.5733263\n\n# We can reproduce the old ones with the same seed\nset.seed(1)\nrunif(3)\n#&gt; [1] 0.2655087 0.3721239 0.5728534\n\nIf we don’t set the seed, R uses the clock time and the process ID to create a seed. This isn’t reproducible.\nSince we want our code to be reproducible, we set the seeds before random numbers are used.\nIn theory, you can set the seed once at the start of a script. However, if we do interactive data analysis, we might unwittingly use random numbers while coding. In that case, the stream is not the same and we don’t get reproducible results.\nThe value of the seed is an integer and really has no meaning. Max has a script to generate random integers to use as seeds to “spread the randomness around”. It is basically:\n\ncat(paste0(\"set.seed(\", sample.int(10000, 5), \")\", collapse = \"\\n\"))\n#&gt; set.seed(9725)\n#&gt; set.seed(8462)\n#&gt; set.seed(4050)\n#&gt; set.seed(8789)\n#&gt; set.seed(1301)"
+  },
+  {
+    "objectID": "slides/annotations.html#what-is-wrong-with-this",
+    "href": "slides/annotations.html#what-is-wrong-with-this",
+    "title": "Annotations",
+    "section": "What is wrong with this?",
+    "text": "What is wrong with this?\nIf we treat the preprocessing as a separate task, it raises the risk that we might accidentally overfit to the data at hand.\nFor example, someone might estimate something from the entire data set (such as the principle components) and treat that data as if it were known (and not estimated). Depending on the what was done with the data, consequences in doing that could be:\n\nYour performance metrics are slightly-to-moderately optimistic (e.g. you might think your accuracy is 85% when it is actually 75%)\nA consequential component of the analysis is not right and the model just doesn’t work.\n\nThe big issue here is that you won’t be able to figure this out until you get a new piece of data, such as the test set.\nA really good example of this is in ‘Selection bias in gene extraction on the basis of microarray gene-expression data’. The authors re-analyze a previous publication and show that the original researchers did not include feature selection in the workflow. Because of that, their performance statistics were extremely optimistic. In one case, they could do the original analysis on complete noise and still achieve zero errors.\nGenerally speaking, this problem is referred to as data leakage. Some other references:\n\nOverfitting to Predictors and External Validation\nAre We Learning Yet? A Meta Review of Evaluation Failures Across Machine Learning\nNavigating the pitfalls of applying machine learning in genomics\nA review of feature selection techniques in bioinformatics\nOn Over-fitting in Model Selection and Subsequent Selection Bias in Performance Evaluation"
+  },
+  {
+    "objectID": "slides/annotations.html#an-example-model-fit",
+    "href": "slides/annotations.html#an-example-model-fit",
+    "title": "Annotations",
+    "section": "An Example Model Fit",
+    "text": "An Example Model Fit\nIn regards to the weird formula assembly: this will be so much easier once we introduce recipes."
+  },
+  {
+    "objectID": "slides/annotations.html#converting-to-events",
+    "href": "slides/annotations.html#converting-to-events",
+    "title": "Annotations",
+    "section": "Converting to Events",
+    "text": "Converting to Events\nThe predicted class probabilities are then:\n\\[\n\\begin{align}\nPr[y_{i\\tau} = 1] &= 1- \\hat{S}(\\tau; \\boldsymbol{x}_{i})\\notag \\\\\nPr[y_{i\\tau} = 0] &= \\hat{S}(\\tau; \\boldsymbol{x}_{i}) \\notag\n\\end{align}\n\\]"
+  },
+  {
+    "objectID": "slides/annotations.html#dealing-with-missing-outcome-data",
+    "href": "slides/annotations.html#dealing-with-missing-outcome-data",
+    "title": "Annotations",
+    "section": "Dealing with Missing Outcome Data",
+    "text": "Dealing with Missing Outcome Data\nFor our causal inference approach, we need to compute \\(\\hat{C}(t^*;\\boldsymbol{x}_{i})\\), the probability that sample \\(i\\) is censored at some time \\(t^*\\).\nWe have to consider how to compute the time point \\(t^*\\). Let’s say we are predicting what will happen at \\(t^* = 17\\) days.\nFirst, we are predicting future events, so we can only assume that we have data prior to 17 days. For this reason, when we use the observed time to compute the probability of censoring, we do it just prior to \\(t^*\\), at \\(t_i - \\epsilon\\) for some very small \\(\\epsilon\\).\nSecond, following Graf et al. (1999), we calculate the censoring probability differently for each event class:\n\\[\nt_i^*=\n\\begin{cases}\nt_i  - \\epsilon &  \\text{if }t_i \\le \\tau \\\\ \\notag\n\\tau - \\epsilon &  \\text{if }t_i &gt; \\tau  \\notag\n\\end{cases}\n\\]\nHow exactly do we estimate \\(\\hat{C}(t^*;\\boldsymbol{x}_{i})\\)? We currently only estimate the probability of non-informative right censoring (i.e., the predictors \\(x_i\\) are ignored). We may expand this API in the future when you have informative censoring.\nOur estimator \\(\\hat{C}(T;x_i)\\) is the “reverse Kaplan-Meier” (RKM, Korn (1986)) curve that inverts the event indicator.\nThe RKM curve is attached to the parsnip model object. It’s curve:\n\n\n\n\n\n\n\n\n\nNow let’s look at how the probabilities are computed for four specific cats:\n\n\n\n\n\n\n\n\n\nWe’ve truncated the x-axis for readability.\nFrom this:\n\nAt \\(\\tau = 10\\), all four cats are used to measure performance and \\(t^*_i = t_i - \\epsilon\\).\nAt \\(\\tau = 30\\), only two cats are used and \\(t^*_1 = 36 - \\epsilon\\) and \\(t^*_4 = 30 - \\epsilon\\).\n\nHow the censoring probability varies over time can greatly impact the metrics. For the demonstration set, there are very few usable outcomes in the late stages of the analysis, but these have large weights.\n\n\n\n\n\n\n\n\n\nCase weights \\(w_i(\\tau)\\) are the inverse of these probabilities and \\(W(\\tau)\\) is their sum."
+  },
+  {
+    "objectID": "slides/annotations.html#inverse-weights",
+    "href": "slides/annotations.html#inverse-weights",
+    "title": "Annotations",
+    "section": "Inverse Weights",
+    "text": "Inverse Weights\nHow the censoring probability varies over time can have a big effect on the metrics.\nFor the demonstration set, there are very few usable outcomes in the late stages of the analysis but these have large weights.\n\n\n\n\n\n\n\n\n\nCase weights \\(w_i(\\tau)\\) are the inverse of these probabilities and \\(W(\\tau)\\) is their sum."
+  },
+  {
+    "objectID": "slides/annotations.html#update-parameter-ranges",
+    "href": "slides/annotations.html#update-parameter-ranges",
+    "title": "Annotations",
+    "section": "Update parameter ranges",
+    "text": "Update parameter ranges\nIn about 90% of the cases, the dials function that you use to update the parameter range has the same name as the argument. For example, if you were to update the mtry parameter in a random forests model, the code would look like\n\nparameter_object %&gt;% \n  update(mtry = mtry(c(1, 100)))\n\nThere are some cases where the parameter function, or its associated values, are different from the argument name.\nFor example, with step_spline_naturall(), we might want to tune the deg_free argument (for the degrees of freedom of a spline function. ). In this case, the argument name is deg_free but we update it with spline_degree().\ndeg_free represents the general concept of degrees of freedom and could be associated with many different things. For example, if we ever had an argument that was the number of degrees of freedom for a \\(t\\) distribution, we would call that argument deg_free.\nFor splines, we probably want a wider range for the degrees of freedom. We made a specialized function called spline_degree() to be used in these cases.\nHow can you tell when this happens? There is a helper function called tunable() and that gives information on how we make the default ranges for parameters. There is a column in these objects names call_info:\n\nlibrary(tidymodels)\nns_tunable &lt;- \n  recipe(mpg ~ ., data = mtcars) %&gt;% \n  step_spline_natural(dis, deg_free = tune()) %&gt;% \n  tunable()\n\nns_tunable\n#&gt; # A tibble: 1 × 5\n#&gt;   name     call_info        source component           component_id        \n#&gt;   &lt;chr&gt;    &lt;list&gt;           &lt;chr&gt;  &lt;chr&gt;               &lt;chr&gt;               \n#&gt; 1 deg_free &lt;named list [3]&gt; recipe step_spline_natural spline_natural_P1Tjg\nns_tunable$call_info\n#&gt; [[1]]\n#&gt; [[1]]$pkg\n#&gt; [1] \"dials\"\n#&gt; \n#&gt; [[1]]$fun\n#&gt; [1] \"spline_degree\"\n#&gt; \n#&gt; [[1]]$range\n#&gt; [1]  2 15"
+  },
+  {
+    "objectID": "slides/annotations.html#early-stopping-for-boosted-trees",
+    "href": "slides/annotations.html#early-stopping-for-boosted-trees",
+    "title": "Annotations",
+    "section": "Early stopping for boosted trees",
+    "text": "Early stopping for boosted trees\nWhen deciding on the number of boosting iterations, there are two main strategies:\n\nDirectly tune it (trees = tune())\nSet it to one value and tune the number of early stopping iterations (trees = 500, stop_iter = tune()).\n\nEarly stopping is when we monitor the performance of the model. If the model doesn’t make any improvements for stop_iter iterations, training stops.\nHere’s an example where, after eleven iterations, performance starts to get worse.\n\n\n\n\n\n\n\n\n\nThis is likely due to over-fitting so we stop the model at eleven boosting iterations.\nEarly stopping usually has good results and takes far less time.\nWe could an engine argument called validation here. That’s not an argument to any function in the lightgbm package.\nbonsai has its own wrapper around (lightgbm::lgb.train()) called bonsai::train_lightgbm(). We use that here and it has a validation argument.\nHow would you know that? There are a few different ways:\n\nLook at the documentation in ?boost_tree and click on the lightgbm entry in the engine list.\nCheck out the pkgdown reference website https://parsnip.tidymodels.org/reference/index.html\nRun the translate() function on the parsnip specification object.\n\nThe first two options are best since they tell you a lot more about the particularities of each model engine (there are a lot for lightgbm)."
+  },
+  {
+    "objectID": "slides/annotations.html#per-agent-statistics",
+    "href": "slides/annotations.html#per-agent-statistics",
+    "title": "Annotations",
+    "section": "Per-agent statistics",
+    "text": "Per-agent statistics\nThe effect encoding method essentially takes the effect of a variable, like agent, and makes a data column for that effect. In our example, affect of the agent on the ADR is quantified by a model and then added as a data column to be used in the model.\nSuppose agent Max has a single reservation in the data and it had an ADR of €200. If we used a naive estimate for Max’s effect, the model is being told that Max should always produce an effect of €200. That’s a very poor estimate since it is from a single data point.\nContrast this with seasoned agent Davis, who has taken 250 reservations with an average ADR of €100. Davis’s mean is more predictive because it is estimated with better data (i.e., more total reservations). Partial pooling leverages the entire data set and can borrow strength from all of the agents. It is a common tool in Bayesian estimation and non-Bayesian mixed models. If a agent’s data is of good quality, the partial pooling effect estimate is closer to the raw mean. Max’s data is not great and is “shrunk” towards the center of the overall average. Since there is so little known about Max’s reservation history, this is a better effect estimate (until more data is available for him).\nThe Stan documentation has a pretty good vignette on this: https://cran.r-project.org/web/packages/rstanarm/vignettes/pooling.html\nAlso, Bayes Rules! has a nice section on this: https://www.bayesrulesbook.com/chapter-15.html\nSince this example has a numeric outcome, partial pooling is very similar to the James–Stein estimator: https://en.wikipedia.org/wiki/James–Stein_estimator"
+  },
+  {
+    "objectID": "slides/annotations.html#agent-effects",
+    "href": "slides/annotations.html#agent-effects",
+    "title": "Annotations",
+    "section": "Agent effects",
+    "text": "Agent effects\nEffect encoding might result in a somewhat circular argument: the column is more likely to be important to the model since it is the output of a separate model. The risk here is that we might over-fit the effect to the data. For this reason, it is super important to make sure that we verify that we aren’t overfitting by checking with resampling (or a validation set).\nPartial pooling somewhat lowers the risk of overfitting since it tends to correct for agents with small sample sizes. It can’t correct for improper data usage or data leakage though."
+  },
+  {
+    "objectID": "slides/annotations.html#cross-validation",
+    "href": "slides/annotations.html#cross-validation",
+    "title": "Annotations",
+    "section": "Cross-validation",
+    "text": "Cross-validation\nIn the future, we might enable the strata argument of the resampling functions to accept Surv objects and stratify by the censoring indicator."
+  },
+  {
+    "objectID": "slides/annotations.html#bootstrapping",
+    "href": "slides/annotations.html#bootstrapping",
+    "title": "Annotations",
+    "section": "Bootstrapping",
+    "text": "Bootstrapping\nDavison and Hinkley (1997) have specific methods for bootstrapping censored data. These are not currently implemented in the rsample package."
   }
 ]
