@@ -79,7 +79,14 @@ demo_cat_preds %>% select(1:3)
 ```{r}
 #| label: save-pred-for-annotations
 #| include: false
+cph_spline_fit_parsnip <- extract_fit_parsnip(cph_spline_fit)
+rkm_data <- 
+  cph_spline_fit_parsnip$censor_probs$fit[c("time", "surv")] %>% 
+  as_tibble() %>% 
+  set_names(c(".eval_time", ".pred_censored"))
+
 save(demo_cat_preds, file = "RData/demo_cat_preds.RData")
+save(rkm_data, file = "RData/rkm_data.RData")
 ```
 
 ## Concordance
