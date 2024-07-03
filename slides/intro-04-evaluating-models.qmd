@@ -226,7 +226,7 @@ Otherwise, there is the potential for bias due to missingness.
 
 <br>
 
-We'll use tools from causal inference to compensate by creating a propensity score that uses the probability of being censored. 
+We'll use tools from causal inference to compensate by creating a propensity score that uses the probability of being censored/missing. 
 
 Case weights use the inverse of this probability. See [Graf _et al_ (1999)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=graf+1999+%22Assessment+and+comparison+of+prognostic+classification+schemes+for+survival+data%22&btnG=).
 
