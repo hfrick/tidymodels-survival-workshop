@@ -49,6 +49,10 @@ cph_spline_fit <- cat_wflow %>%
   fit(data = cat_train)
 ```
 
+```{r}
+demo_cat_preds <- augment(cph_spline_fit, demo_cats, eval_time = 8:320)
+```
+
 ## Concordance
 
 ```{r}
