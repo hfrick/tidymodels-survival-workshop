@@ -103,7 +103,51 @@ Generally speaking, this problem is referred to as [data leakage](https://en.wik
 
 ## An Example Model Fit
 
-In regards to the weird formula assembly: this will be so much easier once we introduce recipes. 
+First: in regards to the weird formula assembly: this will be so much easier once we introduce recipes. 
+
+Secondly, a popular feature of the proportional hazards model is that it can use stratification; in this case, a different baseline hazard is created for each level of some factor variable. When using the survival package, you can use a “special” function to add this to the model:
+
+```r
+cph_strata_fit <- 
+  proportional_hazards() %>%
+  fit(event_time ~ latitude + longitude + strata(sex), data = cat_train)
+```
+
+The glmnet package can also use stratification, but its syntax is unconventional. tidymodels allows you to use the same syntax from the survival package to compute this model: 
+
+```r
+glmn_strata_fit <- 
+  proportional_hazards(penalty = 0.01) %>%
+  set_engine("glmnet") %>% 
+  fit(event_time ~ latitude + longitude + strata(sex), data = cat_train)
+```
+
+This is a little model complex when using a workflow. 
+
+In R, the model formula does [various things](https://www.tmwr.org/workflows#workflow-encoding): it specifies statistical details (e.g., random effects), data transformations (via in-line functions), encodes data as dummy variables, and so on. 
+
+When using `add_formula()` with a workflow, that formula exclusively encodes data and is _not_ directly executed by the model function. This means that if you have a formula with special inline functions, you must add the formula another way. This can affect adding a strata variable for a censored regression model, a smooth for a generalized additive model, random effects for the lme4 package, etc. 
+
+Suppose we have a factor to use as strata (such as `sex` in our cat data). Since that is a factor, and `survival::cph()` needs numeric data, `add_formula()` will convert `sex` to a dummy variable. That would prevent you from using it in `strata()`. 
+
+For workflows with special formulas, [we suggest](https://www.tmwr.org/workflows#adding-raw-variables-to-the-workflow) using `add_variables()` instead of `add_formula()`. To use the formula intended for the underlying model, there is an option to  `add_model()` to do so. For example: 
+
+```r
+workflow() %>% 
+  add_variables(
+    # Adds raw variables with tidyr-like specifications. These will
+    # remain in the data as-is.
+    outcomes = c(event_time), 
+    predictors = c(latitude, longitude, sex)
+  ) %>% 
+  add_model(
+    proportional_hazards(),
+    # Your model-specific formula goes here: 
+    formula = event_time ~ latitude + longitude + strata(sex)
+  ) 
+```
+
+There are more examples in [Section 7.4.1 ](https://www.tmwr.org/workflows#special-model-formulas) of _Tidy Models with R_. 
 
 ## Converting to Events
 
