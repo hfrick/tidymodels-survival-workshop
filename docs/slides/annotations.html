@@ -210,18 +210,15 @@ window.Quarto = {
   <li><a href="#an-example-model-fit" id="toc-an-example-model-fit" class="nav-link" data-scroll-target="#an-example-model-fit">An Example Model Fit</a></li>
   <li><a href="#converting-to-events" id="toc-converting-to-events" class="nav-link" data-scroll-target="#converting-to-events">Converting to Events</a></li>
   <li><a href="#dealing-with-missing-outcome-data" id="toc-dealing-with-missing-outcome-data" class="nav-link" data-scroll-target="#dealing-with-missing-outcome-data">Dealing with Missing Outcome Data</a></li>
+  <li><a href="#brier-scores-over-evaluation-time" id="toc-brier-scores-over-evaluation-time" class="nav-link" data-scroll-target="#brier-scores-over-evaluation-time">Brier Scores Over Evaluation Time</a></li>
   <li><a href="#cross-validation" id="toc-cross-validation" class="nav-link" data-scroll-target="#cross-validation">Cross-validation</a></li>
   <li><a href="#bootstrapping" id="toc-bootstrapping" class="nav-link" data-scroll-target="#bootstrapping">Bootstrapping</a></li>
+  <li><a href="#evaluating-model-performance" id="toc-evaluating-model-performance" class="nav-link" data-scroll-target="#evaluating-model-performance">Evaluating model performance</a></li>
   </ul></li>
   <li><a href="#tuning-hyperparameters" id="toc-tuning-hyperparameters" class="nav-link" data-scroll-target="#tuning-hyperparameters">06 - Tuning Hyperparameters</a>
   <ul class="collapse">
   <li><a href="#update-parameter-ranges" id="toc-update-parameter-ranges" class="nav-link" data-scroll-target="#update-parameter-ranges">Update parameter ranges</a></li>
   <li><a href="#early-stopping-for-boosted-trees" id="toc-early-stopping-for-boosted-trees" class="nav-link" data-scroll-target="#early-stopping-for-boosted-trees">Early stopping for boosted trees</a></li>
-  </ul></li>
-  <li><a href="#extras---effect-encodings" id="toc-extras---effect-encodings" class="nav-link" data-scroll-target="#extras---effect-encodings">Extras - Effect Encodings</a>
-  <ul class="collapse">
-  <li><a href="#per-agent-statistics" id="toc-per-agent-statistics" class="nav-link" data-scroll-target="#per-agent-statistics">Per-agent statistics</a></li>
-  <li><a href="#agent-effects" id="toc-agent-effects" class="nav-link" data-scroll-target="#agent-effects">Agent effects</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/hfrick/tidymodels-survival-workshop/edit/main/slides/annotations.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/hfrick/tidymodels-survival-workshop/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
@@ -390,6 +387,46 @@ t_i  - \epsilon &amp;  \text{if }t_i \le \tau \\ \notag
 </div>
 <p>Case weights <span class="math inline">\(w_i(\tau)\)</span> are the inverse of these probabilities and <span class="math inline">\(W(\tau)\)</span> is their sum.</p>
 </section>
+<section id="brier-scores-over-evaluation-time" class="level2">
+<h2 class="anchored" data-anchor-id="brier-scores-over-evaluation-time">Brier Scores Over Evaluation Time</h2>
+<p>It’s reasonable to wonder about the uncertainty in these statistics, especially for a sample size of 50. When we get to resampling (in a bit), we will have standard errors of statistics that we can use to make confidence intervals.</p>
+<p>We can use the <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=Bootstrap+confidence+intervals+DiCiccio&amp;btnG=">bootstrap method to compute confidence intervals</a> for a single data set (e.g., a validation set). A tidymodels function called <code>int_pctl()</code> is available for this purpose (<a href="https://www.tidymodels.org/learn/#category=bootstrapping">more information</a>). This will be able to work directly with objects resulting form resampling or tuning functions (again, in a bit) but for a single data set, we’ll need to create a wrapper that computes the statistic for different bootstrap samples.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>brier_wrapper <span class="ot">&lt;-</span> <span class="cf">function</span>(split) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  dat <span class="ot">&lt;-</span> <span class="fu">analysis</span>(split)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">brier_survival</span>(dat, <span class="at">truth =</span> event_time, .pred) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Puts the data into a 'tidy' format:</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="at">term =</span> .eval_time, <span class="at">estimate =</span> .estimate)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We execute that on every bootstrap sample and then use <code>int_pctl()</code> on the results.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">482</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>brier_ci <span class="ot">&lt;-</span> </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  demo_cat_preds <span class="sc">%&gt;%</span> </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bootstraps</span>(<span class="at">times =</span> <span class="dv">2000</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">stats =</span> <span class="fu">map</span>(splits, brier_wrapper)) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">int_pctl</span>(stats, <span class="at">alpha =</span> <span class="fl">0.10</span>) <span class="co"># 90% intervals</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Yep, statistics from 50 cats has a lot of variation!</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>brier_ci <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(term, .estimate)) <span class="sc">+</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">ymin =</span> .lower, <span class="at">ymax =</span> .upper), </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="dv">1</span> <span class="sc">/</span> <span class="dv">10</span>, </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Evaluation time"</span>, <span class="at">y =</span> <span class="st">"Brier score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figures/plot-brier-ci-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
 <section id="cross-validation" class="level2">
 <h2 class="anchored" data-anchor-id="cross-validation">Cross-validation</h2>
 <p>In the future, we might enable the <code>strata</code> argument of the resampling functions to accept <code>Surv</code> objects and stratify by the censoring indicator.</p>
@@ -398,6 +435,10 @@ t_i  - \epsilon &amp;  \text{if }t_i \le \tau \\ \notag
 <h2 class="anchored" data-anchor-id="bootstrapping">Bootstrapping</h2>
 <p><a href="https://doi.org/10.1017/CBO9780511802843">Davison and Hinkley (1997)</a> have specific methods for bootstrapping censored data. These are not currently implemented in the rsample package.</p>
 </section>
+<section id="evaluating-model-performance" class="level2">
+<h2 class="anchored" data-anchor-id="evaluating-model-performance">Evaluating model performance</h2>
+<p>Note that there is a column for <code>std_err</code> so that we can compute confidence intervals from these.</p>
+</section>
 </section>
 <section id="tuning-hyperparameters" class="level1">
 <h1>06 - Tuning Hyperparameters</h1>
@@ -405,8 +446,8 @@ t_i  - \epsilon &amp;  \text{if }t_i \le \tau \\ \notag
 <h2 class="anchored" data-anchor-id="update-parameter-ranges">Update parameter ranges</h2>
 <p>In about 90% of the cases, the dials function that you use to update the parameter range has the same name as the argument. For example, if you were to update the <code>mtry</code> parameter in a random forests model, the code would look like</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>parameter_object <span class="sc">%&gt;%</span> </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update</span>(<span class="at">mtry =</span> <span class="fu">mtry</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">100</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>parameter_object <span class="sc">%&gt;%</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">update</span>(<span class="at">mtry =</span> <span class="fu">mtry</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">100</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>There are some cases where the parameter function, or its associated values, are different from the argument name.</p>
 <p>For example, with <code>step_spline_naturall()</code>, we might want to tune the <code>deg_free</code> argument (for the degrees of freedom of a spline function. ). In this case, the argument name is <code>deg_free</code> but we update it with <code>spline_degree()</code>.</p>
@@ -414,27 +455,27 @@ t_i  - \epsilon &amp;  \text{if }t_i \le \tau \\ \notag
 <p>For splines, we probably want a wider range for the degrees of freedom. We made a specialized function called <code>spline_degree()</code> to be used in these cases.</p>
 <p>How can you tell when this happens? There is a helper function called <code>tunable()</code> and that gives information on how we make the default ranges for parameters. There is a column in these objects names <code>call_info</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>ns_tunable <span class="ot">&lt;-</span> </span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(mpg <span class="sc">~</span> ., <span class="at">data =</span> mtcars) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_spline_natural</span>(dis, <span class="at">deg_free =</span> <span class="fu">tune</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tunable</span>()</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>ns_tunable</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 5</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   name     call_info        source component           component_id        </span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;    &lt;list&gt;           &lt;chr&gt;  &lt;chr&gt;               &lt;chr&gt;               </span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 deg_free &lt;named list [3]&gt; recipe step_spline_natural spline_natural_P1Tjg</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>ns_tunable<span class="sc">$</span>call_info</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]$pkg</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] "dials"</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]$fun</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] "spline_degree"</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]$range</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1]  2 15</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>ns_tunable <span class="ot">&lt;-</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">recipe</span>(mpg <span class="sc">~</span> ., <span class="at">data =</span> mtcars) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_spline_natural</span>(dis, <span class="at">deg_free =</span> <span class="fu">tune</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tunable</span>()</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>ns_tunable</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; # A tibble: 1 × 5</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   name     call_info        source component           component_id        </span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;    &lt;list&gt;           &lt;chr&gt;  &lt;chr&gt;               &lt;chr&gt;               </span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 deg_free &lt;named list [3]&gt; recipe step_spline_natural spline_natural_hLkpu</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>ns_tunable<span class="sc">$</span>call_info</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]$pkg</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] "dials"</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]$fun</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] "spline_degree"</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [[1]]$range</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1]  2 15</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="early-stopping-for-boosted-trees" class="level2">
@@ -466,24 +507,6 @@ t_i  - \epsilon &amp;  \text{if }t_i \le \tau \\ \notag
 <li>Run the <code>translate()</code> function on the parsnip specification object.</li>
 </ul>
 <p>The first two options are best since they tell you a lot more about the particularities of each model engine (there are a lot for lightgbm).</p>
-<hr size="5">
-</section>
-</section>
-<section id="extras---effect-encodings" class="level1">
-<h1>Extras - Effect Encodings</h1>
-<section id="per-agent-statistics" class="level2">
-<h2 class="anchored" data-anchor-id="per-agent-statistics">Per-agent statistics</h2>
-<p>The effect encoding method essentially takes the effect of a variable, like agent, and makes a data column for that effect. In our example, affect of the agent on the ADR is quantified by a model and then added as a data column to be used in the model.</p>
-<p>Suppose agent Max has a single reservation in the data and it had an ADR of €200. If we used a naive estimate for Max’s effect, the model is being told that Max should always produce an effect of €200. That’s a very poor estimate since it is from a single data point.</p>
-<p>Contrast this with seasoned agent Davis, who has taken 250 reservations with an average ADR of €100. Davis’s mean is more predictive because it is estimated with better data (i.e., more total reservations). Partial pooling leverages the entire data set and can borrow strength from all of the agents. It is a common tool in Bayesian estimation and non-Bayesian mixed models. If a agent’s data is of good quality, the partial pooling effect estimate is closer to the raw mean. Max’s data is not great and is “shrunk” towards the center of the overall average. Since there is so little known about Max’s reservation history, this is a better effect estimate (until more data is available for him).</p>
-<p>The Stan documentation has a pretty good vignette on this: <a href="https://cran.r-project.org/web/packages/rstanarm/vignettes/pooling.html" class="uri">https://cran.r-project.org/web/packages/rstanarm/vignettes/pooling.html</a></p>
-<p>Also, <em>Bayes Rules!</em> has a nice section on this: <a href="https://www.bayesrulesbook.com/chapter-15.html" class="uri">https://www.bayesrulesbook.com/chapter-15.html</a></p>
-<p>Since this example has a numeric outcome, partial pooling is very similar to the James–Stein estimator: <a href="https://en.wikipedia.org/wiki/James–Stein_estimator" class="uri">https://en.wikipedia.org/wiki/James–Stein_estimator</a></p>
-</section>
-<section id="agent-effects" class="level2">
-<h2 class="anchored" data-anchor-id="agent-effects">Agent effects</h2>
-<p>Effect encoding might result in a somewhat circular argument: the column is more likely to be important to the model since it is the output of a separate model. The risk here is that we might over-fit the effect to the data. For this reason, it is super important to make sure that we verify that we aren’t overfitting by checking with resampling (or a validation set).</p>
-<p>Partial pooling somewhat lowers the risk of overfitting since it tends to correct for agents with small sample sizes. It can’t correct for improper data usage or data leakage though.</p>
 
 
 </section>

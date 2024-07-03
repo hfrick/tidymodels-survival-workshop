@@ -914,7 +914,7 @@
     "href": "slides/annotations.html#update-parameter-ranges",
     "title": "Annotations",
     "section": "Update parameter ranges",
-    "text": "Update parameter ranges\nIn about 90% of the cases, the dials function that you use to update the parameter range has the same name as the argument. For example, if you were to update the mtry parameter in a random forests model, the code would look like\n\nparameter_object %&gt;% \n  update(mtry = mtry(c(1, 100)))\n\nThere are some cases where the parameter function, or its associated values, are different from the argument name.\nFor example, with step_spline_naturall(), we might want to tune the deg_free argument (for the degrees of freedom of a spline function. ). In this case, the argument name is deg_free but we update it with spline_degree().\ndeg_free represents the general concept of degrees of freedom and could be associated with many different things. For example, if we ever had an argument that was the number of degrees of freedom for a \\(t\\) distribution, we would call that argument deg_free.\nFor splines, we probably want a wider range for the degrees of freedom. We made a specialized function called spline_degree() to be used in these cases.\nHow can you tell when this happens? There is a helper function called tunable() and that gives information on how we make the default ranges for parameters. There is a column in these objects names call_info:\n\nlibrary(tidymodels)\nns_tunable &lt;- \n  recipe(mpg ~ ., data = mtcars) %&gt;% \n  step_spline_natural(dis, deg_free = tune()) %&gt;% \n  tunable()\n\nns_tunable\n#&gt; # A tibble: 1 × 5\n#&gt;   name     call_info        source component           component_id        \n#&gt;   &lt;chr&gt;    &lt;list&gt;           &lt;chr&gt;  &lt;chr&gt;               &lt;chr&gt;               \n#&gt; 1 deg_free &lt;named list [3]&gt; recipe step_spline_natural spline_natural_P1Tjg\nns_tunable$call_info\n#&gt; [[1]]\n#&gt; [[1]]$pkg\n#&gt; [1] \"dials\"\n#&gt; \n#&gt; [[1]]$fun\n#&gt; [1] \"spline_degree\"\n#&gt; \n#&gt; [[1]]$range\n#&gt; [1]  2 15"
+    "text": "Update parameter ranges\nIn about 90% of the cases, the dials function that you use to update the parameter range has the same name as the argument. For example, if you were to update the mtry parameter in a random forests model, the code would look like\n\nparameter_object %&gt;% \n  update(mtry = mtry(c(1, 100)))\n\nThere are some cases where the parameter function, or its associated values, are different from the argument name.\nFor example, with step_spline_naturall(), we might want to tune the deg_free argument (for the degrees of freedom of a spline function. ). In this case, the argument name is deg_free but we update it with spline_degree().\ndeg_free represents the general concept of degrees of freedom and could be associated with many different things. For example, if we ever had an argument that was the number of degrees of freedom for a \\(t\\) distribution, we would call that argument deg_free.\nFor splines, we probably want a wider range for the degrees of freedom. We made a specialized function called spline_degree() to be used in these cases.\nHow can you tell when this happens? There is a helper function called tunable() and that gives information on how we make the default ranges for parameters. There is a column in these objects names call_info:\n\nlibrary(tidymodels)\nns_tunable &lt;- \n  recipe(mpg ~ ., data = mtcars) %&gt;% \n  step_spline_natural(dis, deg_free = tune()) %&gt;% \n  tunable()\n\nns_tunable\n#&gt; # A tibble: 1 × 5\n#&gt;   name     call_info        source component           component_id        \n#&gt;   &lt;chr&gt;    &lt;list&gt;           &lt;chr&gt;  &lt;chr&gt;               &lt;chr&gt;               \n#&gt; 1 deg_free &lt;named list [3]&gt; recipe step_spline_natural spline_natural_hLkpu\nns_tunable$call_info\n#&gt; [[1]]\n#&gt; [[1]]$pkg\n#&gt; [1] \"dials\"\n#&gt; \n#&gt; [[1]]$fun\n#&gt; [1] \"spline_degree\"\n#&gt; \n#&gt; [[1]]$range\n#&gt; [1]  2 15"
   },
   {
     "objectID": "slides/annotations.html#early-stopping-for-boosted-trees",
@@ -977,7 +977,7 @@
     "href": "slides/intro-01-introduction.html#who-are-tidymodels",
     "title": "1 - Introduction",
     "section": "Who are tidymodels?",
-    "text": "Who are tidymodels?\n\nSimon Couch\nHannah Frick\nEmil Hvitfeldt\nMax Kuhn\n\n\nMany thanks to Davis Vaughan, Julia Silge, David Robinson, Julie Jung, Alison Hill, and Desirée De Leon for their role in creating these materials!"
+    "text": "Who are tidymodels?\n\nSimon Couch\nHannah Frick\nEmil Hvitfeldt\nMax Kuhn\n\n. . .\nMany thanks to Davis Vaughan, Julia Silge, David Robinson, Julie Jung, Alison Hill, and Desirée De Leon for their role in creating these materials!"
   },
   {
     "objectID": "slides/intro-01-introduction.html#section-2",
@@ -998,42 +998,42 @@
     "href": "slides/intro-01-introduction.html#section-3",
     "title": "1 - Introduction",
     "section": "",
-    "text": "Introduce yourself to your neighbors 👋\n\n Log in to Posit Cloud (free): TODO-ADD-LATER"
+    "text": "Introduce yourself to your neighbors 👋\n\n\n\n Log in to Posit Cloud (free): TODO-ADD-LATER"
   },
   {
     "objectID": "slides/intro-01-introduction.html#what-is-machine-learning",
     "href": "slides/intro-01-introduction.html#what-is-machine-learning",
     "title": "1 - Introduction",
     "section": "What is machine learning?",
-    "text": "What is machine learning?\n\n\nhttps://xkcd.com/1838/"
+    "text": "What is machine learning?\n\n\n\n\n\n\nhttps://xkcd.com/1838/"
   },
   {
     "objectID": "slides/intro-01-introduction.html#what-is-machine-learning-1",
     "href": "slides/intro-01-introduction.html#what-is-machine-learning-1",
     "title": "1 - Introduction",
     "section": "What is machine learning?",
-    "text": "What is machine learning?\n\n\nIllustration credit: https://vas3k.com/blog/machine_learning/"
+    "text": "What is machine learning?\n\n\n\n\n\n\nIllustration credit: https://vas3k.com/blog/machine_learning/"
   },
   {
     "objectID": "slides/intro-01-introduction.html#what-is-machine-learning-2",
     "href": "slides/intro-01-introduction.html#what-is-machine-learning-2",
     "title": "1 - Introduction",
     "section": "What is machine learning?",
-    "text": "What is machine learning?\n\n\nIllustration credit: https://vas3k.com/blog/machine_learning/"
+    "text": "What is machine learning?\n\n\n\n\n\n\nIllustration credit: https://vas3k.com/blog/machine_learning/"
   },
   {
     "objectID": "slides/intro-01-introduction.html#your-turn",
     "href": "slides/intro-01-introduction.html#your-turn",
     "title": "1 - Introduction",
     "section": "Your turn",
-    "text": "Your turn\n\n\nHow are statistics and machine learning related?\nHow are they similar? Different?\n\n\n\n−+\n03:00\n\n\n\n\nthe “two cultures”\nmodel first vs. data first\ninference vs. prediction"
+    "text": "Your turn\n\n. . .\nHow are statistics and machine learning related?\nHow are they similar? Different?\n\n\n\n−+\n03:00\n\n\n\n\nthe “two cultures”\nmodel first vs. data first\ninference vs. prediction"
   },
   {
     "objectID": "slides/intro-01-introduction.html#what-is-tidymodels",
     "href": "slides/intro-01-introduction.html#what-is-tidymodels",
     "title": "1 - Introduction",
     "section": "What is tidymodels? ",
-    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Learn how to get started at https://www.tidymodels.org/start/"
+    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Use suppressPackageStartupMessages() to eliminate package startup messages"
   },
   {
     "objectID": "slides/intro-01-introduction.html#the-whole-game",
@@ -1054,7 +1054,7 @@
     "href": "slides/intro-01-introduction.html#the-whole-game-2",
     "title": "1 - Introduction",
     "section": "The whole game",
-    "text": "The whole game\n\n\nStress that we are not fitting a model on the entire training set other than for illustrative purposes in deck 2."
+    "text": "The whole game\n\n\n\n\n\n\n\n\n\n\nStress that we are not fitting a model on the entire training set other than for illustrative purposes in deck 2."
   },
   {
     "objectID": "slides/intro-01-introduction.html#the-whole-game-3",
@@ -1096,14 +1096,14 @@
     "href": "slides/intro-01-introduction.html#lets-install-some-packages",
     "title": "1 - Introduction",
     "section": "Let’s install some packages",
-    "text": "Let’s install some packages\nIf you are using your own laptop instead of Posit Cloud:\n\n# Install the packages for the workshop\npkgs &lt;- \n  c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)"
+    "text": "Let’s install some packages\nIf you are using your own laptop instead of Posit Cloud:\n\n# Install the packages for the workshop\npkgs &lt;- \n  c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)\n\n. . ."
   },
   {
     "objectID": "slides/intro-01-introduction.html#our-versions",
     "href": "slides/intro-01-introduction.html#our-versions",
     "title": "1 - Introduction",
     "section": "Our versions",
-    "text": "Our versions\nR version 4.4.0 (2024-04-24), Quarto (1.4.555)\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\naorsf\n0.1.5\n\n\nbroom\n1.0.6\n\n\ncensored\n0.3.2\n\n\ndials\n1.2.1\n\n\ndplyr\n1.1.4\n\n\nggplot2\n3.5.1\n\n\nglmnet\n4.1-8\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\nlibcoin\n1.0-10\n\n\nmodeldata\n1.4.0\n\n\nmvtnorm\n1.2-5\n\n\nparsnip\n1.2.1\n\n\npartykit\n1.2-20\n\n\npec\n2023.04.12\n\n\nprodlim\n2023.08.28\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\npurrr\n1.0.2\n\n\nrecipes\n1.0.10\n\n\nrpart\n4.1.23\n\n\nrsample\n1.2.1\n\n\nscales\n1.3.0\n\n\nsurvival\n3.7-0\n\n\ntibble\n3.2.1\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\ntidymodels\n1.2.0\n\n\ntidyr\n1.3.1\n\n\ntune\n1.2.1\n\n\nworkflows\n1.1.4\n\n\nworkflowsets\n1.1.0\n\n\nyardstick\n1.3.1\n\n\n\n\n\n\n\n\n\n\nhttps://workshops.tidymodels.org"
+    "text": "Our versions\n\n#&gt; Loading required package: survival\n#&gt; Loading required package: Matrix\n#&gt; \n#&gt; Attaching package: 'Matrix'\n#&gt; The following objects are masked from 'package:tidyr':\n#&gt; \n#&gt;     expand, pack, unpack\n#&gt; Loaded glmnet 4.1-8\n#&gt; Loading required package: grid\n#&gt; Loading required package: libcoin\n#&gt; Loading required package: mvtnorm\n#&gt; Loading required package: prodlim\n#&gt; \n#&gt; Attaching package: 'rpart'\n#&gt; The following object is masked from 'package:dials':\n#&gt; \n#&gt;     prune\n\nR version 4.4.0 (2024-04-24), Quarto (1.4.555)\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\naorsf\n0.1.5\n\n\nbroom\n1.0.6\n\n\ncensored\n0.3.2\n\n\ndials\n1.2.1\n\n\ndplyr\n1.1.4\n\n\nggplot2\n3.5.1\n\n\nglmnet\n4.1-8\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\nlibcoin\n1.0-10\n\n\nmodeldata\n1.4.0\n\n\nmvtnorm\n1.2-5\n\n\nparsnip\n1.2.1\n\n\npartykit\n1.2-20\n\n\npec\n2023.04.12\n\n\nprodlim\n2023.08.28\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\npurrr\n1.0.2\n\n\nrecipes\n1.0.10\n\n\nrpart\n4.1.23\n\n\nrsample\n1.2.1\n\n\nscales\n1.3.0\n\n\nsurvival\n3.7-0\n\n\ntibble\n3.2.1\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\ntidymodels\n1.2.0\n\n\ntidyr\n1.3.1\n\n\ntune\n1.2.1\n\n\nworkflows\n1.1.4\n\n\nworkflowsets\n1.1.0\n\n\nyardstick\n1.3.1"
   },
   {
     "objectID": "index.html",
@@ -1167,5 +1167,33 @@
     "title": "4 - Evaluating models",
     "section": "",
     "text": "Let’s fit another PH and add some nonlinear terms via splines:\n\n# First add all of the predictors...\nf &lt;- event_time ~ . -\n  # Then remove geocoded columns\n  longitude - latitude +\n  # Then add them back as spline terms\n  ns(longitude, df = 5) + ns(latitude, df = 5)\n\ncat_wflow &lt;- workflow(f, proportional_hazards())\n\ncph_spline_fit &lt;- cat_wflow %&gt;%\n  fit(data = cat_train)"
+  },
+  {
+    "objectID": "slides/annotations.html#brier-scores-over-evaluation-time",
+    "href": "slides/annotations.html#brier-scores-over-evaluation-time",
+    "title": "Annotations",
+    "section": "Brier Scores Over Evaluation Time",
+    "text": "Brier Scores Over Evaluation Time\nIt’s reasonable to wonder about the uncertainty in these statistics, especially for a sample size of 50. When we get to resampling (in a bit), we will have standard errors of statistics that we can use to make confidence intervals.\nWe can use the bootstrap method to compute confidence intervals for a single data set (e.g., a validation set). A tidymodels function called int_pctl() is available for this purpose (more information). This will be able to work directly with objects resulting form resampling or tuning functions (again, in a bit) but for a single data set, we’ll need to create a wrapper that computes the statistic for different bootstrap samples.\n\nbrier_wrapper &lt;- function(split) {\n  dat &lt;- analysis(split)\n  brier_survival(dat, truth = event_time, .pred) %&gt;% \n    # Puts the data into a 'tidy' format:\n    dplyr::select(term = .eval_time, estimate = .estimate)\n}\n\nWe execute that on every bootstrap sample and then use int_pctl() on the results.\n\nset.seed(482)\nbrier_ci &lt;- \n  demo_cat_preds %&gt;% \n  bootstraps(times = 2000) %&gt;% \n  mutate(stats = map(splits, brier_wrapper)) %&gt;% \n  int_pctl(stats, alpha = 0.10) # 90% intervals\n\nYep, statistics from 50 cats has a lot of variation!\n\nbrier_ci %&gt;% \n  ggplot(aes(term, .estimate)) + \n  geom_line() + \n  geom_ribbon(\n    aes(ymin = .lower, ymax = .upper), \n    alpha = 1 / 10, \n    fill = \"blue\") +\n  labs(x = \"Evaluation time\", y = \"Brier score\")"
+  },
+  {
+    "objectID": "slides/annotations.html#evaluating-model-performance",
+    "href": "slides/annotations.html#evaluating-model-performance",
+    "title": "Annotations",
+    "section": "Evaluating model performance",
+    "text": "Evaluating model performance\nNote that there is a column for std_err so that we can compute confidence intervals from these."
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html",
+    "href": "slides/intro-01-introduction.html",
+    "title": "1 - Introduction",
+    "section": "",
+    "text": "Welcome!"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#asking-for-help",
+    "href": "slides/intro-01-introduction.html#asking-for-help",
+    "title": "1 - Introduction",
+    "section": "Asking for help",
+    "text": "Asking for help\n. . .\n🟪 “I’m stuck and need help!”\n. . .\n🟩 “I finished the exercise”"
   }
 ]
