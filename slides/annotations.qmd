@@ -226,7 +226,7 @@ demo_cat_preds %>%
 
 Case weights $w_i(\tau)$ are the inverse of these probabilities and $W(\tau)$ is their sum.
 
-## Brier Score
+## Brier Scores Over Evaluation Time
 
 It’s reasonable to wonder about the uncertainty in these statistics, especially for a sample size of 50. When we get to resampling (in a bit), we will have standard errors of statistics that we can use to make confidence intervals. 
 
