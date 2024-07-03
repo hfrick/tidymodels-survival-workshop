@@ -79,7 +79,14 @@ demo_cat_preds %>% select(1:3)
 ```{r}
 #| label: save-pred-for-annotations
 #| include: false
+cph_spline_fit_parsnip <- extract_fit_parsnip(cph_spline_fit)
+rkm_data <- 
+  cph_spline_fit_parsnip$censor_probs$fit[c("time", "surv")] %>% 
+  as_tibble() %>% 
+  set_names(c(".eval_time", ".pred_censored"))
+
 save(demo_cat_preds, file = "RData/demo_cat_preds.RData")
+save(rkm_data, file = "RData/rkm_data.RData")
 ```
 
 ## Concordance
@@ -132,15 +139,7 @@ We’ll talk about both of these.
 
 There are more details on dynamics metrics at [tidymodels.org](https://www.tidymodels.org/learn/#category=survival%20analysis). 
 
-## Using the Right Evaluation Strategy
-
-There are _a lot_ of papers with different methods of evaluating survival data with dynamic metrics. Almost all of these are created to help score/screen predictors. 
-
-The problem is that these metrics are not derived for estimated model probabilities. Statistically, this is a very different problem (and not applicable here).
-
-Instead, tidymodels uses an approach similar to causal inference called _inverse probability of censoring weights_ (IPCW). The main reference is [Graf _et al_ (1999)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=graf+1999+%22Assessment+and+comparison+of+prognostic+classification+schemes+for+survival+data%22&btnG=).
-
-## Converting to Events
+## Converting to Events {.annotation} 
 
 For a specific time point $\tau$, we convert the observed event time to a binary event/non-event version (if possible) ($y_{i\tau} \in \{0, 1\}$). 
 
@@ -149,7 +148,7 @@ y_{i\tau} =
 \begin{cases}
 1 & \text{if } t_{i} \leq \tau\text{ and  event} \notag \\ 
 0 & \text{if } t_{i} \gt \tau \text{ and } either \notag \\ 
-N/A & \text{if } t_{i} \leq \tau\text{ and censored }
+missing & \text{if } t_{i} \leq \tau\text{ and censored }
 \end{cases}
 $$
 
@@ -217,22 +216,9 @@ df %>%
   facet_grid(~ eval_time) 
 ```
 
+## Dealing with Missing Outcome Data {.annotation} 
 
-
-## Class Probability Estimates
-
-The predicted class probabilities are then: 
-
-$$
-\begin{align}
-Pr[y_{i\tau} = 1] &= 1- \hat{S}(\tau; \boldsymbol{x}_{i})\notag \\
-Pr[y_{i\tau} = 0] &= \hat{S}(\tau; \boldsymbol{x}_{i}) \notag 
-\end{align}
-$$
-
-## Inverse Probability Weighting
-
-Without censored data points, this conversion would yield appropriate performance estimates. 
+Without censored data points, this conversion would yield appropriate performance estimates since no event outcomes would be missing. 
 
 <br>
 
@@ -240,116 +226,28 @@ Otherwise, there is the potential for bias due to missingness.
 
 <br>
 
-One approach is to weight observations based on the likelihood that _each sample_ is censored (regardless of their actual status).
+We'll use tools from causal inference to compensate by creating a propensity score that uses the probability of being censored. 
 
-
-
-## Probability of Censoring
-
-$\hat{C}(t^*;\boldsymbol{x}_{i})$ is the probability that sample $i$ is censored at some time $t^*$ where
-
-$$
-t^*= 
-\begin{cases}
-t_i - \epsilon &  \text{if }t_i \le \tau \\ \notag
-\tau           &  \text{if }t_i > \tau  \notag 
-\end{cases}
-$$
-(default: $\epsilon = 10^{-10}$)
-
-<br>
-
-Case weights $w_i(\tau)$ are the inverse of these probabilities and $W(\tau)$ is their sum.
-
-
-
-## Probability of Censoring Model
-
-We currently only estimate the probability of non-informative right censoring (i.e. the predictors $x_i$ are ignored). 
-
- - Our estimator $\hat{C}(T;x_i)$ is the “reverse Kaplan-Meier” (RKM, [Korn (1986)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Korn+1986+%22Censoring+distributions+as+a+measure+of+follow-up+in+survival+analysis%22&btnG=)) curve that inverts the event indicator. 
- - This is the same for each sample at time $\tau$. 
-
-(We may expand this API in the future)
-
-The RKM curve is attached to the parsnip model object. For our data set...
-
-## Reverse Kaplan-Meier Curve
-
-```{r}
-#| label: reverse-km
-#| echo: false
-#| fig-width: 6
-#| fig-height: 4
-#| out-width: 80%
-#| fig-align: center
-cph_spline_fit_parsnip <- extract_fit_parsnip(cph_spline_fit)
-rkm_data <- 
-  cph_spline_fit_parsnip$censor_probs$fit[c("time", "surv")] %>% 
-  as_tibble() %>% 
-  set_names(c(".eval_time", ".pred_censored"))
-
-max_wt_time <- 
-  demo_cat_preds %>% 
-  slice(1:4) %>% 
-  add_rowindex() %>% 
-  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
-  unnest(.pred) %>% 
-  summarize(max_weight_time = max(.weight_time, na.rm = TRUE), .by = c(cat))
-
-demo_cat_preds %>% 
-  slice(1:4) %>% 
-  add_rowindex() %>% 
-  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
-  unnest(.pred) %>% 
-  ggplot(aes(.weight_time, .pred_censored)) +
-  geom_vline(data = max_wt_time, aes(xintercept = max_weight_time, col = cat), 
-             lty = 3, show.legend = FALSE) + 
-  geom_line(data = rkm_data, aes(x = .eval_time), alpha = 1 / 5, linewidth = 1 / 2) +
-  geom_line(aes(group = cat, col = cat), show.legend = FALSE, linewidth = 1) +
-  labs(x = "Evaluation Time", y = "Prob Censored") + 
-  lims(y = 0:1) +
-  facet_wrap(~ cat)
-```
-
-## Inverse Weights {.annotation} 
-
-```{r}
-#| label: ipcw
-#| echo: false
-#| fig-width: 6
-#| fig-height: 4
-#| out-width: 80%
-#| fig-align: center
-
-demo_cat_preds %>% 
-  slice(1:4) %>% 
-  add_rowindex() %>% 
-  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
-  unnest(.pred) %>% 
-  filter(.eval_time <= 50) %>% 
-  ggplot(aes(.eval_time, .weight_censored)) + 
-  geom_line(aes(group = cat, col = cat), show.legend = FALSE) +
-  geom_vline(data = max_wt_time, aes(xintercept = max_weight_time, col = cat), 
-             lty = 3, show.legend = FALSE) +
-  labs(x = "Evaluation Time", y = "IPCW") + 
-  facet_wrap(~ cat)
-```
-
+Case weights use the inverse of this probability. See [Graf _et al_ (1999)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=graf+1999+%22Assessment+and+comparison+of+prognostic+classification+schemes+for+survival+data%22&btnG=).
 
 ## Brier Score
 
-The Brier score is a measure of calibration originally meant for classification models:
+The Brier score is calibration metric originally meant for classification models:
 
 $$
 Brier = \frac{1}{N}\sum_{i=1}^N\sum_{k=1}^C (y_{ik} - \hat{\pi}_{ik})^2
 $$
 
-For our application, we have two classes (event and non-event) and case weights
+For our application, we have two classes and case weights
+
+:::{style="overflow-x:auto;overflow-y:hidden;"}
 
 $$
-Brier(\tau) = \frac{1}{W}\sum_{i=1}^N \sum_{k=0}^1w_i(\tau)I(y_{i\tau} = k)(y_{i\tau} - \hat{\pi}_{i\tau})^2
+Brier(t) = \frac{1}{W}\sum_{i=1}^N w_{it}\left[\underbrace{I(y_{it} = 0)(y_{it} - \hat{p}_{it})^2}_\text{non-events} +  \underbrace{I(y_{it} = 1)(y_{it} - (1 - \hat{p}_{it}))^2}_\text{events}\right]
 $$
+
+:::
+
 
 ## Brier Scores
 
@@ -467,12 +365,14 @@ countdown::countdown(minutes = 5, id = "overfitting")
 
 # How can we use the *training* data to compare and evaluate different models? 🤔
 
-##  {background-color="white" background-image="https://www.tmwr.org/premade/resampling.svg" background-size="80%"}
+##  {background-color="white" background-image="https://www.tmwr.org/premade/resampling.svg" background-size="70%"}
 
-## Cross-validation `r hexes("rsample")`
+## Cross-validation `r hexes("rsample")` {.annotation} 
 
 ```{r vfold-cv}
-vfold_cv(cat_train) # v = 10 is default
+set.seed(123)
+cat_folds <- vfold_cv(cat_train, v = 10)# v = 10 is default
+cat_folds
 ```
 
 ## Cross-validation `r hexes("rsample")`
@@ -484,11 +384,15 @@ cat_folds <- vfold_cv(cat_train)
 cat_folds$splits[1:3]
 ```
 
+. . .
+
+Set the seed when creating resamples
+
 ::: notes
 Talk about a list column, storing non-atomic types in dataframe
 :::
 
-## Bootstrapping `r hexes("rsample")`
+## Bootstrapping `r hexes("rsample")` {.annotation} 
 
 ```{r bootstraps}
 set.seed(3214)
@@ -499,56 +403,6 @@ bootstraps(cat_train)
 
 ::: footer
 :::
-
-## Your turn {transition="slide-in"}
-
-![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
-
-*Create Monte Carlo cross-validation sets.*
-
-*(Use the reference guide to find the functions.)*
-
-<br></br>
-
-*Extension/Challenge: Create a validation set. How is this different, how is this similar to other resampling schemes?*
-
-```{r ex-try-rsample}
-#| echo: false
-countdown::countdown(minutes = 5, id = "try-rsample")
-```
-
-## Monte Carlo Cross-Validation `r hexes("rsample")`
-
-```{r mc-cv}
-set.seed(322)
-mc_cv(cat_train, times = 10)
-```
-
-## Validation set `r hexes("rsample")`
-
-```{r validation-split}
-set.seed(853)
-cat_val_split <- initial_validation_split(cat_adoption)
-validation_set(cat_val_split)
-```
-
-. . .
-
-A validation set is just another type of resample
-
-## Cross-validation `r hexes("rsample")`
-
-We'll use this setup:
-
-```{r cat-folds}
-set.seed(123)
-cat_folds <- vfold_cv(cat_train, v = 10)
-cat_folds
-```
-
-. . .
-
-Set the seed when creating resamples
 
 ## The whole game - status update
 
@@ -663,7 +517,8 @@ ctrl_cat <- control_resamples(save_pred = TRUE)
 
 # Random forest uses random numbers so set the seed first
 set.seed(2)
-rf_res <- fit_resamples(rf_wflow, cat_folds, eval_time = c(90, 30, 60, 120), control = ctrl_cat)
+rf_res <- fit_resamples(rf_wflow, cat_folds, eval_time = c(90, 30, 60, 120), 
+                        control = ctrl_cat)
 
 collect_metrics(rf_res)
 ```

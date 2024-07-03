@@ -67,7 +67,7 @@
     "href": "slides/intro-04-evaluating-models.html#converting-to-events",
     "title": "4 - Evaluating models",
     "section": "Converting to Events",
-    "text": "Converting to Events\nFor a specific time point \\(\\tau\\), we convert the observed event time to a binary event/non-event version (if possible) (\\(y_{i\\tau} \\in \\{0, 1\\}\\)).\n\\[\ny_{i\\tau} =\n\\begin{cases}\n1 & \\text{if } t_{i} \\leq \\tau\\text{ and  event} \\notag \\\\\n0 & \\text{if } t_{i} \\gt \\tau \\text{ and } either \\notag \\\\\nN/A & \\text{if } t_{i} \\leq \\tau\\text{ and censored }\n\\end{cases}\n\\]"
+    "text": "Converting to Events\nFor a specific time point \\(\\tau\\), we convert the observed event time to a binary event/non-event version (if possible) (\\(y_{i\\tau} \\in \\{0, 1\\}\\)).\n\\[\ny_{i\\tau} =\n\\begin{cases}\n1 & \\text{if } t_{i} \\leq \\tau\\text{ and  event} \\notag \\\\\n0 & \\text{if } t_{i} \\gt \\tau \\text{ and } either \\notag \\\\\nmissing & \\text{if } t_{i} \\leq \\tau\\text{ and censored }\n\\end{cases}\n\\]"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#converting-to-events-1",
@@ -123,7 +123,7 @@
     "href": "slides/intro-04-evaluating-models.html#brier-score",
     "title": "4 - Evaluating models",
     "section": "Brier Score",
-    "text": "Brier Score\nThe Brier score is a measure of calibration originally meant for classification models:\n\\[\nBrier = \\frac{1}{N}\\sum_{i=1}^N\\sum_{k=1}^C (y_{ik} - \\hat{\\pi}_{ik})^2\n\\]\nFor our application, we have two classes (event and non-event) and case weights\n\\[\nBrier(\\tau) = \\frac{1}{W}\\sum_{i=1}^N \\sum_{k=0}^1w_i(\\tau)I(y_{i\\tau} = k)(y_{i\\tau} - \\hat{\\pi}_{i\\tau})^2\n\\]"
+    "text": "Brier Score\nThe Brier score is calibration metric originally meant for classification models:\n\\[\nBrier = \\frac{1}{N}\\sum_{i=1}^N\\sum_{k=1}^C (y_{ik} - \\hat{\\pi}_{ik})^2\n\\]\nFor our application, we have two classes and case weights\n\n\\[\nBrier(t) = \\frac{1}{W}\\sum_{i=1}^N w_{it}\\left[\\underbrace{I(y_{it} = 0)(y_{it} - \\hat{p}_{it})^2}_\\text{non-events} +  \\underbrace{I(y_{it} = 1)(y_{it} - (1 - \\hat{p}_{it}))^2}_\\text{events}\\right]\n\\]"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#demonstration-cat-brier-scores",
@@ -179,14 +179,14 @@
     "href": "slides/intro-04-evaluating-models.html#cross-validation",
     "title": "4 - Evaluating models",
     "section": "Cross-validation ",
-    "text": "Cross-validation \n\nvfold_cv(cat_train) # v = 10 is default\n#&gt; #  10-fold cross-validation \n#&gt; # A tibble: 10 × 2\n#&gt;    splits             id    \n#&gt;    &lt;list&gt;             &lt;chr&gt; \n#&gt;  1 &lt;split [1588/177]&gt; Fold01\n#&gt;  2 &lt;split [1588/177]&gt; Fold02\n#&gt;  3 &lt;split [1588/177]&gt; Fold03\n#&gt;  4 &lt;split [1588/177]&gt; Fold04\n#&gt;  5 &lt;split [1588/177]&gt; Fold05\n#&gt;  6 &lt;split [1589/176]&gt; Fold06\n#&gt;  7 &lt;split [1589/176]&gt; Fold07\n#&gt;  8 &lt;split [1589/176]&gt; Fold08\n#&gt;  9 &lt;split [1589/176]&gt; Fold09\n#&gt; 10 &lt;split [1589/176]&gt; Fold10"
+    "text": "Cross-validation \n\nset.seed(123)\ncat_folds &lt;- vfold_cv(cat_train, v = 10)# v = 10 is default\ncat_folds\n#&gt; #  10-fold cross-validation \n#&gt; # A tibble: 10 × 2\n#&gt;    splits             id    \n#&gt;    &lt;list&gt;             &lt;chr&gt; \n#&gt;  1 &lt;split [1588/177]&gt; Fold01\n#&gt;  2 &lt;split [1588/177]&gt; Fold02\n#&gt;  3 &lt;split [1588/177]&gt; Fold03\n#&gt;  4 &lt;split [1588/177]&gt; Fold04\n#&gt;  5 &lt;split [1588/177]&gt; Fold05\n#&gt;  6 &lt;split [1589/176]&gt; Fold06\n#&gt;  7 &lt;split [1589/176]&gt; Fold07\n#&gt;  8 &lt;split [1589/176]&gt; Fold08\n#&gt;  9 &lt;split [1589/176]&gt; Fold09\n#&gt; 10 &lt;split [1589/176]&gt; Fold10"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#cross-validation-1",
     "href": "slides/intro-04-evaluating-models.html#cross-validation-1",
     "title": "4 - Evaluating models",
     "section": "Cross-validation ",
-    "text": "Cross-validation \nWhat is in this?\n\ncat_folds &lt;- vfold_cv(cat_train)\ncat_folds$splits[1:3]\n#&gt; [[1]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n#&gt; \n#&gt; [[2]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n#&gt; \n#&gt; [[3]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n\n\nTalk about a list column, storing non-atomic types in dataframe"
+    "text": "Cross-validation \nWhat is in this?\n\ncat_folds &lt;- vfold_cv(cat_train)\ncat_folds$splits[1:3]\n#&gt; [[1]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n#&gt; \n#&gt; [[2]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n#&gt; \n#&gt; [[3]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n\n\nSet the seed when creating resamples\n\nTalk about a list column, storing non-atomic types in dataframe"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#bootstrapping",
@@ -200,7 +200,7 @@
     "href": "slides/intro-04-evaluating-models.html#your-turn-1",
     "title": "4 - Evaluating models",
     "section": "Your turn",
-    "text": "Your turn\n\nCreate Monte Carlo cross-validation sets.\n(Use the reference guide to find the functions.)\n\nExtension/Challenge: Create a validation set. How is this different, how is this similar to other resampling schemes?\n\n\n\n−+\n05:00"
+    "text": "Your turn\n\nUse fit_resamples() and rf_wflow to:\n\nkeep predictions\ncompute metrics\n\n\n\n\n−+\n08:00"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#monte-carlo-cross-validation",
@@ -242,7 +242,7 @@
     "href": "slides/intro-04-evaluating-models.html#evaluating-model-performance",
     "title": "4 - Evaluating models",
     "section": "Evaluating model performance ",
-    "text": "Evaluating model performance \n\ncat_res %&gt;%\n  collect_metrics()\n#&gt; # A tibble: 4 × 7\n#&gt;   .metric        .estimator .eval_time  mean     n std_err .config             \n#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 brier_survival standard           30 0.212    10 0.00487 Preprocessor1_Model1\n#&gt; 2 brier_survival standard           60 0.245    10 0.00756 Preprocessor1_Model1\n#&gt; 3 brier_survival standard           90 0.205    10 0.00990 Preprocessor1_Model1\n#&gt; 4 brier_survival standard          120 0.158    10 0.0106  Preprocessor1_Model1\n\n\ncollect_metrics() is one of a suite of collect_*() functions that can be used to work with columns of tuning results. Most columns in a tuning result prefixed with . have a corresponding collect_*() function with options for common summaries.\n\n\nWe can reliably measure performance using only the training data 🎉"
+    "text": "Evaluating model performance \n\ncat_res %&gt;%\n  collect_metrics()\n#&gt; # A tibble: 4 × 7\n#&gt;   .metric        .estimator .eval_time  mean     n std_err .config             \n#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 brier_survival standard           30 0.212    10 0.00413 Preprocessor1_Model1\n#&gt; 2 brier_survival standard           60 0.246    10 0.00555 Preprocessor1_Model1\n#&gt; 3 brier_survival standard           90 0.207    10 0.00677 Preprocessor1_Model1\n#&gt; 4 brier_survival standard          120 0.158    10 0.0105  Preprocessor1_Model1\n\n\ncollect_metrics() is one of a suite of collect_*() functions that can be used to work with columns of tuning results. Most columns in a tuning result prefixed with . have a corresponding collect_*() function with options for common summaries.\n\n\nWe can reliably measure performance using only the training data 🎉"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#where-are-the-fitted-models",
@@ -263,7 +263,7 @@
     "href": "slides/intro-04-evaluating-models.html#but-its-easy-to-collect-the-predictions",
     "title": "4 - Evaluating models",
     "section": "But it’s easy to collect the predictions ",
-    "text": "But it’s easy to collect the predictions \n\ncat_preds &lt;- collect_predictions(cat_res)\ncat_preds\n#&gt; # A tibble: 1,765 × 5\n#&gt;    .pred            id      .row event_time .config             \n#&gt;    &lt;list&gt;           &lt;chr&gt;  &lt;int&gt;     &lt;Surv&gt; &lt;chr&gt;               \n#&gt;  1 &lt;tibble [4 × 3]&gt; Fold01    17        35  Preprocessor1_Model1\n#&gt;  2 &lt;tibble [4 × 3]&gt; Fold01    29        60  Preprocessor1_Model1\n#&gt;  3 &lt;tibble [4 × 3]&gt; Fold01    51         8  Preprocessor1_Model1\n#&gt;  4 &lt;tibble [4 × 3]&gt; Fold01    55        39+ Preprocessor1_Model1\n#&gt;  5 &lt;tibble [4 × 3]&gt; Fold01    62        36+ Preprocessor1_Model1\n#&gt;  6 &lt;tibble [4 × 3]&gt; Fold01    63        14  Preprocessor1_Model1\n#&gt;  7 &lt;tibble [4 × 3]&gt; Fold01    92        14+ Preprocessor1_Model1\n#&gt;  8 &lt;tibble [4 × 3]&gt; Fold01    95        37  Preprocessor1_Model1\n#&gt;  9 &lt;tibble [4 × 3]&gt; Fold01    96        19+ Preprocessor1_Model1\n#&gt; 10 &lt;tibble [4 × 3]&gt; Fold01   101        83  Preprocessor1_Model1\n#&gt; # ℹ 1,755 more rows"
+    "text": "But it’s easy to collect the predictions \n\ncat_preds &lt;- collect_predictions(cat_res)\ncat_preds\n#&gt; # A tibble: 1,765 × 5\n#&gt;    .pred            id      .row event_time .config             \n#&gt;    &lt;list&gt;           &lt;chr&gt;  &lt;int&gt;     &lt;Surv&gt; &lt;chr&gt;               \n#&gt;  1 &lt;tibble [4 × 3]&gt; Fold01    13       139  Preprocessor1_Model1\n#&gt;  2 &lt;tibble [4 × 3]&gt; Fold01    14        40  Preprocessor1_Model1\n#&gt;  3 &lt;tibble [4 × 3]&gt; Fold01    33        10+ Preprocessor1_Model1\n#&gt;  4 &lt;tibble [4 × 3]&gt; Fold01    52       121  Preprocessor1_Model1\n#&gt;  5 &lt;tibble [4 × 3]&gt; Fold01    55        39+ Preprocessor1_Model1\n#&gt;  6 &lt;tibble [4 × 3]&gt; Fold01    70        15+ Preprocessor1_Model1\n#&gt;  7 &lt;tibble [4 × 3]&gt; Fold01    84        35  Preprocessor1_Model1\n#&gt;  8 &lt;tibble [4 × 3]&gt; Fold01    91        18  Preprocessor1_Model1\n#&gt;  9 &lt;tibble [4 × 3]&gt; Fold01    93        82+ Preprocessor1_Model1\n#&gt; 10 &lt;tibble [4 × 3]&gt; Fold01   100        11+ Preprocessor1_Model1\n#&gt; # ℹ 1,755 more rows"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#random-forest-1",
@@ -298,7 +298,7 @@
     "href": "slides/intro-04-evaluating-models.html#evaluating-model-performance-1",
     "title": "4 - Evaluating models",
     "section": "Evaluating model performance ",
-    "text": "Evaluating model performance \n\nctrl_cat &lt;- control_resamples(save_pred = TRUE)\n\n# Random forest uses random numbers so set the seed first\nset.seed(2)\nrf_res &lt;- fit_resamples(rf_wflow, cat_folds, eval_time = c(90, 30, 60, 120), control = ctrl_cat)\n\ncollect_metrics(rf_res)\n#&gt; # A tibble: 4 × 7\n#&gt;   .metric        .estimator .eval_time  mean     n std_err .config             \n#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 brier_survival standard           30 0.210    10 0.00455 Preprocessor1_Model1\n#&gt; 2 brier_survival standard           60 0.241    10 0.00796 Preprocessor1_Model1\n#&gt; 3 brier_survival standard           90 0.199    10 0.00960 Preprocessor1_Model1\n#&gt; 4 brier_survival standard          120 0.151    10 0.00840 Preprocessor1_Model1"
+    "text": "Evaluating model performance \n\nctrl_cat &lt;- control_resamples(save_pred = TRUE)\n\n# Random forest uses random numbers so set the seed first\nset.seed(2)\nrf_res &lt;- fit_resamples(rf_wflow, cat_folds, eval_time = c(90, 30, 60, 120), \n                        control = ctrl_cat)\n\ncollect_metrics(rf_res)\n#&gt; # A tibble: 4 × 7\n#&gt;   .metric        .estimator .eval_time  mean     n std_err .config             \n#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 brier_survival standard           30 0.210    10 0.00423 Preprocessor1_Model1\n#&gt; 2 brier_survival standard           60 0.243    10 0.00520 Preprocessor1_Model1\n#&gt; 3 brier_survival standard           90 0.200    10 0.00731 Preprocessor1_Model1\n#&gt; 4 brier_survival standard          120 0.151    10 0.0103  Preprocessor1_Model1"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#the-whole-game---status-update-1",
@@ -347,7 +347,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#to-specify-a-model",
     "title": "3 - What makes a model?",
     "section": "To specify a model ",
-    "text": "To specify a model \n\n\n\n\nChoose a model\nSpecify an engine\nSet the mode\n\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/481270/cat-5"
+    "text": "To specify a model \n\n\n\n\nChoose a model\nSpecify an engine\nSet the mode\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/481270/cat-5"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#to-specify-a-model-1",
@@ -585,7 +585,7 @@
     "href": "slides/intro-02-data-budget.html#data-on-shelter-cats",
     "title": "2 - Your data budget",
     "section": "Data on shelter cats",
-    "text": "Data on shelter cats\n\n\n\nThe city of Long Beach releases data on animals at the Long Beach Animal Shelter.\nOur dataset is a sample of the cats entering and leaving the shelter.\nType ?cat_adoption or check the sources to learn more about this dataset, including references.\n\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/194185/pet-house-kennel"
+    "text": "Data on shelter cats\n\n\n\nThe city of Long Beach releases data on animals at the Long Beach Animal Shelter.\nOur dataset is a sample of the cats entering and leaving the shelter.\nType ?cat_adoption or check the sources to learn more about this dataset, including references.\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/194185/pet-house-kennel"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#data-on-shelter-cats-1",
@@ -859,5 +859,26 @@
     "title": "6 - Wrapping up",
     "section": "Resources to keep learning",
     "text": "Resources to keep learning\n\n\nhttps://www.tidymodels.org/\n\n\n\n\nhttps://www.tmwr.org/\n\n\n\n\nhttp://www.feat.engineering/\n\n\n\n\nhttps://smltar.com/\n\n\n\nFollow us on Mastodon and at the tidyverse blog for updates!\n\n\n\nhttps://workshops.tidymodels.org"
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#dealing-with-missing-data",
+    "href": "slides/intro-04-evaluating-models.html#dealing-with-missing-data",
+    "title": "4 - Evaluating models",
+    "section": "Dealing with Missing DAta",
+    "text": "Dealing with Missing DAta\nWithout censored data points, this conversion would yield appropriate performance estimates since no event outcomes would be missing.\n\nOtherwise, there is the potential for bias due to missingness.\n\nWe’ll use tools from causal inference to compensate by creating a propensity score that uses the probability of being censored.\nCase weights use the inverse of this probability. See Graf et al (1999)."
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#dealing-with-missing-outcome-data",
+    "href": "slides/intro-04-evaluating-models.html#dealing-with-missing-outcome-data",
+    "title": "4 - Evaluating models",
+    "section": "Dealing with Missing Outcome Data",
+    "text": "Dealing with Missing Outcome Data\nWithout censored data points, this conversion would yield appropriate performance estimates since no event outcomes would be missing.\n\nOtherwise, there is the potential for bias due to missingness.\n\nWe’ll use tools from causal inference to compensate by creating a propensity score that uses the probability of being censored.\nCase weights use the inverse of this probability. See Graf et al (1999)."
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#bootstrapping-.annotation",
+    "href": "slides/intro-04-evaluating-models.html#bootstrapping-.annotation",
+    "title": "4 - Evaluating models",
+    "section": "Bootstrapping {.annotation} ",
+    "text": "Bootstrapping {.annotation} \n\nset.seed(3214)\nbootstraps(cat_train)\n#&gt; # Bootstrap sampling \n#&gt; # A tibble: 25 × 2\n#&gt;    splits             id         \n#&gt;    &lt;list&gt;             &lt;chr&gt;      \n#&gt;  1 &lt;split [1765/657]&gt; Bootstrap01\n#&gt;  2 &lt;split [1765/644]&gt; Bootstrap02\n#&gt;  3 &lt;split [1765/625]&gt; Bootstrap03\n#&gt;  4 &lt;split [1765/638]&gt; Bootstrap04\n#&gt;  5 &lt;split [1765/647]&gt; Bootstrap05\n#&gt;  6 &lt;split [1765/655]&gt; Bootstrap06\n#&gt;  7 &lt;split [1765/655]&gt; Bootstrap07\n#&gt;  8 &lt;split [1765/637]&gt; Bootstrap08\n#&gt;  9 &lt;split [1765/669]&gt; Bootstrap09\n#&gt; 10 &lt;split [1765/638]&gt; Bootstrap10\n#&gt; # ℹ 15 more rows"
   }
 ]
