@@ -141,7 +141,7 @@ There are more details on dynamics metrics at [tidymodels.org](https://www.tidym
 
 ## Converting to Events {.annotation} 
 
-For a specific time point $\tau$, we convert the observed event time to a binary event/non-event version (if possible) ($y_{i\tau} \in \{0, 1\}$). 
+For a specific evaluation time point $\tau$, we convert the observed event time to a binary event/non-event version (if possible) ($y_{i\tau} \in \{0, 1\}$). 
 
 $$
 y_{i\tau} = 
@@ -286,7 +286,7 @@ This is more straightforward.
 
 <br>
 
-We can use the standard ROC curve machinery once we have the indicators, probabilities, and censoring weights at time $\tau$ ([Hung and Chiang (2010)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Optimal+Composite+Markers+for+Time-Dependent+Receiver+Operating+Characteristic+Curves+with+Censored+Survival+Data%22&btnG=)). 
+We can use the standard ROC curve machinery once we have the indicators, probabilities, and censoring weights at evaluation time $\tau$ ([Hung and Chiang (2010)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Optimal+Composite+Markers+for+Time-Dependent+Receiver+Operating+Characteristic+Curves+with+Censored+Survival+Data%22&btnG=)). 
 
 <br>
 
