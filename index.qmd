@@ -55,12 +55,6 @@ These slides are designed to use with live teaching and are published for worksh
 -   05: [Tuning models](slides/intro-05-tuning-models.html){target="_blank"}
 -   06: [Wrapping up](slides/intro-06-wrapping-up.html){target="_blank"}
 
-### Extra content (time permitting)
-
--   [Intro: Time-based splitting](slides/intro-extra-time-splits.html){target="_blank"}
--   [Intro: Using workflowsets](slides/intro-extra-workflowsets.html){target="_blank"}
--   [Intro: Using recipes](slides/intro-extra-recipes.html){target="_blank"}
-
 There's also a page for [slide annotations](slides/annotations.html){target="_blank"}; these are extra notes for selected slides.
 
 ## Code
