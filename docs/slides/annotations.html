@@ -352,7 +352,7 @@ t_i  - \epsilon &amp;  \text{if }t_i \le \tau \\ \notag
 \]</span></p>
 <p>How exactly do we estimate <span class="math inline">\(\hat{C}(t^*;\boldsymbol{x}_{i})\)</span>? We currently only estimate the probability of non-informative right censoring (i.e., the predictors <span class="math inline">\(x_i\)</span> are ignored). We may expand this API in the future when you have informative censoring.</p>
 <p>Our estimator <span class="math inline">\(\hat{C}(T;x_i)\)</span> is the “reverse Kaplan-Meier” (RKM, <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=Korn+1986+%22Censoring+distributions+as+a+measure+of+follow-up+in+survival+analysis%22&amp;btnG=">Korn (1986)</a>) curve that inverts the event indicator.</p>
-<p>The RKM curve is attached to the parsnip model object. It’s curve:</p>
+<p>The RKM curve is attached to the parsnip model object. Its curve:</p>
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
