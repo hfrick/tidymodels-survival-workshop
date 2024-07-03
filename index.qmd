@@ -46,8 +46,6 @@ If you're a Windows user and encounter an error message during installation noti
 
 These slides are designed to use with live teaching and are published for workshop participants' convenience. There are not meant as standalone learning materials. For that, we recommend [tidymodels.org](https://www.tidymodels.org/start/) and [*Tidy Modeling with R*](https://www.tmwr.org/).
 
-### Introduction to tidymodels
-
 -   01: [Introduction](slides/intro-01-introduction.html){target="_blank"}
 -   02: [Your data budget](slides/intro-02-data-budget.html){target="_blank"}
 -   03: [What makes a model?](slides/intro-03-what-makes-a-model.html){target="_blank"}
