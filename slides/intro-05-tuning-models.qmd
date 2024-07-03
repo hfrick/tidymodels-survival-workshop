@@ -4,7 +4,7 @@ subtitle: "Survival analysis with tidymodels"
 format:
   revealjs: 
     slide-number: true
-    footer: <https://workshops.tidymodels.org>
+    footer: <https://hfrick.github.io/tidymodels-survival-workshop>
     include-before-body: header.html
     include-after-body: footer-annotations.html
     theme: [default, tidymodels.scss]
