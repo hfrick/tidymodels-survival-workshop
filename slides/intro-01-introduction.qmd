@@ -245,10 +245,7 @@ If you are using your own laptop instead of Posit Cloud:
 
 # Install the packages for the workshop
 pkgs <- 
-  c("bonsai", "doParallel", "embed", "finetune", "lightgbm", "lme4",
-    "plumber", "probably", "ranger", "rpart", "rpart.plot", "rules",
-    "splines2", "stacks", "text2vec", "textrecipes", "tidymodels", 
-    "vetiver", "remotes")
+  c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels")
 
 install.packages(pkgs)
 ```
@@ -261,10 +258,7 @@ install.packages(pkgs)
 
 ```{r pkg-list, echo = FALSE}
 deps <- 
-  c("bonsai", "doParallel", "embed", "finetune", "lightgbm", "lme4",
-    "plumber", "probably", "ranger", "rpart", "rpart.plot", "rules",
-    "splines2", "stacks", "text2vec", "textrecipes", "tidymodels", 
-    "vetiver", "remotes")
+  c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels")
 
 loaded <- purrr::map(deps, ~ library(.x, character.only = TRUE))
 excl <- c("iterators", "emo", "countdown", "stats", "graphics", 
