@@ -103,20 +103,105 @@ Generally speaking, this problem is referred to as [data leakage](https://en.wik
 
 ## An Example Model Fit
 
-These are made-up cats. Each cat's predictors are randomly sampled values from the test set, so it is almost like a permutation-type analysis. 
+In regards to the weird formula assembly: this will be so much easier once we introduce recipes. 
 
-Also, almost every model we consider will be strongly influenced by the `neutered` and `intake_type` columns, which have very few unique values. 
+## Converting to Events
 
-Our models will show _some_ signal (even though they theoretically should not) because the random shuffling might still keep the same values of these important predictors. 
+The predicted class probabilities are then: 
 
-Finally - for the weird formula assembly: this will be so much easier once we introduce recipes. 
+$$
+\begin{align}
+Pr[y_{i\tau} = 1] &= 1- \hat{S}(\tau; \boldsymbol{x}_{i})\notag \\
+Pr[y_{i\tau} = 0] &= \hat{S}(\tau; \boldsymbol{x}_{i}) \notag 
+\end{align}
+$$
 
 
-## Inverse Weights
+## Dealing with Missing Outcome Data
 
-How the censoring probability varies over time can have a big effect on the metrics. 
+For our causal inference approach, we need to compute $\hat{C}(t^*;\boldsymbol{x}_{i})$,  the probability that sample $i$ is censored at some time $t^*$. 
 
-For the demonstration set, there are very few usable outcomes in the late stages of the analysis but these have large weights. 
+We have to consider how to compute the time point $t^*$. Let’s say we are predicting what will happen at $t^* = 17$ days. 
+
+First, we are predicting future events, so we can only assume that we have data _prior to_ 17 days. For this reason, when we use the observed time to compute the probability of censoring, we do it just prior to $t^*$, at $t_i - \epsilon$ for some very small $\epsilon$.
+
+Second, following [Graf _et al._ (1999)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=graf+1999+%22Assessment+and+comparison+of+prognostic+classification+schemes+for+survival+data%22&btnG=), we calculate the censoring probability differently for each event class:  
+
+$$
+t_i^*= 
+\begin{cases}
+t_i  - \epsilon &  \text{if }t_i \le \tau \\ \notag
+\tau - \epsilon &  \text{if }t_i > \tau  \notag 
+\end{cases}
+$$
+
+How exactly do we estimate $\hat{C}(t^*;\boldsymbol{x}_{i})$? We currently only estimate the probability of non-informative right censoring (i.e., the predictors $x_i$ are ignored). We may expand this API in the future when you have informative censoring.  
+
+Our estimator $\hat{C}(T;x_i)$ is the “reverse Kaplan-Meier” (RKM, [Korn (1986)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Korn+1986+%22Censoring+distributions+as+a+measure+of+follow-up+in+survival+analysis%22&btnG=)) curve that inverts the event indicator. 
+
+The RKM curve is attached to the parsnip model object. It's curve: 
+
+```{r}
+#| label: reverse-km
+#| echo: false
+#| warning: false
+#| fig-width: 6
+#| fig-height: 4
+#| out-width: 80%
+#| fig-align: center
+load(file = "RData/demo_cat_preds.RData")
+load(file = "RData/rkm_data.RData")
+
+max_wt_time <- 
+  demo_cat_preds %>% 
+  slice(1:4) %>% 
+  add_rowindex() %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
+  unnest(.pred) %>% 
+  summarize(max_weight_time = max(.weight_time, na.rm = TRUE), .by = c(cat))
+
+rkm_data %>% 
+  ggplot(aes(.eval_time, .pred_censored)) +
+  geom_line(alpha = 1 / 5, linewidth = 2) +
+  labs(x = "Evaluation Time", y = "Prob Censored") + 
+  lims(y = 0:1)
+```
+
+Now let's look at how the probabilities are computed for four specific cats: 
+
+```{r}
+#| label: weight-examples
+#| echo: false
+#| warning: false
+#| fig-width: 6
+#| fig-height: 4
+#| out-width: 80%
+#| fig-align: center
+
+demo_cat_preds %>% 
+  slice(1:4) %>% 
+  add_rowindex() %>% 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
+  unnest(.pred) %>% 
+  filter(.eval_time <= 50) %>% 
+  ggplot(aes(.eval_time, .pred_censored)) + 
+  geom_line(aes(group = cat, col = cat), show.legend = FALSE) +
+  geom_vline(xintercept = 10, col = "black", lty = 2) +
+  geom_vline(xintercept = 30, col = "black", lty = 3) +
+  labs(x = "Evaluation Time", y = "Prob Censored") + 
+  lims(y = 0:1) +
+  facet_wrap(~ cat)
+```
+
+We've truncated the x-axis for readability. 
+
+From this: 
+
+* At $\tau = 10$, all four cats are used to measure performance and $t^*_i = t_i - \epsilon$. 
+
+* At $\tau = 30$, only two cats are used and $t^*_1 = 36 - \epsilon$ and $t^*_4 = 30 - \epsilon$.
+
+How the censoring probability varies over time can greatly impact the metrics. For the demonstration set, there are very few usable outcomes in the late stages of the analysis, but these have large weights. 
 
 ```{r}
 #| label: weight-sum
@@ -125,7 +210,7 @@ For the demonstration set, there are very few usable outcomes in the late stages
 #| fig-height: 4.25
 #| out-width: 80%
 #| fig-align: center
-load(file = "RData/demo_cat_preds.RData")
+
 
 demo_cat_preds %>% 
   unnest(.pred) %>% 
@@ -139,6 +224,16 @@ demo_cat_preds %>%
   theme(legend.position = "top")
 ```
 
+
+Case weights $w_i(\tau)$ are the inverse of these probabilities and $W(\tau)$ is their sum.
+
+## Cross-validation
+
+In the future, we might enable the `strata` argument of the resampling functions to accept `Surv` objects and stratify by the censoring indicator. 
+
+## Bootstrapping
+
+[Davison and Hinkley (1997)](https://doi.org/10.1017/CBO9780511802843) have specific methods for bootstrapping censored data. These are not currently implemented in the rsample package.  
 
 # 06 - Tuning Hyperparameters
 

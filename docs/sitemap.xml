@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-04-evaluating-models.html</loc>
-    <lastmod>2024-07-02T19:29:17.194Z</lastmod>
+    <lastmod>2024-07-02T19:53:09.525Z</lastmod>
   </url>
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-03-what-makes-a-model.html</loc>
@@ -19,5 +19,9 @@
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-06-wrapping-up.html</loc>
     <lastmod>2024-07-02T19:04:58.004Z</lastmod>
+  </url>
+  <url>
+    <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/annotations.html</loc>
+    <lastmod>2024-07-03T17:56:15.397Z</lastmod>
   </url>
 </urlset>

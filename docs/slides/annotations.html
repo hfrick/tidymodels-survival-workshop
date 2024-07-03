@@ -102,7 +102,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -207,7 +207,11 @@ window.Quarto = {
   </ul></li>
   <li><a href="#evaluating-models" id="toc-evaluating-models" class="nav-link" data-scroll-target="#evaluating-models">04 - Evaluating Models</a>
   <ul class="collapse">
-  <li><a href="#where-are-the-fitted-models" id="toc-where-are-the-fitted-models" class="nav-link" data-scroll-target="#where-are-the-fitted-models">Where are the fitted models?</a></li>
+  <li><a href="#an-example-model-fit" id="toc-an-example-model-fit" class="nav-link" data-scroll-target="#an-example-model-fit">An Example Model Fit</a></li>
+  <li><a href="#converting-to-events" id="toc-converting-to-events" class="nav-link" data-scroll-target="#converting-to-events">Converting to Events</a></li>
+  <li><a href="#dealing-with-missing-outcome-data" id="toc-dealing-with-missing-outcome-data" class="nav-link" data-scroll-target="#dealing-with-missing-outcome-data">Dealing with Missing Outcome Data</a></li>
+  <li><a href="#cross-validation" id="toc-cross-validation" class="nav-link" data-scroll-target="#cross-validation">Cross-validation</a></li>
+  <li><a href="#bootstrapping" id="toc-bootstrapping" class="nav-link" data-scroll-target="#bootstrapping">Bootstrapping</a></li>
   </ul></li>
   <li><a href="#tuning-hyperparameters" id="toc-tuning-hyperparameters" class="nav-link" data-scroll-target="#tuning-hyperparameters">06 - Tuning Hyperparameters</a>
   <ul class="collapse">
@@ -319,16 +323,80 @@ window.Quarto = {
 </section>
 <section id="evaluating-models" class="level1">
 <h1>04 - Evaluating Models</h1>
-<section id="where-are-the-fitted-models" class="level2">
-<h2 class="anchored" data-anchor-id="where-are-the-fitted-models">Where are the fitted models?</h2>
-<p>The primary purpose of resampling is to estimate model performance. The models are almost never needed again.</p>
-<p>Also, if the data set is large, the model object may require a lot of memory to save so, by default, we don’t keep them.</p>
-<p>For more advanced use cases, you can extract and save them. See:</p>
+<section id="an-example-model-fit" class="level2">
+<h2 class="anchored" data-anchor-id="an-example-model-fit">An Example Model Fit</h2>
+<p>In regards to the weird formula assembly: this will be so much easier once we introduce recipes.</p>
+</section>
+<section id="converting-to-events" class="level2">
+<h2 class="anchored" data-anchor-id="converting-to-events">Converting to Events</h2>
+<p>The predicted class probabilities are then:</p>
+<p><span class="math display">\[
+\begin{align}
+Pr[y_{i\tau} = 1] &amp;= 1- \hat{S}(\tau; \boldsymbol{x}_{i})\notag \\
+Pr[y_{i\tau} = 0] &amp;= \hat{S}(\tau; \boldsymbol{x}_{i}) \notag
+\end{align}
+\]</span></p>
+</section>
+<section id="dealing-with-missing-outcome-data" class="level2">
+<h2 class="anchored" data-anchor-id="dealing-with-missing-outcome-data">Dealing with Missing Outcome Data</h2>
+<p>For our causal inference approach, we need to compute <span class="math inline">\(\hat{C}(t^*;\boldsymbol{x}_{i})\)</span>, the probability that sample <span class="math inline">\(i\)</span> is censored at some time <span class="math inline">\(t^*\)</span>.</p>
+<p>We have to consider how to compute the time point <span class="math inline">\(t^*\)</span>. Let’s say we are predicting what will happen at <span class="math inline">\(t^* = 17\)</span> days.</p>
+<p>First, we are predicting future events, so we can only assume that we have data <em>prior to</em> 17 days. For this reason, when we use the observed time to compute the probability of censoring, we do it just prior to <span class="math inline">\(t^*\)</span>, at <span class="math inline">\(t_i - \epsilon\)</span> for some very small <span class="math inline">\(\epsilon\)</span>.</p>
+<p>Second, following <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=graf+1999+%22Assessment+and+comparison+of+prognostic+classification+schemes+for+survival+data%22&amp;btnG=">Graf <em>et al.</em> (1999)</a>, we calculate the censoring probability differently for each event class:</p>
+<p><span class="math display">\[
+t_i^*=
+\begin{cases}
+t_i  - \epsilon &amp;  \text{if }t_i \le \tau \\ \notag
+\tau - \epsilon &amp;  \text{if }t_i &gt; \tau  \notag
+\end{cases}
+\]</span></p>
+<p>How exactly do we estimate <span class="math inline">\(\hat{C}(t^*;\boldsymbol{x}_{i})\)</span>? We currently only estimate the probability of non-informative right censoring (i.e., the predictors <span class="math inline">\(x_i\)</span> are ignored). We may expand this API in the future when you have informative censoring.</p>
+<p>Our estimator <span class="math inline">\(\hat{C}(T;x_i)\)</span> is the “reverse Kaplan-Meier” (RKM, <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=Korn+1986+%22Censoring+distributions+as+a+measure+of+follow-up+in+survival+analysis%22&amp;btnG=">Korn (1986)</a>) curve that inverts the event indicator.</p>
+<p>The RKM curve is attached to the parsnip model object. It’s curve:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figures/reverse-km-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Now let’s look at how the probabilities are computed for four specific cats:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figures/weight-examples-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We’ve truncated the x-axis for readability.</p>
+<p>From this:</p>
 <ul>
-<li><a href="https://www.tmwr.org/resampling.html#extract" class="uri">https://www.tmwr.org/resampling.html#extract</a></li>
-<li><a href="https://www.tidymodels.org/learn/models/coefficients/" class="uri">https://www.tidymodels.org/learn/models/coefficients/</a> (an example)</li>
+<li><p>At <span class="math inline">\(\tau = 10\)</span>, all four cats are used to measure performance and <span class="math inline">\(t^*_i = t_i - \epsilon\)</span>.</p></li>
+<li><p>At <span class="math inline">\(\tau = 30\)</span>, only two cats are used and <span class="math inline">\(t^*_1 = 36 - \epsilon\)</span> and <span class="math inline">\(t^*_4 = 30 - \epsilon\)</span>.</p></li>
 </ul>
-<hr size="5">
+<p>How the censoring probability varies over time can greatly impact the metrics. For the demonstration set, there are very few usable outcomes in the late stages of the analysis, but these have large weights.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figures/weight-sum-1.svg" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Case weights <span class="math inline">\(w_i(\tau)\)</span> are the inverse of these probabilities and <span class="math inline">\(W(\tau)\)</span> is their sum.</p>
+</section>
+<section id="cross-validation" class="level2">
+<h2 class="anchored" data-anchor-id="cross-validation">Cross-validation</h2>
+<p>In the future, we might enable the <code>strata</code> argument of the resampling functions to accept <code>Surv</code> objects and stratify by the censoring indicator.</p>
+</section>
+<section id="bootstrapping" class="level2">
+<h2 class="anchored" data-anchor-id="bootstrapping">Bootstrapping</h2>
+<p><a href="https://doi.org/10.1017/CBO9780511802843">Davison and Hinkley (1997)</a> have specific methods for bootstrapping censored data. These are not currently implemented in the rsample package.</p>
 </section>
 </section>
 <section id="tuning-hyperparameters" class="level1">
