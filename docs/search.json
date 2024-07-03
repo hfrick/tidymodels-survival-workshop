@@ -977,7 +977,7 @@
     "href": "slides/intro-01-introduction.html#who-are-tidymodels",
     "title": "1 - Introduction",
     "section": "Who are tidymodels?",
-    "text": "Who are tidymodels?\n\nSimon Couch\nHannah Frick\nEmil Hvitfeldt\nMax Kuhn\n\n. . .\nMany thanks to Davis Vaughan, Julia Silge, David Robinson, Julie Jung, Alison Hill, and Desirée De Leon for their role in creating these materials!"
+    "text": "Who are tidymodels?\n\nSimon Couch\nHannah Frick\nEmil Hvitfeldt\nMax Kuhn\n\n\nMany thanks to Davis Vaughan, Julia Silge, David Robinson, Julie Jung, Alison Hill, and Desirée De Leon for their role in creating these materials!"
   },
   {
     "objectID": "slides/intro-01-introduction.html#section-2",
@@ -998,42 +998,42 @@
     "href": "slides/intro-01-introduction.html#section-3",
     "title": "1 - Introduction",
     "section": "",
-    "text": "Introduce yourself to your neighbors 👋\n\n\n\n Log in to Posit Cloud (free): TODO-ADD-LATER"
+    "text": "Introduce yourself to your neighbors 👋\n\n Log in to Posit Cloud (free): TODO-ADD-LATER"
   },
   {
     "objectID": "slides/intro-01-introduction.html#what-is-machine-learning",
     "href": "slides/intro-01-introduction.html#what-is-machine-learning",
     "title": "1 - Introduction",
     "section": "What is machine learning?",
-    "text": "What is machine learning?\n\n\n\n\n\n\nhttps://xkcd.com/1838/"
+    "text": "What is machine learning?\n\n\nhttps://xkcd.com/1838/"
   },
   {
     "objectID": "slides/intro-01-introduction.html#what-is-machine-learning-1",
     "href": "slides/intro-01-introduction.html#what-is-machine-learning-1",
     "title": "1 - Introduction",
     "section": "What is machine learning?",
-    "text": "What is machine learning?\n\n\n\n\n\n\nIllustration credit: https://vas3k.com/blog/machine_learning/"
+    "text": "What is machine learning?\n\n\nIllustration credit: https://vas3k.com/blog/machine_learning/"
   },
   {
     "objectID": "slides/intro-01-introduction.html#what-is-machine-learning-2",
     "href": "slides/intro-01-introduction.html#what-is-machine-learning-2",
     "title": "1 - Introduction",
     "section": "What is machine learning?",
-    "text": "What is machine learning?\n\n\n\n\n\n\nIllustration credit: https://vas3k.com/blog/machine_learning/"
+    "text": "What is machine learning?\n\n\nIllustration credit: https://vas3k.com/blog/machine_learning/"
   },
   {
     "objectID": "slides/intro-01-introduction.html#your-turn",
     "href": "slides/intro-01-introduction.html#your-turn",
     "title": "1 - Introduction",
     "section": "Your turn",
-    "text": "Your turn\n\n. . .\nHow are statistics and machine learning related?\nHow are they similar? Different?\n\n\n\n−+\n03:00\n\n\n\n\nthe “two cultures”\nmodel first vs. data first\ninference vs. prediction"
+    "text": "Your turn\n\n\nHow are statistics and machine learning related?\nHow are they similar? Different?\n\n\n\n−+\n03:00\n\n\n\n\nthe “two cultures”\nmodel first vs. data first\ninference vs. prediction"
   },
   {
     "objectID": "slides/intro-01-introduction.html#what-is-tidymodels",
     "href": "slides/intro-01-introduction.html#what-is-tidymodels",
     "title": "1 - Introduction",
     "section": "What is tidymodels? ",
-    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Use suppressPackageStartupMessages() to eliminate package startup messages"
+    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Use tidymodels_prefer() to resolve common conflicts."
   },
   {
     "objectID": "slides/intro-01-introduction.html#the-whole-game",
@@ -1054,7 +1054,7 @@
     "href": "slides/intro-01-introduction.html#the-whole-game-2",
     "title": "1 - Introduction",
     "section": "The whole game",
-    "text": "The whole game\n\n\n\n\n\n\n\n\n\n\nStress that we are not fitting a model on the entire training set other than for illustrative purposes in deck 2."
+    "text": "The whole game\n\n\nStress that we are not fitting a model on the entire training set other than for illustrative purposes in deck 2."
   },
   {
     "objectID": "slides/intro-01-introduction.html#the-whole-game-3",
@@ -1096,14 +1096,14 @@
     "href": "slides/intro-01-introduction.html#lets-install-some-packages",
     "title": "1 - Introduction",
     "section": "Let’s install some packages",
-    "text": "Let’s install some packages\nIf you are using your own laptop instead of Posit Cloud:\n\n# Install the packages for the workshop\npkgs &lt;- \n  c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)\n\n. . ."
+    "text": "Let’s install some packages\nIf you are using your own laptop instead of Posit Cloud:\n\n# Install the packages for the workshop\npkgs &lt;- \n  c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)"
   },
   {
     "objectID": "slides/intro-01-introduction.html#our-versions",
     "href": "slides/intro-01-introduction.html#our-versions",
     "title": "1 - Introduction",
     "section": "Our versions",
-    "text": "Our versions\n\n#&gt; Loading required package: survival\n#&gt; Loading required package: Matrix\n#&gt; \n#&gt; Attaching package: 'Matrix'\n#&gt; The following objects are masked from 'package:tidyr':\n#&gt; \n#&gt;     expand, pack, unpack\n#&gt; Loaded glmnet 4.1-8\n#&gt; Loading required package: grid\n#&gt; Loading required package: libcoin\n#&gt; Loading required package: mvtnorm\n#&gt; Loading required package: prodlim\n#&gt; \n#&gt; Attaching package: 'rpart'\n#&gt; The following object is masked from 'package:dials':\n#&gt; \n#&gt;     prune\n\nR version 4.4.0 (2024-04-24), Quarto (1.4.555)\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\naorsf\n0.1.5\n\n\nbroom\n1.0.6\n\n\ncensored\n0.3.2\n\n\ndials\n1.2.1\n\n\ndplyr\n1.1.4\n\n\nggplot2\n3.5.1\n\n\nglmnet\n4.1-8\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\nlibcoin\n1.0-10\n\n\nmodeldata\n1.4.0\n\n\nmvtnorm\n1.2-5\n\n\nparsnip\n1.2.1\n\n\npartykit\n1.2-20\n\n\npec\n2023.04.12\n\n\nprodlim\n2023.08.28\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\npurrr\n1.0.2\n\n\nrecipes\n1.0.10\n\n\nrpart\n4.1.23\n\n\nrsample\n1.2.1\n\n\nscales\n1.3.0\n\n\nsurvival\n3.7-0\n\n\ntibble\n3.2.1\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\ntidymodels\n1.2.0\n\n\ntidyr\n1.3.1\n\n\ntune\n1.2.1\n\n\nworkflows\n1.1.4\n\n\nworkflowsets\n1.1.0\n\n\nyardstick\n1.3.1"
+    "text": "Our versions\nR version 4.4.0 (2024-04-24), Quarto (1.4.555)\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\naorsf\n0.1.5\n\n\nbroom\n1.0.6\n\n\ncensored\n0.3.2\n\n\ndials\n1.2.1\n\n\ndplyr\n1.1.4\n\n\nggplot2\n3.5.1\n\n\nglmnet\n4.1-8\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\nlibcoin\n1.0-10\n\n\nmodeldata\n1.4.0\n\n\nmvtnorm\n1.2-5\n\n\nparsnip\n1.2.1\n\n\npartykit\n1.2-20\n\n\npec\n2023.04.12\n\n\nprodlim\n2023.08.28\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\npurrr\n1.0.2\n\n\nrecipes\n1.0.10\n\n\nrpart\n4.1.23\n\n\nrsample\n1.2.1\n\n\nscales\n1.3.0\n\n\nsurvival\n3.7-0\n\n\ntibble\n3.2.1\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\ntidymodels\n1.2.0\n\n\ntidyr\n1.3.1\n\n\ntune\n1.2.1\n\n\nworkflows\n1.1.4\n\n\nworkflowsets\n1.1.0\n\n\nyardstick\n1.3.1\n\n\n\n\n\n\n\n\n\n\nhttps://hfrick.github.io/tidymodels-survival-workshop"
   },
   {
     "objectID": "index.html",
