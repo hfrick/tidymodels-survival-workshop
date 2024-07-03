@@ -65,11 +65,11 @@ There's also a page for [slide annotations](slides/annotations.html){target="_bl
 
 ## Code
 
-Quarto files for working along [are available on GitHub](https://github.com/tidymodels/workshops/tree/main/classwork). (Don't worry if you haven't used Quarto before; it will feel familiar to R Markdown users.)
+Quarto files for working along [are available on GitHub](https://github.com/hfrick/tidymodels-survival-workshop/tree/main/classwork). (Don't worry if you haven't used Quarto before; it will feel familiar to R Markdown users.)
 
 ## Acknowledgments {.appendix}
 
-This website, including the slides, is made with [Quarto](https://quarto.org/). Please [submit an issue](https://github.com/tidymodels/workshops/issues) on the GitHub repo for this workshop if you find something that could be fixed or improved.
+This website, including the slides, is made with [Quarto](https://quarto.org/). Please [submit an issue](https://github.com/hfrick/tidymodels-survival-workshop/issues) on the GitHub repo for this workshop if you find something that could be fixed or improved.
 
 ## Reuse and licensing {.appendix}
 
