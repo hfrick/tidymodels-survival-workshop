@@ -103,7 +103,7 @@ Generally speaking, this problem is referred to as [data leakage](https://en.wik
 
 ## An Example Model Fit
 
-In regards to the weird formula assembly: this will be so much easier once we introduce recipes. 
+In regards to the weird formula assembly: if we use a [recipe](https://workshops.tidymodels.org/slides/advanced-02-feature-engineering.html). 
 
 ## Converting to Events
 
