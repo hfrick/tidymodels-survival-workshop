@@ -347,7 +347,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#to-specify-a-model",
     "title": "3 - What makes a model?",
     "section": "To specify a model ",
-    "text": "To specify a model \n\n\n\n\nChoose a model\nSpecify an engine\nSet the mode\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/481270/cat-5"
+    "text": "To specify a model \n\n\n\n\nChoose a model\nSpecify an engine\nSet the mode\n\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/481270/cat-5"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#to-specify-a-model-1",
@@ -585,7 +585,7 @@
     "href": "slides/intro-02-data-budget.html#data-on-shelter-cats",
     "title": "2 - Your data budget",
     "section": "Data on shelter cats",
-    "text": "Data on shelter cats\n\n\n\nThe city of Long Beach releases data on animals at the Long Beach Animal Shelter.\nOur dataset is a sample of the cats entering and leaving the shelter.\nType ?cat_adoption or check the sources to learn more about this dataset, including references.\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/194185/pet-house-kennel"
+    "text": "Data on shelter cats\n\n\n\nThe city of Long Beach releases data on animals at the Long Beach Animal Shelter.\nOur dataset is a sample of the cats entering and leaving the shelter.\nType ?cat_adoption or check the sources to learn more about this dataset, including references.\n\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/194185/pet-house-kennel"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#data-on-shelter-cats-1",
@@ -957,5 +957,215 @@
     "title": "4 - Evaluating models",
     "section": "Dealing with Missing Outcome Data",
     "text": "Dealing with Missing Outcome Data\nWithout censored data points, this conversion would yield appropriate performance estimates since no event outcomes would be missing.\n\nOtherwise, there is the potential for bias due to missingness.\n\nWe’ll use tools from causal inference to compensate by creating a propensity score that uses the probability of being censored/missing.\nCase weights use the inverse of this probability. See Graf et al (1999)."
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#workshop-policies",
+    "href": "slides/intro-01-introduction.html#workshop-policies",
+    "title": "1 - Introduction",
+    "section": "Workshop policies",
+    "text": "Workshop policies\n\nPlease review the code of conduct: https://events.linuxfoundation.org/user/attend/code-of-conduct/"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#who-are-you",
+    "href": "slides/intro-01-introduction.html#who-are-you",
+    "title": "1 - Introduction",
+    "section": "Who are you?",
+    "text": "Who are you?\n\nYou can use the magrittr %&gt;% or base R |&gt; pipe\nYou are familiar with functions from dplyr, tidyr, ggplot2\nYou have exposure to basic concepts of survival analysis\nYou are familiar with the basic predictive modeling workflow\nYou do not need intermediate or expert familiarity with modeling or ML"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#who-are-tidymodels",
+    "href": "slides/intro-01-introduction.html#who-are-tidymodels",
+    "title": "1 - Introduction",
+    "section": "Who are tidymodels?",
+    "text": "Who are tidymodels?\n\nSimon Couch\nHannah Frick\nEmil Hvitfeldt\nMax Kuhn\n\n\nMany thanks to Davis Vaughan, Julia Silge, David Robinson, Julie Jung, Alison Hill, and Desirée De Leon for their role in creating these materials!"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#section-2",
+    "href": "slides/intro-01-introduction.html#section-2",
+    "title": "1 - Introduction",
+    "section": "👀",
+    "text": "👀"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#plan-for-this-workshop",
+    "href": "slides/intro-01-introduction.html#plan-for-this-workshop",
+    "title": "1 - Introduction",
+    "section": "Plan for this workshop",
+    "text": "Plan for this workshop\n\nYour data budget\nWhat makes a model\nEvaluating models\nTuning models"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#section-3",
+    "href": "slides/intro-01-introduction.html#section-3",
+    "title": "1 - Introduction",
+    "section": "",
+    "text": "Introduce yourself to your neighbors 👋\n\n Log in to Posit Cloud (free): TODO-ADD-LATER"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#what-is-machine-learning",
+    "href": "slides/intro-01-introduction.html#what-is-machine-learning",
+    "title": "1 - Introduction",
+    "section": "What is machine learning?",
+    "text": "What is machine learning?\n\n\nhttps://xkcd.com/1838/"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#what-is-machine-learning-1",
+    "href": "slides/intro-01-introduction.html#what-is-machine-learning-1",
+    "title": "1 - Introduction",
+    "section": "What is machine learning?",
+    "text": "What is machine learning?\n\n\nIllustration credit: https://vas3k.com/blog/machine_learning/"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#what-is-machine-learning-2",
+    "href": "slides/intro-01-introduction.html#what-is-machine-learning-2",
+    "title": "1 - Introduction",
+    "section": "What is machine learning?",
+    "text": "What is machine learning?\n\n\nIllustration credit: https://vas3k.com/blog/machine_learning/"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#your-turn",
+    "href": "slides/intro-01-introduction.html#your-turn",
+    "title": "1 - Introduction",
+    "section": "Your turn",
+    "text": "Your turn\n\n\nHow are statistics and machine learning related?\nHow are they similar? Different?\n\n\n\n−+\n03:00\n\n\n\n\nthe “two cultures”\nmodel first vs. data first\ninference vs. prediction"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#what-is-tidymodels",
+    "href": "slides/intro-01-introduction.html#what-is-tidymodels",
+    "title": "1 - Introduction",
+    "section": "What is tidymodels? ",
+    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Learn how to get started at https://www.tidymodels.org/start/"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#the-whole-game",
+    "href": "slides/intro-01-introduction.html#the-whole-game",
+    "title": "1 - Introduction",
+    "section": "The whole game",
+    "text": "The whole game\n\nRoadmap for today\nMinimal version of predictive modeling process\nFeature engineering and tuning as iterative extensions"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#the-whole-game-1",
+    "href": "slides/intro-01-introduction.html#the-whole-game-1",
+    "title": "1 - Introduction",
+    "section": "The whole game",
+    "text": "The whole game"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#the-whole-game-2",
+    "href": "slides/intro-01-introduction.html#the-whole-game-2",
+    "title": "1 - Introduction",
+    "section": "The whole game",
+    "text": "The whole game\n\n\nStress that we are not fitting a model on the entire training set other than for illustrative purposes in deck 2."
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#the-whole-game-3",
+    "href": "slides/intro-01-introduction.html#the-whole-game-3",
+    "title": "1 - Introduction",
+    "section": "The whole game",
+    "text": "The whole game"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#the-whole-game-4",
+    "href": "slides/intro-01-introduction.html#the-whole-game-4",
+    "title": "1 - Introduction",
+    "section": "The whole game",
+    "text": "The whole game"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#the-whole-game-5",
+    "href": "slides/intro-01-introduction.html#the-whole-game-5",
+    "title": "1 - Introduction",
+    "section": "The whole game",
+    "text": "The whole game"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#the-whole-game-6",
+    "href": "slides/intro-01-introduction.html#the-whole-game-6",
+    "title": "1 - Introduction",
+    "section": "The whole game",
+    "text": "The whole game"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#the-whole-game-7",
+    "href": "slides/intro-01-introduction.html#the-whole-game-7",
+    "title": "1 - Introduction",
+    "section": "The whole game",
+    "text": "The whole game"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#lets-install-some-packages",
+    "href": "slides/intro-01-introduction.html#lets-install-some-packages",
+    "title": "1 - Introduction",
+    "section": "Let’s install some packages",
+    "text": "Let’s install some packages\nIf you are using your own laptop instead of Posit Cloud:\n\n# Install the packages for the workshop\npkgs &lt;- \n  c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#our-versions",
+    "href": "slides/intro-01-introduction.html#our-versions",
+    "title": "1 - Introduction",
+    "section": "Our versions",
+    "text": "Our versions\nR version 4.4.0 (2024-04-24), Quarto (1.4.555)\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\naorsf\n0.1.5\n\n\nbroom\n1.0.6\n\n\ncensored\n0.3.2\n\n\ndials\n1.2.1\n\n\ndplyr\n1.1.4\n\n\nggplot2\n3.5.1\n\n\nglmnet\n4.1-8\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\nlibcoin\n1.0-10\n\n\nmodeldata\n1.4.0\n\n\nmvtnorm\n1.2-5\n\n\nparsnip\n1.2.1\n\n\npartykit\n1.2-20\n\n\npec\n2023.04.12\n\n\nprodlim\n2023.08.28\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\npurrr\n1.0.2\n\n\nrecipes\n1.0.10\n\n\nrpart\n4.1.23\n\n\nrsample\n1.2.1\n\n\nscales\n1.3.0\n\n\nsurvival\n3.7-0\n\n\ntibble\n3.2.1\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\ntidymodels\n1.2.0\n\n\ntidyr\n1.3.1\n\n\ntune\n1.2.1\n\n\nworkflows\n1.1.4\n\n\nworkflowsets\n1.1.0\n\n\nyardstick\n1.3.1\n\n\n\n\n\n\n\n\n\n\nhttps://workshops.tidymodels.org"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Survival analysis with tidymodels",
+    "section": "",
+    "text": "These are the materials for workshops on survival analysis with tidymodels. The tidymodels framework is a collection of packages for modeling and machine learning using tidyverse principles.\nThis course will teach you core tidymodels packages and their uses: data splitting/resampling with rsample, model fitting with parsnip, measuring model performance with yardstick, and basic model optimization with tune. Time permitting, you’ll be introduced to pre-processing using the recipes package. You’ll learn tidymodels syntax as well as the process of predictive modeling for tabular data."
+  },
+  {
+    "objectID": "index.html#welcome",
+    "href": "index.html#welcome",
+    "title": "Survival analysis with tidymodels",
+    "section": "",
+    "text": "These are the materials for workshops on survival analysis with tidymodels. The tidymodels framework is a collection of packages for modeling and machine learning using tidyverse principles.\nThis course will teach you core tidymodels packages and their uses: data splitting/resampling with rsample, model fitting with parsnip, measuring model performance with yardstick, and basic model optimization with tune. Time permitting, you’ll be introduced to pre-processing using the recipes package. You’ll learn tidymodels syntax as well as the process of predictive modeling for tabular data."
+  },
+  {
+    "objectID": "index.html#is-this-workshop-for-me",
+    "href": "index.html#is-this-workshop-for-me",
+    "title": "Survival analysis with tidymodels",
+    "section": "Is this workshop for me? ",
+    "text": "Is this workshop for me? \nThis workshop is for you if you:\n\nare familiar with basic survival analysis such as censoring of time-to-event data, Kaplan-Meier curves, proportional hazards models\nare familiar with the basic predictive modeling workflow such as split in train and test set, resampling, tuning via grid search\nwant to learn how to leverage the tidymodels framework for survival analysis\n\nIntermediate or expert familiarity with modeling or machine learning is not required."
+  },
+  {
+    "objectID": "index.html#preparation",
+    "href": "index.html#preparation",
+    "title": "Survival analysis with tidymodels",
+    "section": "Preparation",
+    "text": "Preparation\nThe process to set up your computer for either workshop will look the same. Please join the workshop with a computer that has the following installed (all available for free):\n\nA recent version of R, available at https://cran.r-project.org/\nA recent version of RStudio Desktop (RStudio Desktop Open Source License, at least v2022.02), available at https://posit.co/download/rstudio-desktop/\nThe following R packages, which you can install from the R console:\n\n\n# Install the packages for the workshop\npkgs &lt;- \n  c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)\n\nIf you’re a Windows user and encounter an error message during installation noting a missing Rtools installation, install Rtools using the installer linked here."
+  },
+  {
+    "objectID": "index.html#slides",
+    "href": "index.html#slides",
+    "title": "Survival analysis with tidymodels",
+    "section": "Slides",
+    "text": "Slides\nThese slides are designed to use with live teaching and are published for workshop participants’ convenience. There are not meant as standalone learning materials. For that, we recommend tidymodels.org and Tidy Modeling with R.\n\nIntroduction to tidymodels\n\n01: Introduction\n02: Your data budget\n03: What makes a model?\n04: Evaluating models\n05: Tuning models\n06: Wrapping up\n\n\n\nExtra content (time permitting)\n\nIntro: Time-based splitting\nIntro: Using workflowsets\nIntro: Using recipes\n\nThere’s also a page for slide annotations; these are extra notes for selected slides."
+  },
+  {
+    "objectID": "index.html#code",
+    "href": "index.html#code",
+    "title": "Survival analysis with tidymodels",
+    "section": "Code",
+    "text": "Code\nQuarto files for working along are available on GitHub. (Don’t worry if you haven’t used Quarto before; it will feel familiar to R Markdown users.)"
+  },
+  {
+    "objectID": "index.html#acknowledgments",
+    "href": "index.html#acknowledgments",
+    "title": "Survival analysis with tidymodels",
+    "section": "Acknowledgments",
+    "text": "Acknowledgments\n\nThis website, including the slides, is made with Quarto. Please submit an issue on the GitHub repo for this workshop if you find something that could be fixed or improved."
+  },
+  {
+    "objectID": "index.html#reuse-and-licensing",
+    "href": "index.html#reuse-and-licensing",
+    "title": "Survival analysis with tidymodels",
+    "section": "Reuse and licensing",
+    "text": "Reuse and licensing\n\nUnless otherwise noted (i.e. not an original creation and reused from another source), these educational materials are licensed under Creative Commons Attribution CC BY-SA 4.0."
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html",
+    "href": "slides/intro-04-evaluating-models.html",
+    "title": "4 - Evaluating models",
+    "section": "",
+    "text": "Let’s fit another PH and add some nonlinear terms via splines:\n\n# First add all of the predictors...\nf &lt;- event_time ~ . -\n  # Then remove geocoded columns\n  longitude - latitude +\n  # Then add them back as spline terms\n  ns(longitude, df = 5) + ns(latitude, df = 5)\n\ncat_wflow &lt;- workflow(f, proportional_hazards())\n\ncph_spline_fit &lt;- cat_wflow %&gt;%\n  fit(data = cat_train)"
   }
 ]

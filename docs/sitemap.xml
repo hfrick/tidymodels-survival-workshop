@@ -2,26 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-04-evaluating-models.html</loc>
-    <lastmod>2024-07-03T18:18:08.143Z</lastmod>
+    <lastmod>2024-07-03T20:34:15.407Z</lastmod>
   </url>
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-03-what-makes-a-model.html</loc>
-    <lastmod>2024-07-02T19:04:58.003Z</lastmod>
+    <lastmod>2024-07-01T16:41:20.966Z</lastmod>
   </url>
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-02-data-budget.html</loc>
-    <lastmod>2024-07-02T19:04:58.002Z</lastmod>
+    <lastmod>2024-06-29T15:37:57.955Z</lastmod>
   </url>
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-05-tuning-models.html</loc>
-    <lastmod>2024-07-02T19:04:58.003Z</lastmod>
+    <lastmod>2024-06-29T16:00:03.991Z</lastmod>
   </url>
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-06-wrapping-up.html</loc>
-    <lastmod>2024-07-02T19:04:58.004Z</lastmod>
+    <lastmod>2024-06-29T16:06:50.242Z</lastmod>
   </url>
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/annotations.html</loc>
-    <lastmod>2024-07-03T18:17:55.944Z</lastmod>
+    <lastmod>2024-07-03T18:21:02.715Z</lastmod>
+  </url>
+  <url>
+    <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-01-introduction.html</loc>
+    <lastmod>2024-07-03T20:29:51.228Z</lastmod>
+  </url>
+  <url>
+    <loc>https://hfrick.github.io/tidymodels-survival-workshop/index.html</loc>
+    <lastmod>2024-07-03T20:35:34.765Z</lastmod>
   </url>
 </urlset>
