@@ -67,7 +67,7 @@
     "href": "slides/intro-04-evaluating-models.html#converting-to-events",
     "title": "4 - Evaluating models",
     "section": "Converting to Events",
-    "text": "Converting to Events\nFor a specific time point \\(\\tau\\), we convert the observed event time to a binary event/non-event version (if possible) (\\(y_{i\\tau} \\in \\{0, 1\\}\\)).\n\\[\ny_{i\\tau} =\n\\begin{cases}\n1 & \\text{if } t_{i} \\leq \\tau\\text{ and  event} \\notag \\\\\n0 & \\text{if } t_{i} \\gt \\tau \\text{ and } either \\notag \\\\\nmissing & \\text{if } t_{i} \\leq \\tau\\text{ and censored }\n\\end{cases}\n\\]"
+    "text": "Converting to Events\nFor a specific evaluation time point \\(\\tau\\), we convert the observed event time to a binary event/non-event version (if possible) (\\(y_{i\\tau} \\in \\{0, 1\\}\\)).\n\\[\ny_{i\\tau} =\n\\begin{cases}\n1 & \\text{if } t_{i} \\leq \\tau\\text{ and  event} \\notag \\\\\n0 & \\text{if } t_{i} \\gt \\tau \\text{ and } either \\notag \\\\\nmissing & \\text{if } t_{i} \\leq \\tau\\text{ and censored }\n\\end{cases}\n\\]"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#converting-to-events-1",
@@ -144,7 +144,7 @@
     "href": "slides/intro-04-evaluating-models.html#area-under-the-roc-curve",
     "title": "4 - Evaluating models",
     "section": "Area Under the ROC Curve",
-    "text": "Area Under the ROC Curve\nThis is more straightforward.\n\nWe can use the standard ROC curve machinery once we have the indicators, probabilities, and censoring weights at time \\(\\tau\\) (Hung and Chiang (2010)).\n\nROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are."
+    "text": "Area Under the ROC Curve\nThis is more straightforward.\n\nWe can use the standard ROC curve machinery once we have the indicators, probabilities, and censoring weights at evaluation time \\(\\tau\\) (Hung and Chiang (2010)).\n\nROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are."
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#demonstration-cat-roc-auc",
@@ -900,7 +900,7 @@
     "href": "slides/annotations.html#dealing-with-missing-outcome-data",
     "title": "Annotations",
     "section": "Dealing with Missing Outcome Data",
-    "text": "Dealing with Missing Outcome Data\nFor our causal inference approach, we need to compute \\(\\hat{C}(t^*;\\boldsymbol{x}_{i})\\), the probability that sample \\(i\\) is censored at some time \\(t^*\\).\nWe have to consider how to compute the time point \\(t^*\\). Let’s say we are predicting what will happen at \\(t^* = 17\\) days.\nFirst, we are predicting future events, so we can only assume that we have data prior to 17 days. For this reason, when we use the observed time to compute the probability of censoring, we do it just prior to \\(t^*\\), at \\(t_i - \\epsilon\\) for some very small \\(\\epsilon\\).\nSecond, following Graf et al. (1999), we calculate the censoring probability differently for each event class:\n\\[\nt_i^*=\n\\begin{cases}\nt_i  - \\epsilon &  \\text{if }t_i \\le \\tau \\\\ \\notag\n\\tau - \\epsilon &  \\text{if }t_i &gt; \\tau  \\notag\n\\end{cases}\n\\]\nHow exactly do we estimate \\(\\hat{C}(t^*;\\boldsymbol{x}_{i})\\)? We currently only estimate the probability of non-informative right censoring (i.e., the predictors \\(x_i\\) are ignored). We may expand this API in the future when you have informative censoring.\nOur estimator \\(\\hat{C}(T;x_i)\\) is the “reverse Kaplan-Meier” (RKM, Korn (1986)) curve that inverts the event indicator.\nThe RKM curve is attached to the parsnip model object. It’s curve:\n\n\n\n\n\n\n\n\n\nNow let’s look at how the probabilities are computed for four specific cats:\n\n\n\n\n\n\n\n\n\nWe’ve truncated the x-axis for readability.\nFrom this:\n\nAt \\(\\tau = 10\\), all four cats are used to measure performance and \\(t^*_i = t_i - \\epsilon\\).\nAt \\(\\tau = 30\\), only two cats are used and \\(t^*_1 = 36 - \\epsilon\\) and \\(t^*_4 = 30 - \\epsilon\\).\n\nHow the censoring probability varies over time can greatly impact the metrics. For the demonstration set, there are very few usable outcomes in the late stages of the analysis, but these have large weights.\n\n\n\n\n\n\n\n\n\nCase weights \\(w_i(\\tau)\\) are the inverse of these probabilities and \\(W(\\tau)\\) is their sum."
+    "text": "Dealing with Missing Outcome Data\nFor our causal inference approach, we need to compute \\(\\hat{C}(t^*;\\boldsymbol{x}_{i})\\), the probability that sample \\(i\\) is censored at some time \\(t^*\\).\nWe have to consider how to compute the time point \\(t^*\\). Let’s say we are predicting what will happen at \\(t^* = 17\\) days.\nFirst, we are predicting future events, so we can only assume that we have data prior to 17 days. For this reason, when we use the observed time to compute the probability of censoring, we do it just prior to \\(t^*\\), at \\(t_i - \\epsilon\\) for some very small \\(\\epsilon\\).\nSecond, following Graf et al. (1999), we calculate the censoring probability differently for each event class:\n\\[\nt_i^*=\n\\begin{cases}\nt_i  - \\epsilon &  \\text{if }t_i \\le \\tau \\\\ \\notag\n\\tau - \\epsilon &  \\text{if }t_i &gt; \\tau  \\notag\n\\end{cases}\n\\]\nHow exactly do we estimate \\(\\hat{C}(t^*;\\boldsymbol{x}_{i})\\)? We currently only estimate the probability of non-informative right censoring (i.e., the predictors \\(x_i\\) are ignored). We may expand this API in the future when you have informative censoring.\nOur estimator \\(\\hat{C}(T;x_i)\\) is the “reverse Kaplan-Meier” (RKM, Korn (1986)) curve that inverts the event indicator.\nThe RKM curve is attached to the parsnip model object. Its curve:\n\n\n\n\n\n\n\n\n\nNow let’s look at how the probabilities are computed for four specific cats:\n\n\n\n\n\n\n\n\n\nWe’ve truncated the x-axis for readability.\nFrom this:\n\nAt \\(\\tau = 10\\), all four cats are used to measure performance and \\(t^*_i = t_i - \\epsilon\\).\nAt \\(\\tau = 30\\), only two cats are used and \\(t^*_1 = 36 - \\epsilon\\) and \\(t^*_4 = 30 - \\epsilon\\).\n\nHow the censoring probability varies over time can greatly impact the metrics. For the demonstration set, there are very few usable outcomes in the late stages of the analysis, but these have large weights.\n\n\n\n\n\n\n\n\n\nCase weights \\(w_i(\\tau)\\) are the inverse of these probabilities and \\(W(\\tau)\\) is their sum."
   },
   {
     "objectID": "slides/annotations.html#inverse-weights",
@@ -950,5 +950,12 @@
     "title": "Annotations",
     "section": "Bootstrapping",
     "text": "Bootstrapping\nDavison and Hinkley (1997) have specific methods for bootstrapping censored data. These are not currently implemented in the rsample package."
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#dealing-with-missing-outcome-data",
+    "href": "slides/intro-04-evaluating-models.html#dealing-with-missing-outcome-data",
+    "title": "4 - Evaluating models",
+    "section": "Dealing with Missing Outcome Data",
+    "text": "Dealing with Missing Outcome Data\nWithout censored data points, this conversion would yield appropriate performance estimates since no event outcomes would be missing.\n\nOtherwise, there is the potential for bias due to missingness.\n\nWe’ll use tools from causal inference to compensate by creating a propensity score that uses the probability of being censored/missing.\nCase weights use the inverse of this probability. See Graf et al (1999)."
   }
 ]
