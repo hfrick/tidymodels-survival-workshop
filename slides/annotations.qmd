@@ -224,8 +224,56 @@ demo_cat_preds %>%
   theme(legend.position = "top")
 ```
 
-
 Case weights $w_i(\tau)$ are the inverse of these probabilities and $W(\tau)$ is their sum.
+
+## Brier Scores Over Evaluation Time
+
+It’s reasonable to wonder about the uncertainty in these statistics, especially for a sample size of 50. When we get to resampling (in a bit), we will have standard errors of statistics that we can use to make confidence intervals. 
+
+We can use the [bootstrap method to compute confidence intervals](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Bootstrap+confidence+intervals+DiCiccio&btnG=) for a single data set (e.g., a validation set). A tidymodels function called `int_pctl()` is available for this purpose ([more information](https://www.tidymodels.org/learn/#category=bootstrapping)). This will be able to work directly with objects resulting form resampling or tuning functions (again, in a bit) but for a single data set, we’ll need to create a wrapper that computes the statistic for different bootstrap samples.
+
+```{r}
+#| label: brier-wrapper
+brier_wrapper <- function(split) {
+  dat <- analysis(split)
+  brier_survival(dat, truth = event_time, .pred) %>% 
+    # Puts the data into a 'tidy' format:
+    dplyr::select(term = .eval_time, estimate = .estimate)
+}
+```
+
+We execute that on every bootstrap sample and then use `int_pctl()` on the results. 
+
+```{r}
+#| label: brier-ints
+#| cache: true
+
+set.seed(482)
+brier_ci <- 
+  demo_cat_preds %>% 
+  bootstraps(times = 2000) %>% 
+  mutate(stats = map(splits, brier_wrapper)) %>% 
+  int_pctl(stats, alpha = 0.10) # 90% intervals
+```
+
+Yep, statistics from 50 cats has a lot of variation! 
+
+```{r}
+#| label: plot-brier-ci
+#| fig-width: 6
+#| fig-height: 4.25
+#| out-width: 80%
+#| fig-align: center
+
+brier_ci %>% 
+  ggplot(aes(term, .estimate)) + 
+  geom_line() + 
+  geom_ribbon(
+    aes(ymin = .lower, ymax = .upper), 
+    alpha = 1 / 10, 
+    fill = "blue") +
+  labs(x = "Evaluation time", y = "Brier score")
+```
 
 ## Cross-validation
 
@@ -234,6 +282,10 @@ In the future, we might enable the `strata` argument of the resampling functions
 ## Bootstrapping
 
 [Davison and Hinkley (1997)](https://doi.org/10.1017/CBO9780511802843) have specific methods for bootstrapping censored data. These are not currently implemented in the rsample package.  
+
+## Evaluating model performance
+
+Note that there is a column for `std_err` so that we can compute confidence intervals from these. 
 
 # 06 - Tuning Hyperparameters
 
@@ -310,29 +362,3 @@ How would you know that? There are a few different ways:
  * Run the `translate()` function on the parsnip specification object. 
 
 The first two options are best since they tell you a lot more about the particularities of each model engine (there are a lot for lightgbm). 
-
-<hr size="5">
-
-# Extras - Effect Encodings
-
-## Per-agent statistics
-
-The effect encoding method essentially takes the effect of a variable, like agent, and makes a data column for that effect. In our example, affect of the agent on the ADR is quantified by a model and then added as a data column to be used in the model. 
-
-Suppose agent Max has a single reservation in the data and it had an ADR of €200. If we used a naive estimate for Max’s effect, the model is being told that Max should always produce an effect of €200. That’s a very poor estimate since it is from a single data point. 
-
-Contrast this with seasoned agent Davis, who has taken 250 reservations with an average ADR of €100. Davis’s mean is more predictive because it is estimated with better data (i.e., more total reservations). 
-Partial pooling leverages the entire data set and can borrow strength from all of the agents. It is a common tool in Bayesian estimation and non-Bayesian mixed models. If a agent’s data is of good quality, the partial pooling effect estimate is closer to the raw mean. Max’s data is not great and is "shrunk" towards the center of the overall average. Since there is so little known about Max’s reservation history, this is a better effect estimate (until more data is available for him). 
-
-The Stan documentation has a pretty good vignette on this:  <https://cran.r-project.org/web/packages/rstanarm/vignettes/pooling.html>
-
-Also, _Bayes Rules!_ has a nice section on this: <https://www.bayesrulesbook.com/chapter-15.html>
-
-Since this example has a numeric outcome, partial pooling is very similar to the James–Stein estimator: <https://en.wikipedia.org/wiki/James–Stein_estimator>
-
-## Agent effects
-
-Effect encoding might result in a somewhat circular argument: the column is more likely to be important to the model since it is the output of a separate model. The risk here is that we might over-fit the effect to the data. For this reason, it is super important to make sure that we verify that we aren’t overfitting by checking with resampling (or a validation set). 
-
-Partial pooling somewhat lowers the risk of overfitting since it tends to correct for agents with small sample sizes. It can’t correct for improper data usage or data leakage though. 
-

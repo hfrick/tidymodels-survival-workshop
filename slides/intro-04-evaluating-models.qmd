@@ -249,7 +249,7 @@ $$
 :::
 
 
-## Brier Scores
+## Brier Scores 
 
 ```{r}
 #| label: brier-ex
@@ -257,7 +257,7 @@ demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
 demo_brier %>% filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
-## Brier Scores Over Evaluation Time
+## Brier Scores Over Evaluation Time {.annotation} 
 
 ```{r}
 #| label: brier-time
@@ -269,7 +269,7 @@ demo_brier %>% filter(.eval_time %in% seq(30, 300, by = 30))
 demo_brier %>% 
   ggplot(aes(.eval_time, .estimate)) + 
   geom_line() + 
-  geom_hline(yintercept = 0, col = "green")+
+  geom_hline(yintercept = 0, col = "green") +
   labs(x = "Evaluation time", y = "Brier score")
 ```
 
@@ -421,7 +421,7 @@ cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120))
 cat_res
 ```
 
-## Evaluating model performance `r hexes("tune")`
+## Evaluating model performance `r hexes("tune")` {.annotation} 
 
 ```{r collect-metrics}
 cat_res %>%
