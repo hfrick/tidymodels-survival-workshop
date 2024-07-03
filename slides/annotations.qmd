@@ -139,7 +139,7 @@ How exactly do we estimate $\hat{C}(t^*;\boldsymbol{x}_{i})$? We currently only 
 
 Our estimator $\hat{C}(T;x_i)$ is the “reverse Kaplan-Meier” (RKM, [Korn (1986)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Korn+1986+%22Censoring+distributions+as+a+measure+of+follow-up+in+survival+analysis%22&btnG=)) curve that inverts the event indicator. 
 
-The RKM curve is attached to the parsnip model object. It's curve: 
+The RKM curve is attached to the parsnip model object. Its curve: 
 
 ```{r}
 #| label: reverse-km
