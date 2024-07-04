@@ -86,9 +86,9 @@ For machine learning, we typically split data into training and test sets:
 
 Do not 🚫 use the test set during training.
 
-# The more data<br>we spend 🤑<br><br>the better estimates<br>we'll get.
+# The more data<br>we spend 🤑<br><br>the better estimates<br>we'll get. {visibility="hidden"}
 
-## Data splitting and spending
+## Data splitting and spending {visibility="hidden"}
 
 -   Spending too much data in **training** prevents us from computing a good assessment of predictive **performance**.
 
@@ -134,21 +134,11 @@ cat_test <- testing(cat_split)
 cat_train
 ```
 
-## The test set `r hexes("rsample")`
-
-🙈
-
-. . .
-
-There are `r nrow(cat_test)` rows and `r ncol(cat_test)` columns in the test set.
-
 ## Your turn {transition="slide-in"}
 
 ![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
 
 *Split your data so 20% is held out for the test set.*
-
-*Try out different values in `set.seed()` to see how the results change.*
 
 <br>
 
@@ -156,7 +146,7 @@ There are `r nrow(cat_test)` rows and `r ncol(cat_test)` columns in the test set
 
 ```{r ex-try-splitting}
 #| echo: false
-countdown::countdown(minutes = 5, id = "try-splitting")
+countdown::countdown(minutes = 3, id = "try-splitting")
 ```
 
 ## Data splitting and spending `r hexes("rsample")`
@@ -200,7 +190,9 @@ cat_test <- testing(cat_split)
 
 <br>
 
-*Extension/Challenge: How would you visualize the relelationship between the outcome and longitude and latitude, respectively?*
+*Extension/Challenge:  
+How would you visualize the relationship between the outcome  
+and longitude and latitude, respectively?*
 
 ```{r ex-explore-cat}
 #| echo: false
@@ -240,40 +232,19 @@ survfit(event_time ~ brown_tabby, data = cat_train) %>% ggsurvfit()
 survfit(event_time ~ gray, data = cat_train) %>% ggsurvfit()
 ```
 
-## 
+## Location {.annotation}
 
 ```{r cat-leaflet}
 #| fig-align: 'center'
+#| output-location: column
 library(leaflet)
+
 cat_train %>% 
   leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%  
-  addCircles(lng = ~ longitude, lat = ~ latitude)
+  addCircles(lng = ~ longitude, 
+             lat = ~ latitude)
 ```
-
-## 
-
-```{r cat-latitude}
-#| fig-align: 'center'
-smooth_ph_linear_pred(event_time ~ latitude, data = cat_adoption, deg_free = 6)
-```
-`smooth_ph_linear_pred()` a custom function, available  
-in [`slides/setup.R`](https://github.com/hfrick/tidymodels-survival-workshop/blob/main/slides/setup.R).
-
-::: notes
-latitude ~ "y-axis"
-:::
-
-## 
-
-```{r cat-longitude}
-#| fig-align: 'center'
-smooth_ph_linear_pred(event_time ~ longitude, data = cat_adoption, deg_free = 5)
-```
-
-::: notes
-longitude ~ "x-axis"
-:::
 
 ## The whole game - status update
 

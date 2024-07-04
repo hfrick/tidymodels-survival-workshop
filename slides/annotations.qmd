@@ -13,10 +13,23 @@ knitr:
 
 library(tidymodels)
 library(censored)
+library(modeldata)
 tidymodels_prefer()
 
 # To get `hexes()`
 source("setup.R")
+
+# for plots on event_time ~ location
+cat_adoption <- cat_adoption %>% 
+  mutate(event_time = Surv(time, event), .keep = "unused", .before = everything())
+
+set.seed(27)
+in_demo <- sample.int(nrow(cat_adoption), 50)
+demo_cats <- cat_adoption %>% slice(in_demo)
+
+set.seed(123)
+cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_train <- training(cat_split)
 ```
 
 <hr size="5">
@@ -30,6 +43,21 @@ This page contains _annotations_ for selected slides.
 There's a lot that we want to tell you. We don't want people to have to frantically scribble down things that we say that are not on the slides. 
 
 We've added sections to this document with longer explanations and links to other resources. 
+
+## Location
+
+To get a sense whether or not the location has an influence on our outcome, we can fit a proportional hazards model with a spline on the continuous predictor (logitude or latitude) and take a look at the linear predictor. To do so, Max wrote a custom function, `smooth_ph_linear_pred()`, that is available in [`slides/setup.R`](https://github.com/hfrick/tidymodels-survival-workshop/blob/main/slides/setup.R).
+
+```{r cat-latitude}
+#| fig-align: 'center'
+#| message: false
+smooth_ph_linear_pred(event_time ~ latitude, data = cat_train, deg_free = 6)
+```
+
+```{r cat-longitude}
+#| fig-align: 'center'
+smooth_ph_linear_pred(event_time ~ longitude, data = cat_train, deg_free = 5)
+```
 
 <hr size="5">
 
