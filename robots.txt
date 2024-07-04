@@ -1,1 +1,1 @@
-Sitemap: https://workshops.tidymodels.org/sitemap.xml
+Sitemap: https://hfrick.github.io/tidymodels-survival-workshop/sitemap.xml

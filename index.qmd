@@ -46,8 +46,6 @@ If you're a Windows user and encounter an error message during installation noti
 
 These slides are designed to use with live teaching and are published for workshop participants' convenience. There are not meant as standalone learning materials. For that, we recommend [tidymodels.org](https://www.tidymodels.org/start/) and [*Tidy Modeling with R*](https://www.tmwr.org/).
 
-### Introduction to tidymodels
-
 -   01: [Introduction](slides/intro-01-introduction.html){target="_blank"}
 -   02: [Your data budget](slides/intro-02-data-budget.html){target="_blank"}
 -   03: [What makes a model?](slides/intro-03-what-makes-a-model.html){target="_blank"}
@@ -55,21 +53,15 @@ These slides are designed to use with live teaching and are published for worksh
 -   05: [Tuning models](slides/intro-05-tuning-models.html){target="_blank"}
 -   06: [Wrapping up](slides/intro-06-wrapping-up.html){target="_blank"}
 
-### Extra content (time permitting)
-
--   [Intro: Time-based splitting](slides/intro-extra-time-splits.html){target="_blank"}
--   [Intro: Using workflowsets](slides/intro-extra-workflowsets.html){target="_blank"}
--   [Intro: Using recipes](slides/intro-extra-recipes.html){target="_blank"}
-
 There's also a page for [slide annotations](slides/annotations.html){target="_blank"}; these are extra notes for selected slides.
 
 ## Code
 
-Quarto files for working along [are available on GitHub](https://github.com/tidymodels/workshops/tree/main/classwork). (Don't worry if you haven't used Quarto before; it will feel familiar to R Markdown users.)
+Quarto files for working along [are available on GitHub](https://github.com/hfrick/tidymodels-survival-workshop/tree/main/classwork). (Don't worry if you haven't used Quarto before; it will feel familiar to R Markdown users.)
 
 ## Acknowledgments {.appendix}
 
-This website, including the slides, is made with [Quarto](https://quarto.org/). Please [submit an issue](https://github.com/tidymodels/workshops/issues) on the GitHub repo for this workshop if you find something that could be fixed or improved.
+This website, including the slides, is made with [Quarto](https://quarto.org/). Please [submit an issue](https://github.com/hfrick/tidymodels-survival-workshop/issues) on the GitHub repo for this workshop if you find something that could be fixed or improved.
 
 ## Reuse and licensing {.appendix}
 

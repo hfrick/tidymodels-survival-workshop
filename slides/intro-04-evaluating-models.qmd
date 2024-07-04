@@ -4,7 +4,7 @@ subtitle: "Survival analysis with tidymodels"
 format:
   revealjs: 
     slide-number: true
-    footer: <https://workshops.tidymodels.org>
+    footer: <https://hfrick.github.io/tidymodels-survival-workshop>
     include-before-body: header.html
     include-after-body: footer-annotations.html
     theme: [default, tidymodels.scss]
@@ -89,7 +89,7 @@ save(demo_cat_preds, file = "RData/demo_cat_preds.RData")
 save(rkm_data, file = "RData/rkm_data.RData")
 ```
 
-## Concordance
+## Concordance {.annotation} 
 
 The concordance statistic (“c-index”, [Harrell _et al_ (1996)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22multivariable+prognostic+models%3A+issues+in+developing+models%2C+evaluating+assumptions+and+adequacy%2C+and+measuring+and+reducing+errors%22&btnG=)) is a metric that quantifies that the rank order of the times is consistent with some model score (e.g., a survival probability). 
 

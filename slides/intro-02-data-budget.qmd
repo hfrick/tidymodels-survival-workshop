@@ -4,7 +4,7 @@ subtitle: "Survival analysis with tidymodels"
 format:
   revealjs: 
     slide-number: true
-    footer: <https://workshops.tidymodels.org>
+    footer: <https://hfrick.github.io/tidymodels-survival-workshop>
     include-before-body: header.html
     include-after-body: footer-annotations.html
     theme: [default, tidymodels.scss]
@@ -258,8 +258,7 @@ cat_train %>%
 smooth_ph_linear_pred(event_time ~ latitude, data = cat_adoption, deg_free = 6)
 ```
 `smooth_ph_linear_pred()` a custom function, available  
-in `slides/setup.R`.
-<!-- FIXME: make that a link once the repo is final -->
+in [`slides/setup.R`](https://github.com/hfrick/tidymodels-survival-workshop/blob/main/slides/setup.R).
 
 ::: notes
 latitude ~ "y-axis"

@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-04-evaluating-models.html</loc>
-    <lastmod>2024-07-03T20:58:32.768Z</lastmod>
-  </url>
-  <url>
-    <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-03-what-makes-a-model.html</loc>
-    <lastmod>2024-07-03T20:59:55.456Z</lastmod>
-  </url>
-  <url>
-    <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-02-data-budget.html</loc>
-    <lastmod>2024-07-03T21:00:46.351Z</lastmod>
-  </url>
-  <url>
-    <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-05-tuning-models.html</loc>
-    <lastmod>2024-06-29T16:00:03.991Z</lastmod>
+    <loc>https://hfrick.github.io/tidymodels-survival-workshop/index.html</loc>
+    <lastmod>2024-07-03T22:30:41.394Z</lastmod>
   </url>
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-06-wrapping-up.html</loc>
-    <lastmod>2024-06-29T16:06:50.242Z</lastmod>
+    <lastmod>2024-07-03T22:30:06.823Z</lastmod>
+  </url>
+  <url>
+    <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-04-evaluating-models.html</loc>
+    <lastmod>2024-07-03T22:29:10.382Z</lastmod>
+  </url>
+  <url>
+    <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-02-data-budget.html</loc>
+    <lastmod>2024-07-03T22:28:44.124Z</lastmod>
   </url>
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/annotations.html</loc>
-    <lastmod>2024-07-03T20:59:27.885Z</lastmod>
+    <lastmod>2024-07-03T22:30:29.287Z</lastmod>
   </url>
   <url>
     <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-01-introduction.html</loc>
-    <lastmod>2024-07-03T20:58:02.634Z</lastmod>
+    <lastmod>2024-07-03T22:27:21.818Z</lastmod>
   </url>
   <url>
-    <loc>https://hfrick.github.io/tidymodels-survival-workshop/index.html</loc>
-    <lastmod>2024-07-03T20:58:02.633Z</lastmod>
+    <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-03-what-makes-a-model.html</loc>
+    <lastmod>2024-07-03T22:28:51.721Z</lastmod>
+  </url>
+  <url>
+    <loc>https://hfrick.github.io/tidymodels-survival-workshop/slides/intro-05-tuning-models.html</loc>
+    <lastmod>2024-07-03T22:29:41.682Z</lastmod>
   </url>
 </urlset>
