@@ -606,7 +606,7 @@
     "href": "slides/intro-01-introduction.html#asking-for-help",
     "title": "1 - Introduction",
     "section": "Asking for help",
-    "text": "Asking for help\n. . .\n🟪 “I’m stuck and need help!”\n. . .\n🟩 “I finished the exercise”"
+    "text": "Asking for help\n\n🟪 “I’m stuck and need help!”\n\n\n🟩 “I finished the exercise”"
   },
   {
     "objectID": "slides/intro-01-introduction.html#section-2",
@@ -662,7 +662,7 @@
     "href": "slides/intro-01-introduction.html#what-is-tidymodels",
     "title": "1 - Introduction",
     "section": "What is tidymodels? ",
-    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Use suppressPackageStartupMessages() to eliminate package startup messages"
+    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Use tidymodels_prefer() to resolve common conflicts."
   },
   {
     "objectID": "slides/intro-01-introduction.html#the-whole-game",
@@ -725,7 +725,7 @@
     "href": "slides/intro-01-introduction.html#lets-install-some-packages",
     "title": "1 - Introduction",
     "section": "Let’s install some packages",
-    "text": "Let’s install some packages\nIf you are using your own laptop instead of Posit Cloud:\n\n# Install the packages for the workshop\npkgs &lt;- \n  c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)"
+    "text": "Let’s install some packages\nIf you are using your own laptop instead of Posit Cloud:\n\n# Install the packages for the workshop\npkgs &lt;- c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)\n\n\n Or log in to Posit Cloud:\nTODO-ADD-LATER"
   },
   {
     "objectID": "slides/intro-01-introduction.html#our-versions",

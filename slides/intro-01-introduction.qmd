@@ -83,7 +83,7 @@ Wi-Fi password
 
 Many thanks to Davis Vaughan, Julia Silge, David Robinson, Julie Jung, Alison Hill, and Desirée De Leon for their role in creating these materials!
 
-## Asking for help {visibility="hidden"}
+## Asking for help
 
 . . .
 
@@ -113,53 +113,6 @@ Many thanks to Davis Vaughan, Julia Silge, David Robinson, Julie Jung, Alison Hi
 <br></br>
 
 ### <i class="fa fa-cloud"></i> Log in to Posit Cloud (free): TODO-ADD-LATER
-
-## What is machine learning?
-
-![](https://imgs.xkcd.com/comics/machine_learning.png){fig-align="center"}
-
-::: footer
-<https://xkcd.com/1838/>
-:::
-
-## What is machine learning?
-
-![](images/what_is_ml.jpg){fig-align="center"}
-
-::: footer
-Illustration credit: <https://vas3k.com/blog/machine_learning/>
-:::
-
-## What is machine learning?
-
-![](images/ml_illustration.jpg){fig-align="center"}
-
-::: footer
-Illustration credit: <https://vas3k.com/blog/machine_learning/>
-:::
-
-## Your turn {transition="slide-in"}
-
-![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
-
-. . .
-
-*How are statistics and machine learning related?*
-
-*How are they similar? Different?*
-
-```{r ex-statistics-vs-ml}
-#| echo: false
-countdown::countdown(minutes = 3, id = "statistics-vs-ml")
-```
-
-::: notes
-the "two cultures"
-
-model first vs. data first
-
-inference vs. prediction
-:::
 
 ## What is tidymodels? `r hexes("tidymodels")`
 
@@ -244,15 +197,17 @@ If you are using your own laptop instead of Posit Cloud:
 #| eval: false
 
 # Install the packages for the workshop
-pkgs <- 
-  c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels")
+pkgs <- c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels")
 
 install.packages(pkgs)
 ```
 
-. . .
-
 <br></br>
+
+### <i class="fa fa-cloud"></i> Or log in to Posit Cloud:
+
+TODO-ADD-LATER
+
 
 ## Our versions
 
