@@ -81,7 +81,7 @@
     "href": "slides/intro-04-evaluating-models.html",
     "title": "4 - Evaluating models",
     "section": "",
-    "text": "Let’s fit another PH and add some nonlinear terms via splines:\n\n# First add all of the predictors...\nf &lt;- event_time ~ . -\n  # Then remove geocoded columns\n  longitude - latitude +\n  # Then add them back as spline terms\n  ns(longitude, df = 5) + ns(latitude, df = 5)\n\ncat_wflow &lt;- workflow(f, proportional_hazards())\n\ncph_spline_fit &lt;- cat_wflow %&gt;%\n  fit(data = cat_train)"
+    "text": "#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Use tidymodels_prefer() to resolve common conflicts.\n#&gt; Loading required package: survival"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#an-example-model-fit",
@@ -529,7 +529,7 @@
     "href": "slides/annotations.html#an-example-model-fit",
     "title": "Annotations",
     "section": "An Example Model Fit",
-    "text": "An Example Model Fit\nIn regards to the weird formula assembly: this will be so much easier once we introduce recipes."
+    "text": "An Example Model Fit\nFirst, in regards to the weird formula assembly: this is a lot easier if we use a recipe.\nSecondly, a popular feature of the proportional hazards model is that it can use stratification; in this case, a different baseline hazard is created for each level of some factor variable. When using the survival package, you can use a “special” function to add this to the model:\ncph_strata_fit &lt;- \n  proportional_hazards() %&gt;%\n  fit(event_time ~ latitude + longitude + strata(sex), data = cat_train)\nThe glmnet package can also use stratification, but its syntax is unconventional. tidymodels allows you to use the same syntax from the survival package to compute this model:\nglmn_strata_fit &lt;- \n  proportional_hazards(penalty = 0.01) %&gt;%\n  set_engine(\"glmnet\") %&gt;% \n  fit(event_time ~ latitude + longitude + strata(sex), data = cat_train)\nThis is a little model complex when using a workflow.\nIn R, the model formula does various things: it specifies statistical details (e.g., random effects), data transformations (via in-line functions), encodes data as dummy variables, and so on.\nWhen using add_formula() with a workflow, that formula exclusively encodes data and is not directly executed by the model function. This means that if you have a formula with special inline functions, you must add the formula another way. This can affect adding a strata variable for a censored regression model, a smooth for a generalized additive model, random effects for the lme4 package, etc.\nSuppose we have a factor to use as strata (such as sex in our cat data). Since that is a factor, and survival::cph() needs numeric data, add_formula() will convert sex to a dummy variable. That would prevent you from using it in strata().\nFor workflows with special formulas, we suggest using add_variables() instead of add_formula(). To use the formula intended for the underlying model, there is an option to add_model() to do so. For example:\nworkflow() %&gt;% \n  add_variables(\n    # Adds raw variables with tidyr-like specifications. These will\n    # remain in the data as-is.\n    outcomes = c(event_time), \n    predictors = c(latitude, longitude, sex)\n  ) %&gt;% \n  add_model(\n    proportional_hazards(),\n    # Your model-specific formula goes here: \n    formula = event_time ~ latitude + longitude + strata(sex)\n  ) \nThere are more examples in Section 7.4.1 of Tidy Models with R."
   },
   {
     "objectID": "slides/annotations.html#converting-to-events",
@@ -662,7 +662,7 @@
     "href": "slides/intro-01-introduction.html#what-is-tidymodels",
     "title": "1 - Introduction",
     "section": "What is tidymodels? ",
-    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Dig deeper into tidy modeling with R at https://www.tmwr.org"
+    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Use suppressPackageStartupMessages() to eliminate package startup messages"
   },
   {
     "objectID": "slides/intro-01-introduction.html#the-whole-game",
@@ -977,7 +977,7 @@
     "href": "slides/intro-05-tuning-models.html",
     "title": "5 - Tuning models",
     "section": "",
-    "text": "#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Use suppressPackageStartupMessages() to eliminate package startup messages\n#&gt; Loading required package: survival"
+    "text": "#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Search for functions across packages at https://www.tidymodels.org/find/\n#&gt; Loading required package: survival"
   },
   {
     "objectID": "slides/intro-05-tuning-models.html#tuning-parameters",
@@ -1034,5 +1034,12 @@
     "title": "5 - Tuning models",
     "section": "Your turn",
     "text": "Your turn\n\nModify your model workflow to tune one or more parameters.\nUse grid search to find the best parameter(s).\n\n\n\n−+\n05:00\n\n\n\n\n\n\nhttps://hfrick.github.io/tidymodels-survival-workshop"
+  },
+  {
+    "objectID": "slides/annotations.html#concordance",
+    "href": "slides/annotations.html#concordance",
+    "title": "Annotations",
+    "section": "Concordance",
+    "text": "Concordance\nSince risk regression and parametric survival models are modeling different characteristics (e.g. relative hazard versus event time), their linear predictors will be going in opposite directions.\nFor example, for parametric models, the linear predictor increases with time. For proportional hazards models the linear predictor decreases with time (since hazard is increasing). As such, the linear predictors for these two quantities will have opposite signs.\ntidymodels does not treat different models differently when computing performance metrics. To standardize across model types, the default for proportional hazards models is to have increasing values with time. As a result, the sign of the linear predictor will be the opposite of the value produced by the predict() method in the engine package.\nThis behavior can be changed by using the increasing argument when calling predict() on a parsnip model object."
   }
 ]

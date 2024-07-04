@@ -208,6 +208,7 @@ window.Quarto = {
   <li><a href="#evaluating-models" id="toc-evaluating-models" class="nav-link" data-scroll-target="#evaluating-models">04 - Evaluating Models</a>
   <ul class="collapse">
   <li><a href="#an-example-model-fit" id="toc-an-example-model-fit" class="nav-link" data-scroll-target="#an-example-model-fit">An Example Model Fit</a></li>
+  <li><a href="#concordance" id="toc-concordance" class="nav-link" data-scroll-target="#concordance">Concordance</a></li>
   <li><a href="#converting-to-events" id="toc-converting-to-events" class="nav-link" data-scroll-target="#converting-to-events">Converting to Events</a></li>
   <li><a href="#dealing-with-missing-outcome-data" id="toc-dealing-with-missing-outcome-data" class="nav-link" data-scroll-target="#dealing-with-missing-outcome-data">Dealing with Missing Outcome Data</a></li>
   <li><a href="#brier-scores-over-evaluation-time" id="toc-brier-scores-over-evaluation-time" class="nav-link" data-scroll-target="#brier-scores-over-evaluation-time">Brier Scores Over Evaluation Time</a></li>
@@ -317,7 +318,41 @@ window.Quarto = {
 <h1>04 - Evaluating Models</h1>
 <section id="an-example-model-fit" class="level2">
 <h2 class="anchored" data-anchor-id="an-example-model-fit">An Example Model Fit</h2>
-<p>In regards to the weird formula assembly: this will be so much easier once we introduce recipes.</p>
+<p>First, in regards to the weird formula assembly: this is a lot easier if we use a <a href="https://workshops.tidymodels.org/slides/advanced-02-feature-engineering.html">recipe</a>.</p>
+<p>Secondly, a popular feature of the proportional hazards model is that it can use stratification; in this case, a different baseline hazard is created for each level of some factor variable. When using the survival package, you can use a “special” function to add this to the model:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cph_strata_fit <span class="ot">&lt;-</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">proportional_hazards</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(event_time <span class="sc">~</span> latitude <span class="sc">+</span> longitude <span class="sc">+</span> <span class="fu">strata</span>(sex), <span class="at">data =</span> cat_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The glmnet package can also use stratification, but its syntax is unconventional. tidymodels allows you to use the same syntax from the survival package to compute this model:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>glmn_strata_fit <span class="ot">&lt;-</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">proportional_hazards</span>(<span class="at">penalty =</span> <span class="fl">0.01</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"glmnet"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(event_time <span class="sc">~</span> latitude <span class="sc">+</span> longitude <span class="sc">+</span> <span class="fu">strata</span>(sex), <span class="at">data =</span> cat_train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This is a little model complex when using a workflow.</p>
+<p>In R, the model formula does <a href="https://www.tmwr.org/workflows#workflow-encoding">various things</a>: it specifies statistical details (e.g., random effects), data transformations (via in-line functions), encodes data as dummy variables, and so on.</p>
+<p>When using <code>add_formula()</code> with a workflow, that formula exclusively encodes data and is <em>not</em> directly executed by the model function. This means that if you have a formula with special inline functions, you must add the formula another way. This can affect adding a strata variable for a censored regression model, a smooth for a generalized additive model, random effects for the lme4 package, etc.</p>
+<p>Suppose we have a factor to use as strata (such as <code>sex</code> in our cat data). Since that is a factor, and <code>survival::cph()</code> needs numeric data, <code>add_formula()</code> will convert <code>sex</code> to a dummy variable. That would prevent you from using it in <code>strata()</code>.</p>
+<p>For workflows with special formulas, <a href="https://www.tmwr.org/workflows#adding-raw-variables-to-the-workflow">we suggest</a> using <code>add_variables()</code> instead of <code>add_formula()</code>. To use the formula intended for the underlying model, there is an option to <code>add_model()</code> to do so. For example:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_variables</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Adds raw variables with tidyr-like specifications. These will</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remain in the data as-is.</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">outcomes =</span> <span class="fu">c</span>(event_time), </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">predictors =</span> <span class="fu">c</span>(latitude, longitude, sex)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">proportional_hazards</span>(),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Your model-specific formula goes here: </span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">formula =</span> event_time <span class="sc">~</span> latitude <span class="sc">+</span> longitude <span class="sc">+</span> <span class="fu">strata</span>(sex)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  ) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>There are more examples in <a href="https://www.tmwr.org/workflows#special-model-formulas">Section 7.4.1</a> of <em>Tidy Models with R</em>.</p>
+</section>
+<section id="concordance" class="level2">
+<h2 class="anchored" data-anchor-id="concordance">Concordance</h2>
+<p>Since risk regression and parametric survival models are modeling different characteristics (e.g.&nbsp;relative hazard versus event time), their linear predictors will be going in opposite directions.</p>
+<p>For example, for parametric models, the linear predictor <em>increases with time</em>. For proportional hazards models the linear predictor <em>decreases with time</em> (since hazard is increasing). As such, the linear predictors for these two quantities will have opposite signs.</p>
+<p>tidymodels does not treat different models differently when computing performance metrics. To standardize across model types, the default for proportional hazards models is to have <em>increasing values with time</em>. As a result, the sign of the linear predictor will be the opposite of the value produced by the <code>predict()</code> method in the engine package.</p>
+<p>This behavior can be changed by using the <code>increasing</code> argument when calling <code>predict()</code> on a parsnip model object.</p>
 </section>
 <section id="converting-to-events" class="level2">
 <h2 class="anchored" data-anchor-id="converting-to-events">Converting to Events</h2>
@@ -387,32 +422,32 @@ t_i  - \epsilon &amp;  \text{if }t_i \le \tau \\ \notag
 <p>It’s reasonable to wonder about the uncertainty in these statistics, especially for a sample size of 50. When we get to resampling (in a bit), we will have standard errors of statistics that we can use to make confidence intervals.</p>
 <p>We can use the <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=Bootstrap+confidence+intervals+DiCiccio&amp;btnG=">bootstrap method to compute confidence intervals</a> for a single data set (e.g., a validation set). A tidymodels function called <code>int_pctl()</code> is available for this purpose (<a href="https://www.tidymodels.org/learn/#category=bootstrapping">more information</a>). This will be able to work directly with objects resulting form resampling or tuning functions (again, in a bit) but for a single data set, we’ll need to create a wrapper that computes the statistic for different bootstrap samples.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>brier_wrapper <span class="ot">&lt;-</span> <span class="cf">function</span>(split) {</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  dat <span class="ot">&lt;-</span> <span class="fu">analysis</span>(split)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">brier_survival</span>(dat, <span class="at">truth =</span> event_time, .pred) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Puts the data into a 'tidy' format:</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="at">term =</span> .eval_time, <span class="at">estimate =</span> .estimate)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>brier_wrapper <span class="ot">&lt;-</span> <span class="cf">function</span>(split) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  dat <span class="ot">&lt;-</span> <span class="fu">analysis</span>(split)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">brier_survival</span>(dat, <span class="at">truth =</span> event_time, .pred) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Puts the data into a 'tidy' format:</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="at">term =</span> .eval_time, <span class="at">estimate =</span> .estimate)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We execute that on every bootstrap sample and then use <code>int_pctl()</code> on the results.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">482</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>brier_ci <span class="ot">&lt;-</span> </span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  demo_cat_preds <span class="sc">%&gt;%</span> </span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bootstraps</span>(<span class="at">times =</span> <span class="dv">2000</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">stats =</span> <span class="fu">map</span>(splits, brier_wrapper)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">int_pctl</span>(stats, <span class="at">alpha =</span> <span class="fl">0.10</span>) <span class="co"># 90% intervals</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">482</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>brier_ci <span class="ot">&lt;-</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  demo_cat_preds <span class="sc">%&gt;%</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bootstraps</span>(<span class="at">times =</span> <span class="dv">2000</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">stats =</span> <span class="fu">map</span>(splits, brier_wrapper)) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">int_pctl</span>(stats, <span class="at">alpha =</span> <span class="fl">0.10</span>) <span class="co"># 90% intervals</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Yep, statistics from 50 cats has a lot of variation!</p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>brier_ci <span class="sc">%&gt;%</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(term, .estimate)) <span class="sc">+</span> </span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">ymin =</span> .lower, <span class="at">ymax =</span> .upper), </span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="dv">1</span> <span class="sc">/</span> <span class="dv">10</span>, </span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Evaluation time"</span>, <span class="at">y =</span> <span class="st">"Brier score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>brier_ci <span class="sc">%&gt;%</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(term, .estimate)) <span class="sc">+</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">ymin =</span> .lower, <span class="at">ymax =</span> .upper), </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="dv">1</span> <span class="sc">/</span> <span class="dv">10</span>, </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Evaluation time"</span>, <span class="at">y =</span> <span class="st">"Brier score"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
