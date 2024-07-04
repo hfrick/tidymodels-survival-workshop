@@ -236,11 +236,12 @@ survfit(event_time ~ gray, data = cat_train) %>% ggsurvfit()
 
 ```{r cat-leaflet}
 #| fig-align: 'center'
+#| output-location: column
 library(leaflet)
+
 cat_train %>% 
   leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%  
-  addCircles(lng = ~ longitude, lat = ~ latitude)
 ```
 
 ## 
@@ -261,6 +262,8 @@ latitude ~ "y-axis"
 ```{r cat-longitude}
 #| fig-align: 'center'
 smooth_ph_linear_pred(event_time ~ longitude, data = cat_adoption, deg_free = 5)
+  addCircles(lng = ~ longitude, 
+             lat = ~ latitude)
 ```
 
 ::: notes
