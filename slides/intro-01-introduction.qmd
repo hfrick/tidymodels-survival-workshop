@@ -244,15 +244,17 @@ If you are using your own laptop instead of Posit Cloud:
 #| eval: false
 
 # Install the packages for the workshop
-pkgs <- 
-  c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels")
+pkgs <- c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels")
 
 install.packages(pkgs)
 ```
 
-. . .
-
 <br></br>
+
+### <i class="fa fa-cloud"></i> Or log in to Posit Cloud:
+
+TODO-ADD-LATER
+
 
 ## Our versions
 
