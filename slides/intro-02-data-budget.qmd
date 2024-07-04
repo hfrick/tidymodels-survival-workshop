@@ -198,7 +198,9 @@ cat_test <- testing(cat_split)
 
 <br>
 
-*Extension/Challenge: How would you visualize the relationship between the outcome and longitude and latitude, respectively?*
+*Extension/Challenge:  
+How would you visualize the relationship between the outcome  
+and longitude and latitude, respectively?*
 
 ```{r ex-explore-cat}
 #| echo: false
