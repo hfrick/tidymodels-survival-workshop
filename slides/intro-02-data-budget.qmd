@@ -86,9 +86,9 @@ For machine learning, we typically split data into training and test sets:
 
 Do not 🚫 use the test set during training.
 
-# The more data<br>we spend 🤑<br><br>the better estimates<br>we'll get.
+# The more data<br>we spend 🤑<br><br>the better estimates<br>we'll get. {visibility="hidden"}
 
-## Data splitting and spending
+## Data splitting and spending {visibility="hidden"}
 
 -   Spending too much data in **training** prevents us from computing a good assessment of predictive **performance**.
 
