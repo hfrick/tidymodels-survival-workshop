@@ -148,15 +148,13 @@ There are `r nrow(cat_test)` rows and `r ncol(cat_test)` columns in the test set
 
 *Split your data so 20% is held out for the test set.*
 
-*Try out different values in `set.seed()` to see how the results change.*
-
 <br>
 
 *Extension/Challenge: This is a simple random split. Which other types of splits can you think of and does rsample offer corresponding functions?*
 
 ```{r ex-try-splitting}
 #| echo: false
-countdown::countdown(minutes = 5, id = "try-splitting")
+countdown::countdown(minutes = 3, id = "try-splitting")
 ```
 
 ## Data splitting and spending `r hexes("rsample")`
