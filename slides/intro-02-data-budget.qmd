@@ -232,7 +232,7 @@ survfit(event_time ~ brown_tabby, data = cat_train) %>% ggsurvfit()
 survfit(event_time ~ gray, data = cat_train) %>% ggsurvfit()
 ```
 
-## 
+## Location {.annotation}
 
 ```{r cat-leaflet}
 #| fig-align: 'center'
@@ -242,33 +242,9 @@ library(leaflet)
 cat_train %>% 
   leaflet() %>%
   addProviderTiles("CartoDB.Positron") %>%  
-```
-
-## 
-
-```{r cat-latitude}
-#| fig-align: 'center'
-smooth_ph_linear_pred(event_time ~ latitude, data = cat_adoption, deg_free = 6)
-```
-`smooth_ph_linear_pred()` a custom function, available  
-in [`slides/setup.R`](https://github.com/hfrick/tidymodels-survival-workshop/blob/main/slides/setup.R).
-
-::: notes
-latitude ~ "y-axis"
-:::
-
-## 
-
-```{r cat-longitude}
-#| fig-align: 'center'
-smooth_ph_linear_pred(event_time ~ longitude, data = cat_adoption, deg_free = 5)
   addCircles(lng = ~ longitude, 
              lat = ~ latitude)
 ```
-
-::: notes
-longitude ~ "x-axis"
-:::
 
 ## The whole game - status update
 
