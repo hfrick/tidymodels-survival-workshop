@@ -134,14 +134,6 @@ cat_test <- testing(cat_split)
 cat_train
 ```
 
-## The test set `r hexes("rsample")`
-
-🙈
-
-. . .
-
-There are `r nrow(cat_test)` rows and `r ncol(cat_test)` columns in the test set.
-
 ## Your turn {transition="slide-in"}
 
 ![](images/parsnip-flagger.jpg){.absolute top="0" right="0" width="150" height="150"}
