@@ -432,7 +432,7 @@ Explain that PCA that is a preprocessor / dimensionality reduction, used to deco
 :::
 
 
-## What is wrong with this? {.annotation}
+## What is wrong with this? {.annotation} {visibility="hidden"}
 
 ```{r bad-workflow}
 #| echo: false
@@ -441,7 +441,7 @@ Explain that PCA that is a preprocessor / dimensionality reduction, used to deco
 knitr::include_graphics("images/bad_workflow.png")
 ```
 
-## Why a `workflow()`? `r hexes("workflows")`
+## Why a `workflow()`? `r hexes("workflows")` {visibility="hidden"}
 
 . . .
 
@@ -467,7 +467,7 @@ Two ways workflows handle levels better than base R:
 -   Restores missing levels that were present at fit time, but happen to be missing at prediction time (like, if your "new" data just doesn't have an instance of that level)
 :::
 
-## A model workflow `r hexes("censored", "parsnip", "workflows")`
+## Fit a model spec `r hexes("censored", "parsnip")`
 
 ```{r tree-spec}
 tree_spec <-
@@ -478,7 +478,7 @@ tree_spec %>%
   fit(event_time ~ ., data = cat_train) 
 ```
 
-## A model workflow `r hexes("censored", "parsnip", "workflows")`
+## Fit a model workflow `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow}
 tree_spec <-
@@ -491,7 +491,7 @@ workflow() %>%
   fit(data = cat_train) 
 ```
 
-## A model workflow `r hexes("censored", "parsnip", "workflows")`
+## Fit a model workflow `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-fit}
 tree_spec <-
