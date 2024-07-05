@@ -197,7 +197,7 @@ All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 
 ```{r ex-explore-tree-spec}
 #| echo: false
-countdown::countdown(minutes = 5, id = "explore-tree-spec")
+countdown::countdown(minutes = 3, id = "explore-tree-spec")
 ```
 
 
@@ -237,11 +237,38 @@ fit(proportional_hazards(), event_time ~ 1, data = cat_train) %>%
 
 ::: columns
 ::: {.column width="50%"}
-```{r plot-ph}
+```{r plot-baseline-2}
 #| echo: false
 #| fig.width: 8
 #| fig.height: 7
 
+fit(proportional_hazards(), event_time ~ 1, data = cat_train) %>% 
+  augment(new_data = cat_new[1,], eval_time = seq(0, 360, 1)) %>% 
+  tidyr::unnest(cols = .pred) %>% 
+  ggplot() +
+  geom_step(aes(.eval_time, .pred_survival)) +
+  labs(x = "Time", y = "Probability of not adopted") +
+  theme_bw(base_size = 18)
+```
+:::
+
+::: {.column width="50%"}
+
+-   Hazard modeled via a baseline hazard and a linear combination of predictors:
+
+$\lambda(t | x_i) = \lambda_0(t) \cdot \exp (x_i^T \beta)$
+
+:::
+:::
+
+## Proportional hazards model
+
+::: columns
+::: {.column width="50%"}
+```{r plot-ph}
+#| echo: false
+#| fig.width: 8
+#| fig.height: 7
 p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_train) %>% 
   augment(new_data = cat_new, eval_time = seq(0, 360, 1)) %>% 
   mutate(intake_condition = factor(intake_condition, levels = c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))) %>% 
@@ -252,23 +279,6 @@ p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_tr
   labs(x = "Time", y = "Probability of not adopted") +
   theme_bw(base_size = 18) +
   theme(legend.position = "bottom")
-p_ph
-```
-:::
-
-::: {.column width="50%"}
-:::
-:::
-
-## Proportional hazards model
-
-::: columns
-::: {.column width="50%"}
-```{r plot-ph-2}
-#| echo: false
-#| fig.width: 8
-#| fig.height: 7
-
 p_ph
 ```
 :::
@@ -313,29 +323,6 @@ fit_rpart %>%
 :::
 
 ::: {.column width="50%"}
-:::
-:::
-
-## Decision tree
-
-::: columns
-::: {.column width="50%"}
-```{r plot-tree-fit-2}
-#| echo: false
-#| fig.width: 6
-#| fig.height: 5
-#| fig-align: center
-
-library(partykit)
-fit_pec <- fit_dt %>% extract_fit_engine()
-fit_rpart <- fit_pec$rpart
-fit_rpart %>% 
-  as.party() %>% 
-  plot(ep_args = list(justmin = 15, abbreviate = TRUE))
-```
-:::
-
-::: {.column width="40%"}
 -   Series of splits or if/then statements based on predictors
 
 -   First the tree *grows* until some condition is met (maximum depth, no more data)
@@ -432,7 +419,7 @@ Explain that PCA that is a preprocessor / dimensionality reduction, used to deco
 :::
 
 
-## What is wrong with this? {.annotation}
+## What is wrong with this? {.annotation} {visibility="hidden"}
 
 ```{r bad-workflow}
 #| echo: false
@@ -441,7 +428,7 @@ Explain that PCA that is a preprocessor / dimensionality reduction, used to deco
 knitr::include_graphics("images/bad_workflow.png")
 ```
 
-## Why a `workflow()`? `r hexes("workflows")`
+## Why a `workflow()`? `r hexes("workflows")` {visibility="hidden"}
 
 . . .
 
@@ -467,7 +454,7 @@ Two ways workflows handle levels better than base R:
 -   Restores missing levels that were present at fit time, but happen to be missing at prediction time (like, if your "new" data just doesn't have an instance of that level)
 :::
 
-## A model workflow `r hexes("censored", "parsnip", "workflows")`
+## Fit a model spec `r hexes("censored", "parsnip")`
 
 ```{r tree-spec}
 tree_spec <-
@@ -478,7 +465,7 @@ tree_spec %>%
   fit(event_time ~ ., data = cat_train) 
 ```
 
-## A model workflow `r hexes("censored", "parsnip", "workflows")`
+## Fit a model workflow `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow}
 tree_spec <-
@@ -491,14 +478,15 @@ workflow() %>%
   fit(data = cat_train) 
 ```
 
-## A model workflow `r hexes("censored", "parsnip", "workflows")`
+## Fit a model workflow `r hexes("censored", "parsnip", "workflows")`
 
 ```{r tree-wflow-fit}
 tree_spec <-
   decision_tree() %>% 
   set_mode("censored regression")
 
-workflow(event_time ~ ., tree_spec) %>% 
+tree_fit <-
+  workflow(event_time ~ ., tree_spec) %>% 
   fit(data = cat_train) 
 ```
 
@@ -514,21 +502,7 @@ workflow(event_time ~ ., tree_spec) %>%
 
 ```{r ex-explore-tree-workflow}
 #| echo: false
-countdown::countdown(minutes = 5, id = "explore-tree-workflow")
-```
-
-## Predict with your model `r hexes("censored", "parsnip", "workflows")`
-
-How do you use your new `tree_fit` model?
-
-```{r tree-wflow-fit-2}
-tree_spec <-
-  decision_tree() %>% 
-  set_mode("censored regression")
-
-tree_fit <-
-  workflow(event_time ~ ., tree_spec) %>% 
-  fit(data = cat_train) 
+countdown::countdown(minutes = 3, id = "explore-tree-workflow")
 ```
 
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
@@ -588,7 +562,10 @@ preds %>%
 
 *Run:*
 
-`augment(tree_fit, new_data = demo_cats, eval_time = seq(0, 365, by = 5))`
+`augment(tree_fit, new_data = demo_cats,`  
+         `eval_time = seq(0, 365, by = 5))`
+
+<br>
 
 *What do you get?*
 

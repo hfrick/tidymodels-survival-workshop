@@ -809,7 +809,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#your-turn-1",
     "title": "3 - What makes a model?",
     "section": "Your turn",
-    "text": "Your turn\n\nWrite the specification for a proportional hazards model.\nChoose your engine.\n\nAll available models are listed at https://www.tidymodels.org/find/parsnip/\n\n\nExtension/Challenge: Edit this code to use a different model. For example, try using a conditional inference tree as implemented in the partykit package - or try an entirely different model type!\n\n\n\n−+\n05:00"
+    "text": "Your turn\n\nWrite the specification for a proportional hazards model.\nChoose your engine.\n\nAll available models are listed at https://www.tidymodels.org/find/parsnip/\n\n\nExtension/Challenge: Edit this code to use a different model. For example, try using a conditional inference tree as implemented in the partykit package - or try an entirely different model type!\n\n\n\n−+\n03:00"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#models-well-be-using-today",
@@ -830,7 +830,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#proportional-hazards-model-1",
     "title": "3 - What makes a model?",
     "section": "Proportional hazards model",
-    "text": "Proportional hazards model"
+    "text": "Proportional hazards model\n\n\n\n\n\n\n\n\n\n\n\n\n\nHazard modeled via a baseline hazard and a linear combination of predictors:\n\n\\(\\lambda(t | x_i) = \\lambda_0(t) \\cdot \\exp (x_i^T \\beta)\\)"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#proportional-hazards-model-2",
@@ -844,14 +844,14 @@
     "href": "slides/intro-03-what-makes-a-model.html#decision-tree",
     "title": "3 - What makes a model?",
     "section": "Decision tree",
-    "text": "Decision tree"
+    "text": "Decision tree\n\n\n\n\n\n\n\n\n\n\n\n\n\nSeries of splits or if/then statements based on predictors\nFirst the tree grows until some condition is met (maximum depth, no more data)\nThen the tree is pruned to reduce its complexity"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#decision-tree-1",
     "href": "slides/intro-03-what-makes-a-model.html#decision-tree-1",
     "title": "3 - What makes a model?",
     "section": "Decision tree",
-    "text": "Decision tree\n\n\n\n\n\n\n\n\n\n\n\n\n\nSeries of splits or if/then statements based on predictors\nFirst the tree grows until some condition is met (maximum depth, no more data)\nThen the tree is pruned to reduce its complexity"
+    "text": "Decision tree"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#decision-tree-2",
@@ -907,49 +907,49 @@
     "href": "slides/intro-03-what-makes-a-model.html#a-model-workflow-3",
     "title": "3 - What makes a model?",
     "section": "A model workflow   ",
-    "text": "A model workflow   \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\nworkflow(event_time ~ ., tree_spec) %&gt;% \n  fit(data = cat_train) \n#&gt; ══ Workflow [trained] ════════════════════════════════════════════════\n#&gt; Preprocessor: Formula\n#&gt; Model: decision_tree()\n#&gt; \n#&gt; ── Preprocessor ──────────────────────────────────────────────────────\n#&gt; event_time ~ .\n#&gt; \n#&gt; ── Model ─────────────────────────────────────────────────────────────\n#&gt; $rpart\n#&gt; n= 1765 \n#&gt; \n#&gt; node), split, n, deviance, yval\n#&gt;       * denotes terminal node\n#&gt; \n#&gt; 1) root 1765 1981.0090 1.0000000  \n#&gt;   2) neutered=no,unknown 696  576.4117 0.5937228 *\n#&gt;   3) neutered=yes 1069 1318.2450 1.1714650  \n#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 921 1063.5830 1.0808970 *\n#&gt;     7) intake_condition=feral,fractious 148  195.7649 2.3866130 *\n#&gt; \n#&gt; $survfit\n#&gt; \n#&gt; Call: prodlim::prodlim(formula = form, data = data)\n#&gt; \n#&gt; \n#&gt; \n#&gt; Right-censored response of a survival model\n#&gt; \n#&gt; No.Observations: 1765 \n#&gt; \n#&gt; Pattern:\n#&gt;                 Freq\n#&gt;  event          1116\n#&gt;  right.censored 649 \n#&gt; \n#&gt; $levels\n#&gt; [1] \"0.593722848021763\" \"1.08089686322063\"  \"2.38661313111009\" \n#&gt; \n#&gt; attr(,\"class\")\n#&gt; [1] \"pecRpart\""
+    "text": "A model workflow   \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\ntree_fit &lt;-\n  workflow(event_time ~ ., tree_spec) %&gt;% \n  fit(data = cat_train)"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#your-turn-2",
     "href": "slides/intro-03-what-makes-a-model.html#your-turn-2",
     "title": "3 - What makes a model?",
     "section": "Your turn",
-    "text": "Your turn\n\nMake a workflow with your own model of choice.\n\nExtension/Challenge: Other than formulas, what kinds of preprocessors are supported?\n\n\n\n−+\n05:00"
+    "text": "Your turn\n\nMake a workflow with your own model of choice.\n\nExtension/Challenge: Other than formulas, what kinds of preprocessors are supported?\n\n\n\n−+\n03:00"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#predict-with-your-model",
     "href": "slides/intro-03-what-makes-a-model.html#predict-with-your-model",
     "title": "3 - What makes a model?",
     "section": "Predict with your model   ",
-    "text": "Predict with your model   \nHow do you use your new tree_fit model?\n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\ntree_fit &lt;-\n  workflow(event_time ~ ., tree_spec) %&gt;% \n  fit(data = cat_train)"
+    "text": "Predict with your model   \nHow do you use your new tree_fit model?\n\npredict(tree_fit, new_data = demo_cats)\n#&gt; # A tibble: 50 × 1\n#&gt;    .pred_time\n#&gt;         &lt;dbl&gt;\n#&gt;  1      1.08 \n#&gt;  2      0.594\n#&gt;  3      0.594\n#&gt;  4      1.08 \n#&gt;  5      2.39 \n#&gt;  6      0.594\n#&gt;  7      1.08 \n#&gt;  8      0.594\n#&gt;  9      1.08 \n#&gt; 10      0.594\n#&gt; # ℹ 40 more rows"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-1",
     "href": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-1",
     "title": "3 - What makes a model?",
     "section": "Predict with your model   ",
-    "text": "Predict with your model   \nHow do you use your new tree_fit model?\n\npredict(tree_fit, new_data = demo_cats)\n#&gt; # A tibble: 50 × 1\n#&gt;    .pred_time\n#&gt;         &lt;dbl&gt;\n#&gt;  1      1.08 \n#&gt;  2      0.594\n#&gt;  3      0.594\n#&gt;  4      1.08 \n#&gt;  5      2.39 \n#&gt;  6      0.594\n#&gt;  7      1.08 \n#&gt;  8      0.594\n#&gt;  9      1.08 \n#&gt; 10      0.594\n#&gt; # ℹ 40 more rows"
+    "text": "Predict with your model   \nHow do you use your new tree_fit model?\n\npredict(tree_fit, new_data = demo_cats, type = \"time\")\n#&gt; # A tibble: 50 × 1\n#&gt;    .pred_time\n#&gt;         &lt;dbl&gt;\n#&gt;  1      1.08 \n#&gt;  2      0.594\n#&gt;  3      0.594\n#&gt;  4      1.08 \n#&gt;  5      2.39 \n#&gt;  6      0.594\n#&gt;  7      1.08 \n#&gt;  8      0.594\n#&gt;  9      1.08 \n#&gt; 10      0.594\n#&gt; # ℹ 40 more rows"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-2",
     "href": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-2",
     "title": "3 - What makes a model?",
     "section": "Predict with your model   ",
-    "text": "Predict with your model   \nHow do you use your new tree_fit model?\n\npredict(tree_fit, new_data = demo_cats, type = \"time\")\n#&gt; # A tibble: 50 × 1\n#&gt;    .pred_time\n#&gt;         &lt;dbl&gt;\n#&gt;  1      1.08 \n#&gt;  2      0.594\n#&gt;  3      0.594\n#&gt;  4      1.08 \n#&gt;  5      2.39 \n#&gt;  6      0.594\n#&gt;  7      1.08 \n#&gt;  8      0.594\n#&gt;  9      1.08 \n#&gt; 10      0.594\n#&gt; # ℹ 40 more rows"
+    "text": "Predict with your model   \n\npreds &lt;- predict(tree_fit, new_data = demo_cats, type = \"survival\", \n                 eval_time = seq(0, 365, by = 5))\npreds\n#&gt; # A tibble: 50 × 1\n#&gt;    .pred            \n#&gt;    &lt;list&gt;           \n#&gt;  1 &lt;tibble [74 × 2]&gt;\n#&gt;  2 &lt;tibble [74 × 2]&gt;\n#&gt;  3 &lt;tibble [74 × 2]&gt;\n#&gt;  4 &lt;tibble [74 × 2]&gt;\n#&gt;  5 &lt;tibble [74 × 2]&gt;\n#&gt;  6 &lt;tibble [74 × 2]&gt;\n#&gt;  7 &lt;tibble [74 × 2]&gt;\n#&gt;  8 &lt;tibble [74 × 2]&gt;\n#&gt;  9 &lt;tibble [74 × 2]&gt;\n#&gt; 10 &lt;tibble [74 × 2]&gt;\n#&gt; # ℹ 40 more rows"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-3",
     "href": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-3",
     "title": "3 - What makes a model?",
     "section": "Predict with your model   ",
-    "text": "Predict with your model   \n\npreds &lt;- predict(tree_fit, new_data = demo_cats, type = \"survival\", \n                 eval_time = seq(0, 365, by = 5))\npreds\n#&gt; # A tibble: 50 × 1\n#&gt;    .pred            \n#&gt;    &lt;list&gt;           \n#&gt;  1 &lt;tibble [74 × 2]&gt;\n#&gt;  2 &lt;tibble [74 × 2]&gt;\n#&gt;  3 &lt;tibble [74 × 2]&gt;\n#&gt;  4 &lt;tibble [74 × 2]&gt;\n#&gt;  5 &lt;tibble [74 × 2]&gt;\n#&gt;  6 &lt;tibble [74 × 2]&gt;\n#&gt;  7 &lt;tibble [74 × 2]&gt;\n#&gt;  8 &lt;tibble [74 × 2]&gt;\n#&gt;  9 &lt;tibble [74 × 2]&gt;\n#&gt; 10 &lt;tibble [74 × 2]&gt;\n#&gt; # ℹ 40 more rows"
+    "text": "Predict with your model   \n\npreds$.pred[[1]]\n#&gt; # A tibble: 74 × 2\n#&gt;    .eval_time .pred_survival\n#&gt;         &lt;dbl&gt;          &lt;dbl&gt;\n#&gt;  1          0          1    \n#&gt;  2          5          1    \n#&gt;  3         10          0.923\n#&gt;  4         15          0.813\n#&gt;  5         20          0.749\n#&gt;  6         25          0.690\n#&gt;  7         30          0.637\n#&gt;  8         35          0.588\n#&gt;  9         40          0.536\n#&gt; 10         45          0.495\n#&gt; # ℹ 64 more rows"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-4",
     "href": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-4",
     "title": "3 - What makes a model?",
     "section": "Predict with your model   ",
-    "text": "Predict with your model   \n\npreds$.pred[[1]]\n#&gt; # A tibble: 74 × 2\n#&gt;    .eval_time .pred_survival\n#&gt;         &lt;dbl&gt;          &lt;dbl&gt;\n#&gt;  1          0          1    \n#&gt;  2          5          1    \n#&gt;  3         10          0.923\n#&gt;  4         15          0.813\n#&gt;  5         20          0.749\n#&gt;  6         25          0.690\n#&gt;  7         30          0.637\n#&gt;  8         35          0.588\n#&gt;  9         40          0.536\n#&gt; 10         45          0.495\n#&gt; # ℹ 64 more rows"
+    "text": "Predict with your model"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#predict-with-your-model-5",
@@ -963,7 +963,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#your-turn-3",
     "title": "3 - What makes a model?",
     "section": "Your turn",
-    "text": "Your turn\n\nRun:\naugment(tree_fit, new_data = demo_cats, eval_time = seq(0, 365, by = 5))\nWhat do you get?\n\n\n\n−+\n03:00"
+    "text": "Your turn\n\nRun:\naugment(tree_fit, new_data = demo_cats,\neval_time = seq(0, 365, by = 5))\n\nWhat do you get?\n\n\n\n−+\n03:00"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#the-whole-game---status-update",
@@ -1062,5 +1062,26 @@
     "title": "Annotations",
     "section": "Location",
     "text": "Location\nTo get a sense whether or not the location has an influence on our outcome, we can fit a proportional hazards model with a spline on the continuous predictor (logitude or latitude) and take a look at the linear predictor. To do so, Max wrote a custom function, smooth_ph_linear_pred(), that is available in slides/setup.R.\n\nsmooth_ph_linear_pred(event_time ~ latitude, data = cat_train, deg_free = 6)\n\n\n\n\n\n\n\n\n\nsmooth_ph_linear_pred(event_time ~ longitude, data = cat_train, deg_free = 5)"
+  },
+  {
+    "objectID": "slides/intro-03-what-makes-a-model.html#fit-a-model-spec",
+    "href": "slides/intro-03-what-makes-a-model.html#fit-a-model-spec",
+    "title": "3 - What makes a model?",
+    "section": "Fit a model spec  ",
+    "text": "Fit a model spec  \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\ntree_spec %&gt;% \n  fit(event_time ~ ., data = cat_train) \n#&gt; parsnip model object\n#&gt; \n#&gt; $rpart\n#&gt; n= 1765 \n#&gt; \n#&gt; node), split, n, deviance, yval\n#&gt;       * denotes terminal node\n#&gt; \n#&gt; 1) root 1765 1981.0090 1.0000000  \n#&gt;   2) neutered=no,unknown 696  576.4117 0.5937228 *\n#&gt;   3) neutered=yes 1069 1318.2450 1.1714650  \n#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 921 1063.5830 1.0808970 *\n#&gt;     7) intake_condition=feral,fractious 148  195.7649 2.3866130 *\n#&gt; \n#&gt; $survfit\n#&gt; \n#&gt; Call: prodlim::prodlim(formula = form, data = data)\n#&gt; \n#&gt; \n#&gt; \n#&gt; Right-censored response of a survival model\n#&gt; \n#&gt; No.Observations: 1765 \n#&gt; \n#&gt; Pattern:\n#&gt;                 Freq\n#&gt;  event          1116\n#&gt;  right.censored 649 \n#&gt; \n#&gt; $levels\n#&gt; [1] \"0.593722848021764\" \"1.08089686322063\"  \"2.38661313111009\" \n#&gt; \n#&gt; attr(,\"class\")\n#&gt; [1] \"pecRpart\""
+  },
+  {
+    "objectID": "slides/intro-03-what-makes-a-model.html#fit-a-model-workflow",
+    "href": "slides/intro-03-what-makes-a-model.html#fit-a-model-workflow",
+    "title": "3 - What makes a model?",
+    "section": "Fit a model workflow   ",
+    "text": "Fit a model workflow   \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\nworkflow() %&gt;%\n  add_formula(event_time ~ .) %&gt;%\n  add_model(tree_spec) %&gt;%\n  fit(data = cat_train) \n#&gt; ══ Workflow [trained] ════════════════════════════════════════════════\n#&gt; Preprocessor: Formula\n#&gt; Model: decision_tree()\n#&gt; \n#&gt; ── Preprocessor ──────────────────────────────────────────────────────\n#&gt; event_time ~ .\n#&gt; \n#&gt; ── Model ─────────────────────────────────────────────────────────────\n#&gt; $rpart\n#&gt; n= 1765 \n#&gt; \n#&gt; node), split, n, deviance, yval\n#&gt;       * denotes terminal node\n#&gt; \n#&gt; 1) root 1765 1981.0090 1.0000000  \n#&gt;   2) neutered=no,unknown 696  576.4117 0.5937228 *\n#&gt;   3) neutered=yes 1069 1318.2450 1.1714650  \n#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 921 1063.5830 1.0808970 *\n#&gt;     7) intake_condition=feral,fractious 148  195.7649 2.3866130 *\n#&gt; \n#&gt; $survfit\n#&gt; \n#&gt; Call: prodlim::prodlim(formula = form, data = data)\n#&gt; \n#&gt; \n#&gt; \n#&gt; Right-censored response of a survival model\n#&gt; \n#&gt; No.Observations: 1765 \n#&gt; \n#&gt; Pattern:\n#&gt;                 Freq\n#&gt;  event          1116\n#&gt;  right.censored 649 \n#&gt; \n#&gt; $levels\n#&gt; [1] \"0.593722848021763\" \"1.08089686322063\"  \"2.38661313111009\" \n#&gt; \n#&gt; attr(,\"class\")\n#&gt; [1] \"pecRpart\""
+  },
+  {
+    "objectID": "slides/intro-03-what-makes-a-model.html#fit-a-model-workflow-1",
+    "href": "slides/intro-03-what-makes-a-model.html#fit-a-model-workflow-1",
+    "title": "3 - What makes a model?",
+    "section": "Fit a model workflow   ",
+    "text": "Fit a model workflow   \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\ntree_fit &lt;-\n  workflow(event_time ~ ., tree_spec) %&gt;% \n  fit(data = cat_train)"
   }
 ]
