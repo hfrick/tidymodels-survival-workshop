@@ -323,29 +323,6 @@ fit_rpart %>%
 :::
 
 ::: {.column width="50%"}
-:::
-:::
-
-## Decision tree
-
-::: columns
-::: {.column width="50%"}
-```{r plot-tree-fit-2}
-#| echo: false
-#| fig.width: 6
-#| fig.height: 5
-#| fig-align: center
-
-library(partykit)
-fit_pec <- fit_dt %>% extract_fit_engine()
-fit_rpart <- fit_pec$rpart
-fit_rpart %>% 
-  as.party() %>% 
-  plot(ep_args = list(justmin = 15, abbreviate = TRUE))
-```
-:::
-
-::: {.column width="40%"}
 -   Series of splits or if/then statements based on predictors
 
 -   First the tree *grows* until some condition is met (maximum depth, no more data)
