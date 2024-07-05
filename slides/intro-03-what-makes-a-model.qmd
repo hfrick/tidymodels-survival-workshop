@@ -575,7 +575,10 @@ preds %>%
 
 *Run:*
 
-`augment(tree_fit, new_data = demo_cats, eval_time = seq(0, 365, by = 5))`
+`augment(tree_fit, new_data = demo_cats,`  
+         `eval_time = seq(0, 365, by = 5))`
+
+<br>
 
 *What do you get?*
 
