@@ -237,11 +237,38 @@ fit(proportional_hazards(), event_time ~ 1, data = cat_train) %>%
 
 ::: columns
 ::: {.column width="50%"}
-```{r plot-ph}
+```{r plot-baseline-2}
 #| echo: false
 #| fig.width: 8
 #| fig.height: 7
 
+fit(proportional_hazards(), event_time ~ 1, data = cat_train) %>% 
+  augment(new_data = cat_new[1,], eval_time = seq(0, 360, 1)) %>% 
+  tidyr::unnest(cols = .pred) %>% 
+  ggplot() +
+  geom_step(aes(.eval_time, .pred_survival)) +
+  labs(x = "Time", y = "Probability of not adopted") +
+  theme_bw(base_size = 18)
+```
+:::
+
+::: {.column width="50%"}
+
+-   Hazard modeled via a baseline hazard and a linear combination of predictors:
+
+$\lambda(t | x_i) = \lambda_0(t) \cdot \exp (x_i^T \beta)$
+
+:::
+:::
+
+## Proportional hazards model
+
+::: columns
+::: {.column width="50%"}
+```{r plot-ph}
+#| echo: false
+#| fig.width: 8
+#| fig.height: 7
 p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_train) %>% 
   augment(new_data = cat_new, eval_time = seq(0, 360, 1)) %>% 
   mutate(intake_condition = factor(intake_condition, levels = c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))) %>% 
@@ -252,23 +279,6 @@ p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_tr
   labs(x = "Time", y = "Probability of not adopted") +
   theme_bw(base_size = 18) +
   theme(legend.position = "bottom")
-p_ph
-```
-:::
-
-::: {.column width="50%"}
-:::
-:::
-
-## Proportional hazards model
-
-::: columns
-::: {.column width="50%"}
-```{r plot-ph-2}
-#| echo: false
-#| fig.width: 8
-#| fig.height: 7
-
 p_ph
 ```
 :::
