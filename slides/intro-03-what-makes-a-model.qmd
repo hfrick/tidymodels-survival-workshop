@@ -197,7 +197,7 @@ All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 
 ```{r ex-explore-tree-spec}
 #| echo: false
-countdown::countdown(minutes = 5, id = "explore-tree-spec")
+countdown::countdown(minutes = 3, id = "explore-tree-spec")
 ```
 
 
@@ -515,7 +515,7 @@ tree_fit <-
 
 ```{r ex-explore-tree-workflow}
 #| echo: false
-countdown::countdown(minutes = 5, id = "explore-tree-workflow")
+countdown::countdown(minutes = 3, id = "explore-tree-workflow")
 ```
 
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
