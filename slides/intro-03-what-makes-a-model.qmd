@@ -498,7 +498,8 @@ tree_spec <-
   decision_tree() %>% 
   set_mode("censored regression")
 
-workflow(event_time ~ ., tree_spec) %>% 
+tree_fit <-
+  workflow(event_time ~ ., tree_spec) %>% 
   fit(data = cat_train) 
 ```
 
@@ -515,20 +516,6 @@ workflow(event_time ~ ., tree_spec) %>%
 ```{r ex-explore-tree-workflow}
 #| echo: false
 countdown::countdown(minutes = 5, id = "explore-tree-workflow")
-```
-
-## Predict with your model `r hexes("censored", "parsnip", "workflows")`
-
-How do you use your new `tree_fit` model?
-
-```{r tree-wflow-fit-2}
-tree_spec <-
-  decision_tree() %>% 
-  set_mode("censored regression")
-
-tree_fit <-
-  workflow(event_time ~ ., tree_spec) %>% 
-  fit(data = cat_train) 
 ```
 
 ## Predict with your model `r hexes("censored", "parsnip", "workflows")`
