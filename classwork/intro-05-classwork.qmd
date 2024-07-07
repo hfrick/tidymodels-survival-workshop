@@ -14,7 +14,6 @@ Setup from deck 3
 ```{r}
 library(tidymodels)
 library(censored)
-library(splines)
 
 data(cat_adoption)
 

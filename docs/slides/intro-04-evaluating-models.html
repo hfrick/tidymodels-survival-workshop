@@ -560,8 +560,8 @@ Brier(t) = \frac{1}{W}\sum_{i=1}^N w_{it}\left[\underbrace{I(y_{it} = 0)(y_{it} 
 <section id="area-under-the-roc-curve-1" class="slide level2">
 <h2>Area Under the ROC Curve</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>demo_row_auc <span class="ot">&lt;-</span> <span class="fu">roc_auc_survival</span>(demo_cat_preds, <span class="at">truth =</span> event_time, .pred)</span>
-<span id="cb6-2"><a></a>demo_row_auc <span class="sc">%&gt;%</span> <span class="fu">filter</span>(.eval_time <span class="sc">%in%</span> <span class="fu">seq</span>(<span class="dv">30</span>, <span class="dv">300</span>, <span class="at">by =</span> <span class="dv">30</span>))</span>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>demo_roc_auc <span class="ot">&lt;-</span> <span class="fu">roc_auc_survival</span>(demo_cat_preds, <span class="at">truth =</span> event_time, .pred)</span>
+<span id="cb6-2"><a></a>demo_roc_auc <span class="sc">%&gt;%</span> <span class="fu">filter</span>(.eval_time <span class="sc">%in%</span> <span class="fu">seq</span>(<span class="dv">30</span>, <span class="dv">300</span>, <span class="at">by =</span> <span class="dv">30</span>))</span>
 <span id="cb6-3"><a></a><span class="co">#&gt; # A tibble: 10 × 4</span></span>
 <span id="cb6-4"><a></a><span class="co">#&gt;    .metric          .estimator .eval_time .estimate</span></span>
 <span id="cb6-5"><a></a><span class="co">#&gt;    &lt;chr&gt;            &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;</span></span>

@@ -76,8 +76,8 @@ brier_survival_integrated(demo_cat_preds, truth = event_time, .pred)
 ## Area Under the ROC Curve 
 
 ```{r}
-demo_row_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
-demo_row_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
+demo_roc_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
+demo_roc_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
 ## Your turn
@@ -125,19 +125,6 @@ Bootstrapping
 set.seed(3214)
 bootstraps(cat_train)
 ```
-
-
-## Your turn 
-
-Create Monte Carlo cross-validation sets. (Use the reference guide to find the functions.)
-
-Extension/Challenge: Create a validation set. How is this different, how is this similar to other resampling schemes?
-
-```{r}
-# Your code here!
-
-```
-
 
 We'll use this setup:
 

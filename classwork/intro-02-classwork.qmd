@@ -11,7 +11,7 @@ We recommend restarting R between each slide deck!
 
 ```{r}
 library(tidymodels)
-library(survival)
+library(censored)
 library(modeldata)
 
 cat_adoption
