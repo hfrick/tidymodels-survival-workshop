@@ -58,8 +58,8 @@ countdown::countdown(minutes = 3, id = "how-to-fit-linear-model")
 ::: columns
 ::: {.column width="55%"}
 -   Choose a [model]{.underline}
--   Specify an engine
--   Set the mode
+-   Specify an [engine]{.underline}
+-   Set the [mode]{.underline}
 :::
 
 ::: {.column width="45%"}
@@ -96,30 +96,9 @@ cat_test <- testing(cat_split)
 proportional_hazards()
 ```
 
-
 :::notes
 Models have default engines
 :::
-
-## To specify a model `r hexes("parsnip")`
-
-::: columns
-::: {.column width="55%"}
--   Choose a model
--   Specify an [engine]{.underline}
--   Set the mode
-:::
-
-::: {.column width="45%"}
-<img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%">
-:::
-:::
-
-## To specify a model `r hexes("censored", "parsnip")`
-
-```{r proportional-hazards-again}
-proportional_hazards()
-```
 
 ## To specify a model `r hexes("censored", "parsnip")`
 
@@ -128,21 +107,9 @@ proportional_hazards() %>%
   set_engine("glmnet")
 ```
 
-
-## To specify a model `r hexes("parsnip")`
-
-::: columns
-::: {.column width="55%"}
--   Choose a model
--   Specify an engine
--   Set the [mode]{.underline}
+:::notes
+PH has only one mode, hence also a default mode
 :::
-
-::: {.column width="45%"}
-<img src="images/black-cat-walking-right.svg" alt="icon of a black cat walking to the right" width="50%">
-:::
-:::
-
 
 ## To specify a model `r hexes("parsnip")`
 
@@ -151,7 +118,7 @@ decision_tree()
 ```
 
 :::notes
-Some models have a default mode
+Some models have a default mode but not all
 :::
 
 ## To specify a model `r hexes("censored", "parsnip")`
