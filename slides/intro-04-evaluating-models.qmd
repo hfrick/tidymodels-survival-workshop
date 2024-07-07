@@ -296,8 +296,8 @@ ROC curves measure the separation between events and non-events and are ignorant
 ## Area Under the ROC Curve 
 
 ```{r auc-survival}
-demo_row_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
-demo_row_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
+demo_roc_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
+demo_roc_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
 ## ROC AUC Over Evaluation Time
@@ -309,7 +309,7 @@ demo_row_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
 #| fig-height: 4.25
 #| out-width: 60%
 #| fig-align: center
-demo_row_auc %>% 
+demo_roc_auc %>% 
   ggplot(aes(.eval_time, .estimate)) + 
   geom_line() + 
   geom_hline(yintercept = 1, col = "green")+
