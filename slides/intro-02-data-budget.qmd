@@ -60,7 +60,7 @@ data(cat_adoption, package = "modeldata")
 
 ```{r cats-print}
 library(tidymodels)
-library(survival)
+library(censored)
 library(modeldata)
 
 cat_adoption
