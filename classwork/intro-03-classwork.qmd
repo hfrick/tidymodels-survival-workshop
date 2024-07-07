@@ -92,7 +92,8 @@ workflow() %>%
 "Shortcut" by specifying the preprocessor and model spec directly in the `workflow()` call:
 
 ```{r}
-workflow(event_time ~ ., tree_spec) %>% 
+tree_fit <-
+  workflow(event_time ~ ., tree_spec) %>% 
   fit(data = cat_train) 
 ```
 
@@ -109,12 +110,6 @@ Extension/Challenge: Other than formulas, what kinds of preprocessors are suppor
 
 ## Predict with your model
 
-```{r}
-tree_fit <-
-  workflow(event_time ~ ., tree_spec) %>% 
-  fit(data = cat_train) 
-```
-
 Predict time to event
 
 ```{r}
@@ -124,8 +119,11 @@ predict(tree_fit, new_data = demo_cats, type = "time")
 Predict survival probability at time `eval_time`
 
 ```{r}
-predict(tree_fit, new_data = demo_cats, type = "survival", 
-        eval_time = seq(0, 365, by = 5))
+preds <- predict(tree_fit, new_data = demo_cats, type = "survival", 
+                 eval_time = seq(0, 365, by = 5))
+preds
+
+preds$.pred[[1]]
 ```
 
 
