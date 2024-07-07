@@ -28,7 +28,6 @@ knitr:
 #| echo: false
 library(tidymodels)
 library(censored)
-library(splines)
 
 data(cat_adoption)
 
