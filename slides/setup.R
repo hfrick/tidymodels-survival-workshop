@@ -1,4 +1,4 @@
-# dev_pkgs <- c("countdown", "hadley/emo", "svglite")
+# dev_pkgs <- c("countdown", "hadley/emo", "ggsurvfit", "leaflet", "svglite")
 # pak::pak(dev_pkgs)
 
 #   ----------------------------------------------------------------------
