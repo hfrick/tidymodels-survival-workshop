@@ -585,7 +585,7 @@
     "href": "slides/intro-01-introduction.html#workshop-policies",
     "title": "1 - Introduction",
     "section": "Workshop policies",
-    "text": "Workshop policies\n\nPlease review the code of conduct: https://events.linuxfoundation.org/user/attend/code-of-conduct/"
+    "text": "Workshop policies\n\nPlease review the code of conduct: https://rconsortium.github.io/RMedicine_website/Attend.html"
   },
   {
     "objectID": "slides/intro-01-introduction.html#who-are-you",
@@ -626,8 +626,8 @@
     "objectID": "slides/intro-01-introduction.html#section-3",
     "href": "slides/intro-01-introduction.html#section-3",
     "title": "1 - Introduction",
-    "section": "",
-    "text": "Introduce yourself to your neighbors 👋\n\n Log in to Posit Cloud (free): TODO-ADD-LATER"
+    "section": "👀",
+    "text": "👀"
   },
   {
     "objectID": "slides/intro-01-introduction.html#what-is-machine-learning",
@@ -725,7 +725,7 @@
     "href": "slides/intro-01-introduction.html#lets-install-some-packages",
     "title": "1 - Introduction",
     "section": "Let’s install some packages",
-    "text": "Let’s install some packages\nIf you are using your own laptop instead of Posit Cloud:\n\n# Install the packages for the workshop\npkgs &lt;- c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)\n\n\n Or log in to Posit Cloud:\nTODO-ADD-LATER"
+    "text": "Let’s install some packages\nIf you are using your own laptop instead of Posit Cloud:\n\n# Install the packages for the workshop\npkgs &lt;- c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)"
   },
   {
     "objectID": "slides/intro-01-introduction.html#our-versions",
@@ -1083,5 +1083,12 @@
     "title": "3 - What makes a model?",
     "section": "Fit a model workflow   ",
     "text": "Fit a model workflow   \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\ntree_fit &lt;-\n  workflow(event_time ~ ., tree_spec) %&gt;% \n  fit(data = cat_train)"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#section-4",
+    "href": "slides/intro-01-introduction.html#section-4",
+    "title": "1 - Introduction",
+    "section": "",
+    "text": "Introduce yourself to your neighbors 👋\n\n Log in to Posit Cloud (free): TODO-ADD-LATER"
   }
 ]

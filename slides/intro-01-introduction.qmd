@@ -26,6 +26,13 @@ knitr:
 Welcome!
 :::
 
+## {visibility="hidden"}
+
+::: r-fit-text
+Welcome!
+:::
+
+
 ::: columns
 ::: {.column width="50%"}
 
@@ -58,7 +65,7 @@ Wi-Fi password
 
 ## Workshop policies
 
--   Please review the code of conduct: <https://events.linuxfoundation.org/user/attend/code-of-conduct/>
+-   Please review the code of conduct: <https://rconsortium.github.io/RMedicine_website/Attend.html>
 
 ## Who are you?
 
@@ -83,7 +90,7 @@ Wi-Fi password
 
 Many thanks to Davis Vaughan, Julia Silge, David Robinson, Julie Jung, Alison Hill, and Desirée De Leon for their role in creating these materials!
 
-## Asking for help
+## Asking for help {visibility="hidden"}
 
 . . .
 
@@ -106,7 +113,7 @@ Many thanks to Davis Vaughan, Julia Silge, David Robinson, Julie Jung, Alison Hi
 - Tuning models
 
 
-##  {.center}
+##  {.center visibility="hidden"}
 
 ### Introduce yourself to your neighbors 👋
 
@@ -202,11 +209,13 @@ pkgs <- c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels
 install.packages(pkgs)
 ```
 
+<!-- 
 <br></br>
 
 ### <i class="fa fa-cloud"></i> Or log in to Posit Cloud:
 
 TODO-ADD-LATER
+-->
 
 
 ## Our versions
