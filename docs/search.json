@@ -74,14 +74,14 @@
     "href": "slides/intro-06-wrapping-up.html#resources-to-keep-learning",
     "title": "6 - Wrapping up",
     "section": "Resources to keep learning",
-    "text": "Resources to keep learning\n\n\nhttps://www.tidymodels.org/\n\n\n\n\nhttps://www.tmwr.org/\n\n\n\n\nhttp://www.feat.engineering/\n\n\n\n\nhttps://smltar.com/\n\n\n\nFollow us on Mastodon and at the tidyverse blog for updates!\n\n\n\nhttps://hfrick.github.io/tidymodels-survival-workshop"
+    "text": "Resources to keep learning\n\n\nhttps://www.tidymodels.org/\n\n\n\n\nhttps://www.tmwr.org/\n\n\n\n\nhttp://www.feat.engineering/\n\n\n\n\nhttps://smltar.com/\n\n\n\nFollow us on Mastodon and at the tidyverse blog for updates!"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html",
     "href": "slides/intro-04-evaluating-models.html",
     "title": "4 - Evaluating models",
     "section": "",
-    "text": "#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Use tidymodels_prefer() to resolve common conflicts.\n#&gt; Loading required package: survival"
+    "text": "#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.3.0 ──\n#&gt; ✔ broom        1.0.8          ✔ rsample      1.3.0     \n#&gt; ✔ dials        1.4.0          ✔ tibble       3.2.1     \n#&gt; ✔ dplyr        1.1.4          ✔ tidyr        1.3.1     \n#&gt; ✔ infer        1.0.8          ✔ tune         1.3.0     \n#&gt; ✔ modeldata    1.4.0          ✔ workflows    1.2.0     \n#&gt; ✔ parsnip      1.3.1.9000     ✔ workflowsets 1.1.0.9000\n#&gt; ✔ purrr        1.0.4          ✔ yardstick    1.3.2     \n#&gt; ✔ recipes      1.3.1\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; Loading required package: survival"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#an-example-model-fit",
@@ -333,7 +333,7 @@
     "href": "slides/intro-04-evaluating-models.html#the-whole-game",
     "title": "4 - Evaluating models",
     "section": "The whole game",
-    "text": "The whole game\n\n\n\n\nhttps://hfrick.github.io/tidymodels-survival-workshop"
+    "text": "The whole game"
   },
   {
     "objectID": "slides/intro-02-data-budget.html",
@@ -347,7 +347,7 @@
     "href": "slides/intro-02-data-budget.html#data-on-shelter-cats",
     "title": "2 - Your data budget",
     "section": "Data on shelter cats",
-    "text": "Data on shelter cats\n\n\n\nThe city of Long Beach releases data on animals at the Long Beach Animal Shelter.\nOur dataset is a sample of the cats entering and leaving the shelter.\nType ?cat_adoption or check the sources to learn more about this dataset, including references.\n\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/194185/pet-house-kennel"
+    "text": "Data on shelter cats\n\n\n\nThe city of Long Beach releases data on animals at the Long Beach Animal Shelter.\nOur dataset is a sample of the cats entering and leaving the shelter.\nType ?cat_adoption or check the sources to learn more about this dataset, including references.\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/194185/pet-house-kennel"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#data-on-shelter-cats-1",
@@ -501,7 +501,7 @@
     "href": "slides/intro-02-data-budget.html#the-whole-game---status-update",
     "title": "2 - Your data budget",
     "section": "The whole game - status update",
-    "text": "The whole game - status update\n\n\n\n\nhttps://hfrick.github.io/tidymodels-survival-workshop"
+    "text": "The whole game - status update"
   },
   {
     "objectID": "slides/annotations.html#section",
@@ -662,7 +662,7 @@
     "href": "slides/intro-01-introduction.html#what-is-tidymodels",
     "title": "1 - Introduction",
     "section": "What is tidymodels? ",
-    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Search for functions across packages at https://www.tidymodels.org/find/"
+    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.3.0 ──\n#&gt; ✔ broom        1.0.8     ✔ rsample      1.3.0\n#&gt; ✔ dials        1.4.0     ✔ tibble       3.2.1\n#&gt; ✔ dplyr        1.1.4     ✔ tidyr        1.3.1\n#&gt; ✔ infer        1.0.8     ✔ tune         1.3.0\n#&gt; ✔ modeldata    1.4.0     ✔ workflows    1.2.0\n#&gt; ✔ parsnip      1.3.1     ✔ workflowsets 1.1.0\n#&gt; ✔ purrr        1.0.4     ✔ yardstick    1.3.2\n#&gt; ✔ recipes      1.3.1\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()"
   },
   {
     "objectID": "slides/intro-01-introduction.html#the-whole-game",
@@ -732,7 +732,7 @@
     "href": "slides/intro-01-introduction.html#our-versions",
     "title": "1 - Introduction",
     "section": "Our versions",
-    "text": "Our versions\nR version 4.4.0 (2024-04-24), Quarto (1.4.555)\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\naorsf\n0.1.5\n\n\nbroom\n1.0.6\n\n\ncensored\n0.3.2\n\n\ndials\n1.2.1\n\n\ndplyr\n1.1.4\n\n\nggplot2\n3.5.1\n\n\nglmnet\n4.1-8\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\nlibcoin\n1.0-10\n\n\nmodeldata\n1.4.0\n\n\nmvtnorm\n1.2-5\n\n\nparsnip\n1.2.1\n\n\npartykit\n1.2-20\n\n\npec\n2023.04.12\n\n\nprodlim\n2023.08.28\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\npurrr\n1.0.2\n\n\nrecipes\n1.0.10\n\n\nrpart\n4.1.23\n\n\nrsample\n1.2.1\n\n\nscales\n1.3.0\n\n\nsurvival\n3.7-0\n\n\ntibble\n3.2.1\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\ntidymodels\n1.2.0\n\n\ntidyr\n1.3.1\n\n\ntune\n1.2.1\n\n\nworkflows\n1.1.4\n\n\nworkflowsets\n1.1.0\n\n\nyardstick\n1.3.1\n\n\n\n\n\n\n\n\n\n\nhttps://hfrick.github.io/tidymodels-survival-workshop"
+    "text": "Our versions\nR version 4.5.0 (2025-04-11), Quarto (1.7.31)\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\naorsf\n0.1.5\n\n\nbroom\n1.0.8\n\n\ncensored\n0.3.3\n\n\ndials\n1.4.0\n\n\ndplyr\n1.1.4\n\n\nggplot2\n3.5.2\n\n\nglmnet\n4.1-8\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\nlibcoin\n1.0-10\n\n\nmodeldata\n1.4.0\n\n\nmvtnorm\n1.3-3\n\n\nparsnip\n1.3.1\n\n\npartykit\n1.2-24\n\n\npec\n2023.04.12\n\n\nprodlim\n2025.04.28\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\npurrr\n1.0.4\n\n\nrecipes\n1.3.1\n\n\nrpart\n4.1.24\n\n\nrsample\n1.3.0\n\n\nscales\n1.4.0\n\n\nsurvival\n3.8-3\n\n\ntibble\n3.2.1\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\ntidymodels\n1.3.0\n\n\ntidyr\n1.3.1\n\n\ntune\n1.3.0\n\n\nworkflows\n1.2.0\n\n\nworkflowsets\n1.1.0\n\n\nyardstick\n1.3.2"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html",
@@ -753,7 +753,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#to-specify-a-model",
     "title": "3 - What makes a model?",
     "section": "To specify a model ",
-    "text": "To specify a model \n\n\n\n\nChoose a model\nSpecify an engine\nSet the mode\n\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/481270/cat-5"
+    "text": "To specify a model \n\n\n\n\nChoose a model\nSpecify an engine\nSet the mode\n\n\n\n\n\nCredit: https://www.svgrepo.com/svg/481270/cat-5"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#to-specify-a-model-1",
@@ -970,7 +970,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#the-whole-game---status-update",
     "title": "3 - What makes a model?",
     "section": "The whole game - status update",
-    "text": "The whole game - status update\n\n\nStress that fitting a model on the entire training set was only for illustrating how to fit a model\n\n\n\n\nhttps://hfrick.github.io/tidymodels-survival-workshop"
+    "text": "The whole game - status update\n\n\nStress that fitting a model on the entire training set was only for illustrating how to fit a model"
   },
   {
     "objectID": "slides/intro-05-tuning-models.html",
@@ -1019,21 +1019,21 @@
     "href": "slides/intro-05-tuning-models.html#compare-results",
     "title": "5 - Tuning models",
     "section": "Compare results",
-    "text": "Compare results\nInspecting results and selecting the best-performing hyperparameter(s):\n\nshow_best(rf_res)\n#&gt; # A tibble: 5 × 8\n#&gt;   min_n .metric        .estimator .eval_time  mean     n std_err .config        \n#&gt;   &lt;int&gt; &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;          \n#&gt; 1    33 brier_survival standard           90 0.197    10 0.00937 Preprocessor1_…\n#&gt; 2    31 brier_survival standard           90 0.198    10 0.00953 Preprocessor1_…\n#&gt; 3    13 brier_survival standard           90 0.198    10 0.00956 Preprocessor1_…\n#&gt; 4    21 brier_survival standard           90 0.199    10 0.00960 Preprocessor1_…\n#&gt; 5     6 brier_survival standard           90 0.199    10 0.00977 Preprocessor1_…\n\nbest_parameter &lt;- select_best(rf_res)\nbest_parameter\n#&gt; # A tibble: 1 × 2\n#&gt;   min_n .config             \n#&gt;   &lt;int&gt; &lt;chr&gt;               \n#&gt; 1    33 Preprocessor1_Model1\n\ncollect_metrics() and autoplot() are also available."
+    "text": "Compare results\nInspecting results and selecting the best-performing hyperparameter(s):\n\nshow_best(rf_res)\n#&gt; # A tibble: 5 × 8\n#&gt;   min_n .metric        .estimator .eval_time  mean     n std_err .config        \n#&gt;   &lt;int&gt; &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;          \n#&gt; 1    40 brier_survival standard           90 0.197    10 0.00935 Preprocessor1_…\n#&gt; 2    31 brier_survival standard           90 0.198    10 0.00939 Preprocessor1_…\n#&gt; 3    22 brier_survival standard           90 0.198    10 0.00968 Preprocessor1_…\n#&gt; 4    12 brier_survival standard           90 0.199    10 0.00944 Preprocessor1_…\n#&gt; 5     3 brier_survival standard           90 0.199    10 0.00948 Preprocessor1_…\n\nbest_parameter &lt;- select_best(rf_res)\nbest_parameter\n#&gt; # A tibble: 1 × 2\n#&gt;   min_n .config             \n#&gt;   &lt;int&gt; &lt;chr&gt;               \n#&gt; 1    40 Preprocessor1_Model1\n\ncollect_metrics() and autoplot() are also available."
   },
   {
     "objectID": "slides/intro-05-tuning-models.html#the-final-fit",
     "href": "slides/intro-05-tuning-models.html#the-final-fit",
     "title": "5 - Tuning models",
     "section": "The final fit",
-    "text": "The final fit\n\nrf_wflow &lt;- finalize_workflow(rf_wflow, best_parameter)\n\nfinal_fit &lt;- last_fit(rf_wflow, cat_split, eval_time = c(90, 30, 60, 120)) \n\ncollect_metrics(final_fit)\n#&gt; # A tibble: 4 × 5\n#&gt;   .metric        .estimator .eval_time .estimate .config             \n#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 brier_survival standard           30     0.221 Preprocessor1_Model1\n#&gt; 2 brier_survival standard           60     0.225 Preprocessor1_Model1\n#&gt; 3 brier_survival standard           90     0.160 Preprocessor1_Model1\n#&gt; 4 brier_survival standard          120     0.107 Preprocessor1_Model1"
+    "text": "The final fit\n\nrf_wflow &lt;- finalize_workflow(rf_wflow, best_parameter)\n\nfinal_fit &lt;- last_fit(rf_wflow, cat_split, eval_time = c(90, 30, 60, 120)) \n\ncollect_metrics(final_fit)\n#&gt; # A tibble: 4 × 5\n#&gt;   .metric        .estimator .eval_time .estimate .config             \n#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 brier_survival standard           30     0.220 Preprocessor1_Model1\n#&gt; 2 brier_survival standard           60     0.223 Preprocessor1_Model1\n#&gt; 3 brier_survival standard           90     0.160 Preprocessor1_Model1\n#&gt; 4 brier_survival standard          120     0.106 Preprocessor1_Model1"
   },
   {
     "objectID": "slides/intro-05-tuning-models.html#your-turn",
     "href": "slides/intro-05-tuning-models.html#your-turn",
     "title": "5 - Tuning models",
     "section": "Your turn",
-    "text": "Your turn\n\nModify your model workflow to tune one or more parameters.\nUse grid search to find the best parameter(s).\n\n\n\n−+\n05:00\n\n\n\n\n\n\nhttps://hfrick.github.io/tidymodels-survival-workshop"
+    "text": "Your turn\n\nModify your model workflow to tune one or more parameters.\nUse grid search to find the best parameter(s).\n\n\n\n−+\n05:00"
   },
   {
     "objectID": "slides/annotations.html#concordance",
@@ -1068,14 +1068,14 @@
     "href": "slides/intro-03-what-makes-a-model.html#fit-a-model-spec",
     "title": "3 - What makes a model?",
     "section": "Fit a model spec  ",
-    "text": "Fit a model spec  \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\ntree_spec %&gt;% \n  fit(event_time ~ ., data = cat_train) \n#&gt; parsnip model object\n#&gt; \n#&gt; $rpart\n#&gt; n= 1765 \n#&gt; \n#&gt; node), split, n, deviance, yval\n#&gt;       * denotes terminal node\n#&gt; \n#&gt; 1) root 1765 1981.0090 1.0000000  \n#&gt;   2) neutered=no,unknown 696  576.4117 0.5937228 *\n#&gt;   3) neutered=yes 1069 1318.2450 1.1714650  \n#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 921 1063.5830 1.0808970 *\n#&gt;     7) intake_condition=feral,fractious 148  195.7649 2.3866130 *\n#&gt; \n#&gt; $survfit\n#&gt; \n#&gt; Call: prodlim::prodlim(formula = form, data = data)\n#&gt; \n#&gt; \n#&gt; \n#&gt; Right-censored response of a survival model\n#&gt; \n#&gt; No.Observations: 1765 \n#&gt; \n#&gt; Pattern:\n#&gt;                 Freq\n#&gt;  event          1116\n#&gt;  right.censored 649 \n#&gt; \n#&gt; $levels\n#&gt; [1] \"0.593722848021764\" \"1.08089686322063\"  \"2.38661313111009\" \n#&gt; \n#&gt; attr(,\"class\")\n#&gt; [1] \"pecRpart\""
+    "text": "Fit a model spec  \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\ntree_spec %&gt;% \n  fit(event_time ~ ., data = cat_train) \n#&gt; parsnip model object\n#&gt; \n#&gt; $rpart\n#&gt; n= 1765 \n#&gt; \n#&gt; node), split, n, deviance, yval\n#&gt;       * denotes terminal node\n#&gt; \n#&gt; 1) root 1765 1981.0090 1.0000000  \n#&gt;   2) neutered=no,unknown 696  576.4117 0.5937228 *\n#&gt;   3) neutered=yes 1069 1318.2450 1.1714650  \n#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 921 1063.5830 1.0808970 *\n#&gt;     7) intake_condition=feral,fractious 148  195.7649 2.3866130 *\n#&gt; \n#&gt; $survfit\n#&gt; \n#&gt; Call: prodlim::prodlim(formula = form, data = data)\n#&gt; \n#&gt; Right-censored response of a survival model\n#&gt; \n#&gt; No.Observations: 1765 \n#&gt; \n#&gt; Pattern:\n#&gt;                 Freq\n#&gt;  event          1116\n#&gt;  right.censored 649 \n#&gt; \n#&gt; $levels\n#&gt; [1] \"0.593722848021764\" \"1.08089686322063\"  \"2.38661313111009\" \n#&gt; \n#&gt; attr(,\"class\")\n#&gt; [1] \"pecRpart\""
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#fit-a-model-workflow",
     "href": "slides/intro-03-what-makes-a-model.html#fit-a-model-workflow",
     "title": "3 - What makes a model?",
     "section": "Fit a model workflow   ",
-    "text": "Fit a model workflow   \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\nworkflow() %&gt;%\n  add_formula(event_time ~ .) %&gt;%\n  add_model(tree_spec) %&gt;%\n  fit(data = cat_train) \n#&gt; ══ Workflow [trained] ════════════════════════════════════════════════\n#&gt; Preprocessor: Formula\n#&gt; Model: decision_tree()\n#&gt; \n#&gt; ── Preprocessor ──────────────────────────────────────────────────────\n#&gt; event_time ~ .\n#&gt; \n#&gt; ── Model ─────────────────────────────────────────────────────────────\n#&gt; $rpart\n#&gt; n= 1765 \n#&gt; \n#&gt; node), split, n, deviance, yval\n#&gt;       * denotes terminal node\n#&gt; \n#&gt; 1) root 1765 1981.0090 1.0000000  \n#&gt;   2) neutered=no,unknown 696  576.4117 0.5937228 *\n#&gt;   3) neutered=yes 1069 1318.2450 1.1714650  \n#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 921 1063.5830 1.0808970 *\n#&gt;     7) intake_condition=feral,fractious 148  195.7649 2.3866130 *\n#&gt; \n#&gt; $survfit\n#&gt; \n#&gt; Call: prodlim::prodlim(formula = form, data = data)\n#&gt; \n#&gt; \n#&gt; \n#&gt; Right-censored response of a survival model\n#&gt; \n#&gt; No.Observations: 1765 \n#&gt; \n#&gt; Pattern:\n#&gt;                 Freq\n#&gt;  event          1116\n#&gt;  right.censored 649 \n#&gt; \n#&gt; $levels\n#&gt; [1] \"0.593722848021763\" \"1.08089686322063\"  \"2.38661313111009\" \n#&gt; \n#&gt; attr(,\"class\")\n#&gt; [1] \"pecRpart\""
+    "text": "Fit a model workflow   \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\nworkflow() %&gt;%\n  add_formula(event_time ~ .) %&gt;%\n  add_model(tree_spec) %&gt;%\n  fit(data = cat_train) \n#&gt; ══ Workflow [trained] ════════════════════════════════════════════════\n#&gt; Preprocessor: Formula\n#&gt; Model: decision_tree()\n#&gt; \n#&gt; ── Preprocessor ──────────────────────────────────────────────────────\n#&gt; event_time ~ .\n#&gt; \n#&gt; ── Model ─────────────────────────────────────────────────────────────\n#&gt; $rpart\n#&gt; n= 1765 \n#&gt; \n#&gt; node), split, n, deviance, yval\n#&gt;       * denotes terminal node\n#&gt; \n#&gt; 1) root 1765 1981.0090 1.0000000  \n#&gt;   2) neutered=no,unknown 696  576.4117 0.5937228 *\n#&gt;   3) neutered=yes 1069 1318.2450 1.1714650  \n#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 921 1063.5830 1.0808970 *\n#&gt;     7) intake_condition=feral,fractious 148  195.7649 2.3866130 *\n#&gt; \n#&gt; $survfit\n#&gt; \n#&gt; Call: prodlim::prodlim(formula = form, data = data)\n#&gt; \n#&gt; Right-censored response of a survival model\n#&gt; \n#&gt; No.Observations: 1765 \n#&gt; \n#&gt; Pattern:\n#&gt;                 Freq\n#&gt;  event          1116\n#&gt;  right.censored 649 \n#&gt; \n#&gt; $levels\n#&gt; [1] \"0.593722848021763\" \"1.08089686322063\"  \"2.38661313111009\" \n#&gt; \n#&gt; attr(,\"class\")\n#&gt; [1] \"pecRpart\""
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#fit-a-model-workflow-1",
