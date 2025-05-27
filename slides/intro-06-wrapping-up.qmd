@@ -60,4 +60,4 @@ countdown::countdown(minutes = 5, id = "reflection")
 
 . . .
 
-Follow us on Mastodon and at the tidyverse blog for updates!
+Follow us on Mastodon, Bluesky and at the tidyverse blog for updates!
