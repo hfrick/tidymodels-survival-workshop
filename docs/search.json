@@ -102,7 +102,7 @@
     "href": "slides/intro-04-evaluating-models.html#concordance",
     "title": "4 - Evaluating models",
     "section": "Concordance",
-    "text": "Concordance\nThe concordance statistic (“c-index”, Harrell et al (1996)) is a metric that quantifies that the rank order of the times is consistent with some model score (e.g., a survival probability).\n\nIt takes into account censoring and does not depend on a specific evaluation time. The range of values is \\([-1, 1]\\).\n\ndemo_cat_preds %&gt;% \n  concordance_survival(event_time, estimate = .pred_time)\n#&gt; # A tibble: 1 × 3\n#&gt;   .metric              .estimator .estimate\n#&gt;   &lt;chr&gt;                &lt;chr&gt;          &lt;dbl&gt;\n#&gt; 1 concordance_survival standard       0.668"
+    "text": "Concordance\nThe concordance statistic (“c-index”, Harrell et al (1996)) is a metric that quantifies that the rank order of the times is consistent with the model score.\nIt takes into account censoring and does not depend on a specific evaluation time. The range of values is \\([-1, 1]\\).\n\ndemo_cat_preds %&gt;% \n  concordance_survival(event_time, estimate = .pred_time)\n#&gt; # A tibble: 1 × 3\n#&gt;   .metric              .estimator .estimate\n#&gt;   &lt;chr&gt;                &lt;chr&gt;          &lt;dbl&gt;\n#&gt; 1 concordance_survival standard       0.668"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#time-dependent-metrics",
@@ -116,21 +116,21 @@
     "href": "slides/intro-04-evaluating-models.html#classificationish-metrics",
     "title": "4 - Evaluating models",
     "section": "Classification(ish) Metrics",
-    "text": "Classification(ish) Metrics\nMost dynamic metrics convert the survival probabilities to events and non-events based on some probability threshold.\nFrom there, we can apply existing classification metrics, such as\n\nBrier Score (for calibration)\nArea under the ROC curve (for separation)\n\nWe’ll talk about both of these.\nThere are more details on dynamics metrics at tidymodels.org."
+    "text": "Classification(ish) Metrics\nMost dynamic metrics convert the survival probabilities to events and non-events based on some probability threshold.\nFrom there, we can apply existing classification metrics, such as\n\nBrier Score (for calibration)\nArea under the ROC curve (for separation)\n\nMore details on dynamics metrics at tidymodels.org"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#converting-to-events",
     "href": "slides/intro-04-evaluating-models.html#converting-to-events",
     "title": "4 - Evaluating models",
     "section": "Converting to Events",
-    "text": "Converting to Events\nFor a specific evaluation time point \\(\\tau\\), we convert the observed event time to a binary event/non-event version (if possible) (\\(y_{i\\tau} \\in \\{0, 1\\}\\)).\n\\[\ny_{i\\tau} =\n\\begin{cases}\n1 & \\text{if } t_{i} \\leq \\tau\\text{ and  event} \\notag \\\\\n0 & \\text{if } t_{i} \\gt \\tau \\text{ and } either \\notag \\\\\nmissing & \\text{if } t_{i} \\leq \\tau\\text{ and censored }\n\\end{cases}\n\\]"
+    "text": "Converting to Events"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#converting-to-events-1",
     "href": "slides/intro-04-evaluating-models.html#converting-to-events-1",
     "title": "4 - Evaluating models",
     "section": "Converting to Events",
-    "text": "Converting to Events"
+    "text": "Converting to Events\nFor a specific evaluation time point \\(\\tau\\), we convert the observed event time to a binary event/non-event version, if possible.\n\\[\ny_{i\\tau} =\n\\begin{cases}\n0 & \\text{if } \\tau \\lt t_{i} \\text{ and } either \\notag \\\\\n1 & \\text{if } \\tau \\geq t_{i} \\text{ and  event} \\notag \\\\\nmissing & \\text{if } \\tau \\geq t_{i} \\text{ and censored }\n\\end{cases}\n\\]"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#dealing-with-missing-outcome-data",
@@ -144,7 +144,7 @@
     "href": "slides/intro-04-evaluating-models.html#brier-score",
     "title": "4 - Evaluating models",
     "section": "Brier Score",
-    "text": "Brier Score\nThe Brier score is calibration metric originally meant for classification models:\n\\[\nBrier = \\frac{1}{N}\\sum_{i=1}^N\\sum_{k=1}^C (y_{ik} - \\hat{\\pi}_{ik})^2\n\\]\nFor our application, we have two classes and case weights\n\n\\[\nBrier(t) = \\frac{1}{W}\\sum_{i=1}^N w_{it}\\left[\\underbrace{I(y_{it} = 0)(y_{it} - \\hat{p}_{it})^2}_\\text{non-events} +  \\underbrace{I(y_{it} = 1)(y_{it} - (1 - \\hat{p}_{it}))^2}_\\text{events}\\right]\n\\]"
+    "text": "Brier Score\nThe Brier score is calibration metric originally meant for classification models:\n\\[\nBrier = \\frac{1}{N}\\sum_{i=1}^N\\sum_{k=1}^C (y_{ik} - \\hat{\\pi}_{ik})^2\n\\]"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#brier-scores",
@@ -172,7 +172,7 @@
     "href": "slides/intro-04-evaluating-models.html#area-under-the-roc-curve",
     "title": "4 - Evaluating models",
     "section": "Area Under the ROC Curve",
-    "text": "Area Under the ROC Curve\nThis is more straightforward.\n\nWe can use the standard ROC curve machinery once we have the indicators, probabilities, and censoring weights at evaluation time \\(\\tau\\) (Hung and Chiang (2010)).\n\nROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are."
+    "text": "Area Under the ROC Curve\nWe can use the standard ROC curve machinery on the indicators, probabilities, and censoring weights at evaluation time \\(\\tau\\).\nSee Hung and Chiang (2010).\n\nROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are."
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#area-under-the-roc-curve-1",
@@ -193,7 +193,7 @@
     "href": "slides/intro-04-evaluating-models.html#using-evaluation-times",
     "title": "4 - Evaluating models",
     "section": "Using Evaluation Times",
-    "text": "Using Evaluation Times\nWhen predicting, you can get predictions at any values of \\(\\tau\\).\n\nDuring model development, we suggest picking a more focused set of evaluation times (for computational time).\n\nYou should also pick a time to perform your optimizations/comparisons and list that value first in the vector. If 90 days was of interest, you might use\n\ntimes &lt;- c(90, 30, 60, 120)"
+    "text": "Using Evaluation Times\n\nYou can get predictions at any values of \\(\\tau\\).\nDuring model development, we suggest picking a more focused set of evaluation times (for computational time).\nYou should also pick a single time to perform your optimizations/comparisons with and list that value first in the vector. If 90 days was of particular interest over a 30-to-120-day span, you’d use\n\n\neval_times &lt;- c(90, 30, 60, 120)"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#your-turn",
@@ -1090,5 +1090,19 @@
     "title": "1 - Introduction",
     "section": "",
     "text": "Introduce yourself to your neighbors 👋\n\n Log in to Posit Cloud (free): TODO-ADD-LATER"
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#time-dependent-metrics-1",
+    "href": "slides/intro-04-evaluating-models.html#time-dependent-metrics-1",
+    "title": "4 - Evaluating models",
+    "section": "Time-dependent metrics",
+    "text": "Time-dependent metrics\nWe pick specific time points to evaluate the model (depending on our problem) such as every 30 days:"
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#brier-score-1",
+    "href": "slides/intro-04-evaluating-models.html#brier-score-1",
+    "title": "4 - Evaluating models",
+    "section": "Brier Score",
+    "text": "Brier Score\nFor our application, we have two classes and case weights \\(w_{it}\\)\n\\[\nBrier(t) = \\frac{1}{N}\\sum_{i=1}^N w_{it}\n\\left[\n\\begin{aligned}\n    &\\underbrace{I(y_{it} = 0)((1 - y_{it}) - \\hat{p}_{it})^2}_\\text{non-events} \\\\\n    &+ \\underbrace{I(y_{it} = 1)(y_{it} - (1 - \\hat{p}_{it}))^2}_\\text{events}\n\\end{aligned}\n\\right]\n\\]\nwhere \\(N\\) is the number of non-missing rows in the data."
   }
 ]

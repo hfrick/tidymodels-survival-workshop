@@ -251,8 +251,7 @@
 </section>
 <section id="concordance" class="slide level2 annotation">
 <h2>Concordance</h2>
-<p>The concordance statistic (“c-index”, <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=%22multivariable+prognostic+models%3A+issues+in+developing+models%2C+evaluating+assumptions+and+adequacy%2C+and+measuring+and+reducing+errors%22&amp;btnG=">Harrell <em>et al</em> (1996)</a>) is a metric that quantifies that the rank order of the times is consistent with some model score (e.g., a survival probability).</p>
-<p><br></p>
+<p>The concordance statistic (“c-index”, <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=%22multivariable+prognostic+models%3A+issues+in+developing+models%2C+evaluating+assumptions+and+adequacy%2C+and+measuring+and+reducing+errors%22&amp;btnG=">Harrell <em>et al</em> (1996)</a>) is a metric that quantifies that the rank order of the times is consistent with the model score.</p>
 <p>It takes into account censoring and does not depend on a specific evaluation time. The range of values is <span class="math inline">\([-1, 1]\)</span>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>demo_cat_preds <span class="sc">%&gt;%</span> </span>
@@ -268,6 +267,11 @@
 <p>We pick specific time points to evaluate the model (depending on our problem) such as every 30 days:</p>
 
 <img data-src="figures/demo-probs-again-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
+<section id="time-dependent-metrics-1" class="slide level2">
+<h2>Time-dependent metrics</h2>
+<p>We pick specific time points to evaluate the model (depending on our problem) such as every 30 days:</p>
+
+<img data-src="figures/demo-probs-filtered-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:80.0%"></section>
 <section id="classificationish-metrics" class="slide level2">
 <h2>Classification(ish) Metrics</h2>
 <p>Most dynamic metrics convert the survival probabilities to events and non-events based on some probability threshold.</p>
@@ -276,25 +280,24 @@
 <li>Brier Score (for calibration)</li>
 <li>Area under the ROC curve (for separation)</li>
 </ul>
-<p>We’ll talk about both of these.</p>
-<p>There are more details on dynamics metrics at <a href="https://www.tidymodels.org/learn/#category=survival%20analysis">tidymodels.org</a>.</p>
+<p>More details on dynamics metrics at <a href="https://www.tidymodels.org/learn/#category=survival%20analysis">tidymodels.org</a></p>
 </section>
-<section id="converting-to-events" class="slide level2 annotation">
-<h2>Converting to Events</h2>
-<p>For a specific evaluation time point <span class="math inline">\(\tau\)</span>, we convert the observed event time to a binary event/non-event version (if possible) (<span class="math inline">\(y_{i\tau} \in \{0, 1\}\)</span>).</p>
-<p><span class="math display">\[
-y_{i\tau} =
-\begin{cases}
-1 &amp; \text{if } t_{i} \leq \tau\text{ and  event} \notag \\
-0 &amp; \text{if } t_{i} \gt \tau \text{ and } either \notag \\
-missing &amp; \text{if } t_{i} \leq \tau\text{ and censored }
-\end{cases}
-\]</span></p>
-</section>
-<section id="converting-to-events-1" class="slide level2">
+<section id="converting-to-events" class="slide level2">
 <h2>Converting to Events</h2>
 
 <img data-src="figures/plot-graf-categories-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:70.0%"></section>
+<section id="converting-to-events-1" class="slide level2 annotation">
+<h2>Converting to Events</h2>
+<p>For a specific evaluation time point <span class="math inline">\(\tau\)</span>, we convert the observed event time to a binary event/non-event version, if possible.</p>
+<p><span class="math display">\[
+y_{i\tau} =
+\begin{cases}
+0 &amp; \text{if } \tau \lt t_{i} \text{ and } either \notag \\
+1 &amp; \text{if } \tau \geq t_{i} \text{ and  event} \notag \\
+missing &amp; \text{if } \tau \geq t_{i} \text{ and censored }
+\end{cases}
+\]</span></p>
+</section>
 <section id="dealing-with-missing-outcome-data" class="slide level2 annotation">
 <h2>Dealing with Missing Outcome Data</h2>
 <p>Without censored data points, this conversion would yield appropriate performance estimates since no event outcomes would be missing.</p>
@@ -310,12 +313,20 @@ missing &amp; \text{if } t_{i} \leq \tau\text{ and censored }
 <p><span class="math display">\[
 Brier = \frac{1}{N}\sum_{i=1}^N\sum_{k=1}^C (y_{ik} - \hat{\pi}_{ik})^2
 \]</span></p>
-<p>For our application, we have two classes and case weights</p>
-<div style="overflow-x:auto;overflow-y:hidden;">
+</section>
+<section id="brier-score-1" class="slide level2">
+<h2>Brier Score</h2>
+<p>For our application, we have two classes and case weights <span class="math inline">\(w_{it}\)</span></p>
 <p><span class="math display">\[
-Brier(t) = \frac{1}{W}\sum_{i=1}^N w_{it}\left[\underbrace{I(y_{it} = 0)(y_{it} - \hat{p}_{it})^2}_\text{non-events} +  \underbrace{I(y_{it} = 1)(y_{it} - (1 - \hat{p}_{it}))^2}_\text{events}\right]
+Brier(t) = \frac{1}{N}\sum_{i=1}^N w_{it}
+\left[
+\begin{aligned}
+    &amp;\underbrace{I(y_{it} = 0)((1 - y_{it}) - \hat{p}_{it})^2}_\text{non-events} \\
+    &amp;+ \underbrace{I(y_{it} = 1)(y_{it} - (1 - \hat{p}_{it}))^2}_\text{events}
+\end{aligned}
+\right]
 \]</span></p>
-</div>
+<p>where <span class="math inline">\(N\)</span> is the number of non-missing rows in the data.</p>
 </section>
 <section id="brier-scores" class="slide level2">
 <h2>Brier Scores</h2>
@@ -353,9 +364,8 @@ Brier(t) = \frac{1}{W}\sum_{i=1}^N w_{it}\left[\underbrace{I(y_{it} = 0)(y_{it} 
 </section>
 <section id="area-under-the-roc-curve" class="slide level2">
 <h2>Area Under the ROC Curve</h2>
-<p>This is more straightforward.</p>
-<p><br></p>
-<p>We can use the standard ROC curve machinery once we have the indicators, probabilities, and censoring weights at evaluation time <span class="math inline">\(\tau\)</span> (<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=%22Optimal+Composite+Markers+for+Time-Dependent+Receiver+Operating+Characteristic+Curves+with+Censored+Survival+Data%22&amp;btnG=">Hung and Chiang (2010)</a>).</p>
+<p>We can use the standard ROC curve machinery on the indicators, probabilities, and censoring weights at evaluation time <span class="math inline">\(\tau\)</span>.<br>
+See <a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=%22Optimal+Composite+Markers+for+Time-Dependent+Receiver+Operating+Characteristic+Curves+with+Censored+Survival+Data%22&amp;btnG=">Hung and Chiang (2010)</a>.</p>
 <p><br></p>
 <p>ROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are.</p>
 </section>
@@ -385,13 +395,13 @@ Brier(t) = \frac{1}{W}\sum_{i=1}^N w_{it}\left[\underbrace{I(y_{it} = 0)(y_{it} 
 <img data-src="figures/auc-time-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:60.0%"></section>
 <section id="using-evaluation-times" class="slide level2">
 <h2>Using Evaluation Times</h2>
-<p>When predicting, you can get predictions at any values of <span class="math inline">\(\tau\)</span>.</p>
-<p><br></p>
-<p>During model development, we suggest picking a more focused set of evaluation times (for computational time).</p>
-<p><br></p>
-<p>You should also pick a time to perform your optimizations/comparisons and list that value first in the vector. If 90 days was of interest, you might use</p>
+<ul>
+<li>You can get predictions at any values of <span class="math inline">\(\tau\)</span>.</li>
+<li>During model development, we suggest picking a more focused set of evaluation times (for computational time).</li>
+<li>You should also pick a single time to perform your optimizations/comparisons with and list that value first in the vector. If 90 days was of particular interest over a 30-to-120-day span, you’d use</li>
+</ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a>times <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">30</span>, <span class="dv">60</span>, <span class="dv">120</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a>eval_times <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">30</span>, <span class="dv">60</span>, <span class="dv">120</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section>
