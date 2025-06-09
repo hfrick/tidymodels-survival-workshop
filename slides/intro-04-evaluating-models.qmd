@@ -417,7 +417,7 @@ tree_res
 # Save the assessment set results
 ctrl_cat <- control_resamples(save_pred = TRUE)
 tree_res <- fit_resamples(tree_wflow, cat_folds, eval_time = c(90, 30, 60, 120),
-                         control = ctrl_cat)
+                          control = ctrl_cat)
 
 tree_res
 ```

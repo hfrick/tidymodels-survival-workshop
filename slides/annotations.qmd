@@ -13,6 +13,7 @@ knitr:
 
 library(tidymodels)
 library(censored)
+library(splines)
 library(modeldata)
 tidymodels_prefer()
 

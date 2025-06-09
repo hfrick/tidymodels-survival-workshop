@@ -30,27 +30,20 @@ set.seed(123)
 cat_split <- initial_split(cat_adoption |> slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- testing(cat_split)
+
+tree_spec <- decision_tree() |> 
+  set_mode("censored regression")
+
+tree_wflow <- workflow(event_time ~ ., tree_spec)
+
+tree_fit <- tree_wflow |> 
+  fit(data = cat_train) 
 ```
 
-## An example model fit
+## Predictions
 
 ```{r}
-#| label: example-fit
-# First add all of the predictors...
-f <- event_time ~ . -
-  # Then remove geocoded columns
-  longitude - latitude +
-  # Then add them back as spline terms
-  ns(longitude, df = 5) + ns(latitude, df = 5)
-
-cat_wflow <- workflow(f, proportional_hazards())
-
-cph_spline_fit <- cat_wflow |>
-  fit(data = cat_train)
-```
-
-```{r}
-demo_cat_preds <- augment(cph_spline_fit, demo_cats, eval_time = 8:320)
+demo_cat_preds <- augment(tree_fit, demo_cats, eval_time = ((1:10) * 30))
 ```
 
 ## Concordance
@@ -64,7 +57,6 @@ demo_cat_preds |>
 
 ```{r}
 demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
-demo_brier |> filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
 ## Integrated Brier Score
@@ -77,19 +69,9 @@ brier_survival_integrated(demo_cat_preds, truth = event_time, .pred)
 
 ```{r}
 demo_roc_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
-demo_roc_auc |> filter(.eval_time %in% seq(30, 300, by = 30))
+demo_roc_auc
 ```
 
-## Your turn
-
-Compute and plot an ROC curve for your current model.
-
-What data are being used for this ROC curve plot?
-
-```{r}
-# Your code here!
-
-```
 
 ## Dangers of overfitting
 
@@ -98,8 +80,8 @@ What data are being used for this ROC curve plot?
 Why haven't we done this?
 
 ```
-cph_spline_fit |>
-  augment(cat_train, eval_time = 8:320) |>
+tree_fit |>
+  augment(cat_train, eval_time = ((1:10) * 30)) |>
   brier_survival(truth = event_time, .pred)
 ```
 
@@ -139,14 +121,14 @@ cat_folds
 ```{r}
 # Fit the workflow on each analysis set,
 # then compute performance on each assessment set
-cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120))
-cat_res
+tree_res <- fit_resamples(tree_wflow, cat_folds, eval_time = c(90, 30, 60, 120))
+tree_res
 ```
 
 Aggregate metrics
 
 ```{r}
-cat_res |>
+tree_res |>
   collect_metrics()
 ```
 
@@ -156,11 +138,11 @@ If you want to analyze the assessment set (i.e. holdout) predictions, then you n
 # Save the assessment set results
 ctrl_cat <- control_resamples(save_pred = TRUE)
 
-cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120),
-                         control = ctrl_cat)
+tree_res <- fit_resamples(tree_wflow, cat_folds, eval_time = c(90, 30, 60, 120),
+                          control = ctrl_cat)
 
-cat_preds <- collect_predictions(cat_res)
-cat_preds
+tree_preds <- collect_predictions(tree_res)
+tree_preds
 ```
 
 ## Create a random forest model
