@@ -44,49 +44,24 @@ set.seed(123)
 cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- testing(cat_split)
+
+tree_spec <- decision_tree() %>% 
+  set_mode("censored regression")
+
+tree_wflow <- workflow(event_time ~ ., tree_spec)
+
+tree_fit <- tree_wflow %>% 
+  fit(data = cat_train) 
 ```
 
-## An Example Model Fit {.annotation} 
+## Predictions {.annotation} 
 
-Let's fit another PH and add some nonlinear terms via [splines](https://aml4td.org/chapters/interactions-nonlinear.html#sec-splines):
-
-```{r}
-#| label: example-fit
-# First add all of the predictors...
-f <- event_time ~ . -
-  # Then remove geocoded columns
-  longitude - latitude +
-  # Then add them back as spline terms
-  ns(longitude, df = 5) + ns(latitude, df = 5)
-
-cat_wflow <- workflow(f, proportional_hazards())
-
-cph_spline_fit <- cat_wflow %>%
-  fit(data = cat_train)
-```
-
-## Predictions
-
-For our demo data set of n = `r nrow(demo_cats)` cats, the largest event time was `r max(demo_cats$event_time[,1][demo_cats$event_time[,2] ==1])`. 
-
-We'll make predictions from 8 days to 320 days: 
+For our demo data set of n = `r nrow(demo_cats)` cats. We'll make predictions every 30 days for roughly the first 10 months:
 
 ```{r}
 #| label: demo-cat-preds
-demo_cat_preds <- augment(cph_spline_fit, demo_cats, eval_time = 8:320)
+demo_cat_preds <- augment(tree_fit, demo_cats, eval_time = ((1:10) * 30))
 demo_cat_preds %>% select(1:3)
-```
-```{r}
-#| label: save-pred-for-annotations
-#| include: false
-cph_spline_fit_parsnip <- extract_fit_parsnip(cph_spline_fit)
-rkm_data <- 
-  cph_spline_fit_parsnip$censor_probs$fit[c("time", "surv")] %>% 
-  as_tibble() %>% 
-  set_names(c(".eval_time", ".pred_censored"))
-
-save(demo_cat_preds, file = "RData/demo_cat_preds.RData")
-save(rkm_data, file = "RData/rkm_data.RData")
 ```
 
 ## Concordance {.annotation} 
@@ -103,8 +78,6 @@ demo_cat_preds %>%
 
 ## Time-dependent metrics
 
-We pick specific time points to evaluate the model (depending on our problem) such as every 30 days: 
-
 ```{r}
 #| label: demo-probs-again
 #| echo: false
@@ -113,37 +86,12 @@ We pick specific time points to evaluate the model (depending on our problem) su
 #| out-width: 80%
 #| fig-align: center
 demo_cat_preds %>% 
-  slice(1:4) %>% 
+  slice(1:2) %>% 
   add_rowindex() %>% 
   mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
   unnest(.pred) %>% 
-  ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
-  geom_line() +
-  #geom_vline(xintercept = (1:12) * 30, col = "black", lty = 3, alpha = 7 / 10) +
-  lims(x = c(0, 300), y = c(0, 1)) +
-  labs(x = "Evaluation time", y = "Probability of not adopted")
-```
-
-## Time-dependent metrics
-
-We pick specific time points to evaluate the model (depending on our problem) such as every 30 days: 
-
-```{r}
-#| label: demo-probs-filtered
-#| echo: false
-#| fig-width: 6
-#| fig-height: 4
-#| out-width: 80%
-#| fig-align: center
-demo_cat_preds %>% 
-  slice(1:4) %>% 
-  add_rowindex() %>% 
-  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
-  unnest(.pred) %>% 
-  filter(.eval_time %in% ((1:12) * 30)) %>%
   ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
   geom_point() +
-  #geom_vline(xintercept = (1:12) * 30, col = "black", lty = 3, alpha = 7 / 10) +
   lims(x = c(0, 300), y = c(0, 1)) +
   labs(x = "Evaluation time", y = "Probability of not adopted")
 ```
@@ -280,7 +228,7 @@ where $N$ is the number of non-missing rows in the data.
 ```{r}
 #| label: brier-ex
 demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
-demo_brier %>% filter(.eval_time %in% seq(30, 300, by = 30))
+demo_brier
 ```
 
 ## Brier Scores Over Evaluation Time {.annotation} 
@@ -293,7 +241,6 @@ demo_brier %>% filter(.eval_time %in% seq(30, 300, by = 30))
 #| out-width: 60%
 #| fig-align: center
 demo_brier  %>% 
-  filter(.eval_time %in% seq(30, 300, by = 30)) %>% 
   ggplot(aes(.eval_time, .estimate)) + 
   geom_line() + geom_point() +
   geom_hline(yintercept = 0, col = "lightgreen") +
@@ -321,7 +268,7 @@ ROC curves measure the separation between events and non-events and are ignorant
 
 ```{r auc-survival}
 demo_roc_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
-demo_roc_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
+demo_roc_auc
 ```
 
 ## ROC AUC Over Evaluation Time
@@ -334,7 +281,6 @@ demo_roc_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
 #| out-width: 60%
 #| fig-align: center
 demo_roc_auc %>% 
-  filter(.eval_time %in% seq(30, 300, by = 30)) %>% 
   ggplot(aes(.eval_time, .estimate)) + 
   geom_line() + geom_point() +
   geom_hline(yintercept = 1, col = "lightgreen")+
@@ -364,8 +310,8 @@ eval_times <- c(90, 30, 60, 120)
 
 ```{r augment-acc-2}
 #| eval: false
-cph_spline_fit %>%
-  augment(cat_train, eval_time = 8:320) %>%
+tree_fit %>%
+  augment(cat_train, eval_time = ((1:10) * 30)) %>%
   brier_survival(truth = event_time, .pred)
 ```
 
@@ -389,7 +335,7 @@ countdown::countdown(minutes = 5, id = "overfitting")
 
 ```{r vfold-cv}
 set.seed(123)
-cat_folds <- vfold_cv(cat_train, v = 10)# v = 10 is default
+cat_folds <- vfold_cv(cat_train, v = 10) # v = 10 is default
 cat_folds
 ```
 
@@ -398,7 +344,6 @@ cat_folds
 What is in this?
 
 ```{r cat-splits}
-cat_folds <- vfold_cv(cat_train)
 cat_folds$splits[1:3]
 ```
 
@@ -435,14 +380,16 @@ knitr::include_graphics("images/whole-game-transparent-resamples.jpg")
 ## Fit our model to the resamples
 
 ```{r fit-resamples}
-cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120))
-cat_res
+tree_wflow <- workflow(event_time ~ ., tree_spec)
+
+tree_res <- fit_resamples(tree_wflow, cat_folds, eval_time = c(90, 30, 60, 120))
+tree_res
 ```
 
 ## Evaluating model performance `r hexes("tune")` {.annotation} 
 
 ```{r collect-metrics}
-cat_res %>%
+tree_res %>%
   collect_metrics()
 ```
 
@@ -457,7 +404,7 @@ We can reliably measure performance using only the **training** data 🎉
 ## Where are the fitted models? `r hexes("tune")`  {.annotation}
 
 ```{r cat-res}
-cat_res
+tree_res
 ```
 
 . . .
@@ -469,17 +416,17 @@ cat_res
 ```{r save-predictions}
 # Save the assessment set results
 ctrl_cat <- control_resamples(save_pred = TRUE)
-cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120),
+tree_res <- fit_resamples(tree_wflow, cat_folds, eval_time = c(90, 30, 60, 120),
                          control = ctrl_cat)
 
-cat_res
+tree_res
 ```
 
 ## But it's easy to collect the predictions `r hexes("tune")`
 
 ```{r collect-predictions}
-cat_preds <- collect_predictions(cat_res)
-cat_preds
+tree_preds <- collect_predictions(tree_res)
+tree_preds
 ```
 
 # Decision tree 🌳

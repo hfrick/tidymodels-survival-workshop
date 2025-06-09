@@ -129,7 +129,24 @@ Generally speaking, this problem is referred to as [data leakage](https://en.wik
 
 # 04 - Evaluating Models
 
-## An Example Model Fit
+## Predictions
+
+Alternatively, we could also fit a PH model and add some nonlinear terms via [splines](https://aml4td.org/chapters/interactions-nonlinear.html#sec-splines):
+
+```{r}
+#| label: example-fit
+# First add all of the predictors...
+f <- event_time ~ . -
+  # Then remove geocoded columns
+  longitude - latitude +
+  # Then add them back as spline terms
+  ns(longitude, df = 5) + ns(latitude, df = 5)
+
+cat_wflow <- workflow(f, proportional_hazards())
+
+cph_spline_fit <- cat_wflow %>%
+  fit(data = cat_train)
+```
 
 First, in regards to the weird formula assembly: this is a lot easier if we use a [recipe](https://workshops.tidymodels.org/slides/advanced-02-feature-engineering.html). 
 
@@ -231,8 +248,13 @@ The RKM curve is attached to the parsnip model object. Its curve:
 #| fig-height: 4
 #| out-width: 80%
 #| fig-align: center
-load(file = "RData/demo_cat_preds.RData")
-load(file = "RData/rkm_data.RData")
+demo_cat_preds <- augment(cph_spline_fit, demo_cats, eval_time = 8:320)
+
+cph_spline_fit_parsnip <- extract_fit_parsnip(cph_spline_fit)
+rkm_data <- 
+  cph_spline_fit_parsnip$censor_probs$fit[c("time", "surv")] %>% 
+  as_tibble() %>% 
+  set_names(c(".eval_time", ".pred_censored"))
 
 max_wt_time <- 
   demo_cat_preds %>% 
