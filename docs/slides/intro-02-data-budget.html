@@ -278,7 +278,7 @@
 <section id="make-the-outcome" class="slide level2">
 <h2>Make the outcome <img data-src="hexes/survival.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>cat_adoption <span class="ot">&lt;-</span> cat_adoption <span class="sc">%&gt;%</span> </span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>cat_adoption <span class="ot">&lt;-</span> cat_adoption <span class="sc">|&gt;</span> </span>
 <span id="cb2-2"><a></a>  <span class="fu">mutate</span>(<span class="at">event_time =</span> <span class="fu">Surv</span>(time, event), <span class="at">.keep =</span> <span class="st">"unused"</span>, <span class="at">.before =</span> <span class="fu">everything</span>()) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
@@ -399,10 +399,10 @@
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">set.seed</span>(<span class="dv">27</span>)</span>
 <span id="cb7-2"><a></a>in_demo <span class="ot">&lt;-</span> <span class="fu">sample.int</span>(<span class="fu">nrow</span>(cat_adoption), <span class="dv">50</span>)</span>
-<span id="cb7-3"><a></a>demo_cats <span class="ot">&lt;-</span> cat_adoption <span class="sc">%&gt;%</span> <span class="fu">slice</span>(in_demo)</span>
+<span id="cb7-3"><a></a>demo_cats <span class="ot">&lt;-</span> cat_adoption <span class="sc">|&gt;</span> <span class="fu">slice</span>(in_demo)</span>
 <span id="cb7-4"><a></a></span>
 <span id="cb7-5"><a></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb7-6"><a></a>cat_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(cat_adoption <span class="sc">%&gt;%</span> <span class="fu">slice</span>(<span class="sc">-</span>in_demo), <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb7-6"><a></a>cat_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(cat_adoption <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="sc">-</span>in_demo), <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
 <span id="cb7-7"><a></a>cat_train <span class="ot">&lt;-</span> <span class="fu">training</span>(cat_split)</span>
 <span id="cb7-8"><a></a>cat_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(cat_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -451,7 +451,7 @@ and longitude and latitude, respectively?</em></p>
 <h2>Time to adoption <img data-src="hexes/ggsurvfit.png" class="absolute" style="top: -20px; right: 0px; width: 64px; height: 74.24px; "></h2>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="fu">library</span>(ggsurvfit)</span>
-<span id="cb8-2"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> cat_adoption) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-2"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> cat_adoption) <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -464,21 +464,21 @@ and longitude and latitude, respectively?</em></p>
 <section id="section" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> neutered, <span class="at">data =</span> cat_train) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> neutered, <span class="at">data =</span> cat_train) <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="figures/cat-event-time-by-neutered-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
 <section id="section-1" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> brown_tabby, <span class="at">data =</span> cat_train) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> brown_tabby, <span class="at">data =</span> cat_train) <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="figures/cat-event-time-by-brown-tabby-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
 <section id="section-2" class="slide level2">
 <h2></h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> gray, <span class="at">data =</span> cat_train) <span class="sc">%&gt;%</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">survfit</span>(event_time <span class="sc">~</span> gray, <span class="at">data =</span> cat_train) <span class="sc">|&gt;</span> <span class="fu">ggsurvfit</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 </div>
 <img data-src="figures/cat-event-time-by-gray-1.svg" class="quarto-figure quarto-figure-center r-stretch"></section>
@@ -488,9 +488,9 @@ and longitude and latitude, respectively?</em></p>
 <div class="column">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">library</span>(leaflet)</span>
 <span id="cb12-2"><a></a></span>
-<span id="cb12-3"><a></a>cat_train <span class="sc">%&gt;%</span> </span>
-<span id="cb12-4"><a></a>  <span class="fu">leaflet</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb12-5"><a></a>  <span class="fu">addProviderTiles</span>(<span class="st">"CartoDB.Positron"</span>) <span class="sc">%&gt;%</span>  </span>
+<span id="cb12-3"><a></a>cat_train <span class="sc">|&gt;</span> </span>
+<span id="cb12-4"><a></a>  <span class="fu">leaflet</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-5"><a></a>  <span class="fu">addProviderTiles</span>(<span class="st">"CartoDB.Positron"</span>) <span class="sc">|&gt;</span>  </span>
 <span id="cb12-6"><a></a>  <span class="fu">addCircles</span>(<span class="at">lng =</span> <span class="sc">~</span> longitude, </span>
 <span id="cb12-7"><a></a>             <span class="at">lat =</span> <span class="sc">~</span> latitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div><div class="column">

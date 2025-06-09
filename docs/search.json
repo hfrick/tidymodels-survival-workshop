@@ -25,7 +25,7 @@
     "href": "index.html#preparation",
     "title": "Survival analysis with tidymodels",
     "section": "Preparation",
-    "text": "Preparation\nThe process to set up your computer for either workshop will look the same. Please join the workshop with a computer that has the following installed (all available for free):\n\nA recent version of R, available at https://cran.r-project.org/\nA recent version of RStudio Desktop (RStudio Desktop Open Source License, at least v2022.02), available at https://posit.co/download/rstudio-desktop/\nThe following R packages, which you can install from the R console:\n\n\n# Install the packages for the workshop\npkgs &lt;- \n  c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)\n\nIf you’re a Windows user and encounter an error message during installation noting a missing Rtools installation, install Rtools using the installer linked here."
+    "text": "Preparation\nThe process to set up your computer for either workshop will look the same. Please join the workshop with a computer that has the following installed (all available for free):\n\nA recent version of R, available at https://cran.r-project.org/\nA recent version of RStudio Desktop (RStudio Desktop Open Source License, at least v2022.02), available at https://posit.co/download/rstudio-desktop/\nThe following R packages, which you can install from the R console:\n\n\n# Install the packages for the workshop\npkgs &lt;- c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)\n\nIf you’re a Windows user and encounter an error message during installation noting a missing Rtools installation, install Rtools using the installer linked here."
   },
   {
     "objectID": "index.html#slides",
@@ -81,7 +81,7 @@
     "href": "slides/intro-04-evaluating-models.html",
     "title": "4 - Evaluating models",
     "section": "",
-    "text": "#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.3.0 ──\n#&gt; ✔ broom        1.0.8          ✔ rsample      1.3.0     \n#&gt; ✔ dials        1.4.0          ✔ tibble       3.2.1     \n#&gt; ✔ dplyr        1.1.4          ✔ tidyr        1.3.1     \n#&gt; ✔ infer        1.0.8          ✔ tune         1.3.0     \n#&gt; ✔ modeldata    1.4.0          ✔ workflows    1.2.0     \n#&gt; ✔ parsnip      1.3.1.9000     ✔ workflowsets 1.1.0.9000\n#&gt; ✔ purrr        1.0.4          ✔ yardstick    1.3.2     \n#&gt; ✔ recipes      1.3.1\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; Loading required package: survival"
+    "text": "#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.3.0 ──\n#&gt; ✔ broom        1.0.8     ✔ rsample      1.3.0\n#&gt; ✔ dials        1.4.0     ✔ tibble       3.2.1\n#&gt; ✔ dplyr        1.1.4     ✔ tidyr        1.3.1\n#&gt; ✔ infer        1.0.8     ✔ tune         1.3.0\n#&gt; ✔ modeldata    1.4.0     ✔ workflows    1.2.0\n#&gt; ✔ parsnip      1.3.2     ✔ workflowsets 1.1.0\n#&gt; ✔ purrr        1.0.4     ✔ yardstick    1.3.2\n#&gt; ✔ recipes      1.3.1\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; Loading required package: survival"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#an-example-model-fit",
@@ -95,77 +95,77 @@
     "href": "slides/intro-04-evaluating-models.html#predictions",
     "title": "4 - Evaluating models",
     "section": "Predictions",
-    "text": "Predictions\nFor our demo data set of n = 50 cats, the largest event time was 329.\nWe’ll make predictions from 8 days to 320 days:\n\ndemo_cat_preds &lt;- augment(cph_spline_fit, demo_cats, eval_time = 8:320)\ndemo_cat_preds %&gt;% select(1:3)\n#&gt; # A tibble: 50 × 3\n#&gt;    .pred              .pred_time event_time\n#&gt;    &lt;list&gt;                  &lt;dbl&gt;     &lt;Surv&gt;\n#&gt;  1 &lt;tibble [313 × 5]&gt;       58.9        36 \n#&gt;  2 &lt;tibble [313 × 5]&gt;      181.         16+\n#&gt;  3 &lt;tibble [313 × 5]&gt;      106.         12+\n#&gt;  4 &lt;tibble [313 × 5]&gt;       62.7        16 \n#&gt;  5 &lt;tibble [313 × 5]&gt;       31.4        22 \n#&gt;  6 &lt;tibble [313 × 5]&gt;       88.5        16 \n#&gt;  7 &lt;tibble [313 × 5]&gt;       48.2       294 \n#&gt;  8 &lt;tibble [313 × 5]&gt;      109.         68+\n#&gt;  9 &lt;tibble [313 × 5]&gt;       60.9        31 \n#&gt; 10 &lt;tibble [313 × 5]&gt;      104.         24+\n#&gt; # ℹ 40 more rows"
+    "text": "Predictions\nFor our demo data set of n = 50 cats, we’ll make predictions every 30 days for roughly the first 10 months:\n\ndemo_cat_preds &lt;- augment(tree_fit, demo_cats, eval_time = ((1:10) * 30))\ndemo_cat_preds |&gt; select(1:3)\n#&gt; # A tibble: 50 × 3\n#&gt;    .pred             .pred_time event_time\n#&gt;    &lt;list&gt;                 &lt;dbl&gt;     &lt;Surv&gt;\n#&gt;  1 &lt;tibble [10 × 5]&gt;      1.08         36 \n#&gt;  2 &lt;tibble [10 × 5]&gt;      0.594        16+\n#&gt;  3 &lt;tibble [10 × 5]&gt;      0.594        12+\n#&gt;  4 &lt;tibble [10 × 5]&gt;      1.08         16 \n#&gt;  5 &lt;tibble [10 × 5]&gt;      2.39         22 \n#&gt;  6 &lt;tibble [10 × 5]&gt;      0.594        16 \n#&gt;  7 &lt;tibble [10 × 5]&gt;      1.08        294 \n#&gt;  8 &lt;tibble [10 × 5]&gt;      0.594        68+\n#&gt;  9 &lt;tibble [10 × 5]&gt;      1.08         31 \n#&gt; 10 &lt;tibble [10 × 5]&gt;      0.594        24+\n#&gt; # ℹ 40 more rows"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#concordance",
     "href": "slides/intro-04-evaluating-models.html#concordance",
     "title": "4 - Evaluating models",
     "section": "Concordance",
-    "text": "Concordance\nThe concordance statistic (“c-index”, Harrell et al (1996)) is a metric that quantifies that the rank order of the times is consistent with the model score.\nIt takes into account censoring and does not depend on a specific evaluation time. The range of values is \\([-1, 1]\\).\n\ndemo_cat_preds %&gt;% \n  concordance_survival(event_time, estimate = .pred_time)\n#&gt; # A tibble: 1 × 3\n#&gt;   .metric              .estimator .estimate\n#&gt;   &lt;chr&gt;                &lt;chr&gt;          &lt;dbl&gt;\n#&gt; 1 concordance_survival standard       0.668"
+    "text": "Concordance\nThe concordance statistic (“c-index”, Harrell et al (1996)) is a metric that quantifies that the rank order of the times is consistent with the model score.\nIt takes into account censoring and does not depend on a specific evaluation time. The range of values is \\([-1, 1]\\).\n\ndemo_cat_preds |&gt; \n  concordance_survival(event_time, estimate = .pred_time)\n#&gt; # A tibble: 1 × 3\n#&gt;   .metric              .estimator .estimate\n#&gt;   &lt;chr&gt;                &lt;chr&gt;          &lt;dbl&gt;\n#&gt; 1 concordance_survival standard       0.312"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#time-dependent-metrics",
     "href": "slides/intro-04-evaluating-models.html#time-dependent-metrics",
     "title": "4 - Evaluating models",
     "section": "Time-dependent metrics",
-    "text": "Time-dependent metrics\nWe pick specific time points to evaluate the model (depending on our problem) such as every 30 days:"
+    "text": "Time-dependent metrics"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#classificationish-metrics",
     "href": "slides/intro-04-evaluating-models.html#classificationish-metrics",
     "title": "4 - Evaluating models",
-    "section": "Classification(ish) Metrics",
-    "text": "Classification(ish) Metrics\nMost dynamic metrics convert the survival probabilities to events and non-events based on some probability threshold.\nFrom there, we can apply existing classification metrics, such as\n\nBrier Score (for calibration)\nArea under the ROC curve (for separation)\n\nMore details on dynamics metrics at tidymodels.org"
+    "section": "Classification(ish) metrics",
+    "text": "Classification(ish) metrics\nMost dynamic metrics convert the survival probabilities to events and non-events based on some probability threshold.\nFrom there, we can apply existing classification metrics, such as\n\nBrier Score (for calibration)\nArea under the ROC curve (for separation)\n\nMore details on dynamics metrics at tidymodels.org"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#converting-to-events",
     "href": "slides/intro-04-evaluating-models.html#converting-to-events",
     "title": "4 - Evaluating models",
-    "section": "Converting to Events",
-    "text": "Converting to Events"
+    "section": "Converting to events",
+    "text": "Converting to events"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#converting-to-events-1",
     "href": "slides/intro-04-evaluating-models.html#converting-to-events-1",
     "title": "4 - Evaluating models",
-    "section": "Converting to Events",
-    "text": "Converting to Events\nFor a specific evaluation time point \\(\\tau\\), we convert the observed event time to a binary event/non-event version, if possible.\n\\[\ny_{i\\tau} =\n\\begin{cases}\n0 & \\text{if } \\tau \\lt t_{i} \\text{ and } either \\notag \\\\\n1 & \\text{if } \\tau \\geq t_{i} \\text{ and  event} \\notag \\\\\nmissing & \\text{if } \\tau \\geq t_{i} \\text{ and censored }\n\\end{cases}\n\\]"
+    "section": "Converting to events",
+    "text": "Converting to events\nFor a specific evaluation time point \\(\\tau\\), we convert the observed event time to a binary event/non-event version, if possible.\n\\[\ny_{i\\tau} =\n\\begin{cases}\n0 & \\text{if } \\tau \\lt t_{i} \\text{ and } either \\notag \\\\\n1 & \\text{if } \\tau \\geq t_{i} \\text{ and  event} \\notag \\\\\nmissing & \\text{if } \\tau \\geq t_{i} \\text{ and censored }\n\\end{cases}\n\\]"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#dealing-with-missing-outcome-data",
     "href": "slides/intro-04-evaluating-models.html#dealing-with-missing-outcome-data",
     "title": "4 - Evaluating models",
-    "section": "Dealing with Missing Outcome Data",
-    "text": "Dealing with Missing Outcome Data\nWithout censored data points, this conversion would yield appropriate performance estimates since no event outcomes would be missing.\n\nOtherwise, there is the potential for bias due to missingness.\n\nWe’ll use tools from causal inference to compensate by creating a propensity score that uses the probability of being censored/missing.\nCase weights use the inverse of this probability. See Graf et al (1999)."
+    "section": "Dealing with missing outcome data",
+    "text": "Dealing with missing outcome data\nWithout censored data points, this conversion would yield appropriate performance estimates since no event outcomes would be missing.\n\nOtherwise, there is the potential for bias due to missingness.\n\nWe’ll use tools from causal inference to compensate by creating a propensity score that uses the probability of being censored/missing.\nCase weights use the inverse of this probability. See Graf et al (1999)."
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#brier-score",
     "href": "slides/intro-04-evaluating-models.html#brier-score",
     "title": "4 - Evaluating models",
-    "section": "Brier Score",
-    "text": "Brier Score\nThe Brier score is calibration metric originally meant for classification models:\n\\[\nBrier = \\frac{1}{N}\\sum_{i=1}^N\\sum_{k=1}^C (y_{ik} - \\hat{\\pi}_{ik})^2\n\\]"
+    "section": "Brier score",
+    "text": "Brier score\nThe Brier score is calibration metric originally meant for classification models:\n\\[\nBrier = \\frac{1}{N}\\sum_{i=1}^N\\sum_{k=1}^C (y_{ik} - \\hat{\\pi}_{ik})^2\n\\]"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#brier-scores",
     "href": "slides/intro-04-evaluating-models.html#brier-scores",
     "title": "4 - Evaluating models",
-    "section": "Brier Scores",
-    "text": "Brier Scores\n\ndemo_brier &lt;- brier_survival(demo_cat_preds, truth = event_time, .pred)\ndemo_brier %&gt;% filter(.eval_time %in% seq(30, 300, by = 30))\n#&gt; # A tibble: 10 × 4\n#&gt;    .metric        .estimator .eval_time .estimate\n#&gt;    &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;\n#&gt;  1 brier_survival standard           30     0.163\n#&gt;  2 brier_survival standard           60     0.170\n#&gt;  3 brier_survival standard           90     0.151\n#&gt;  4 brier_survival standard          120     0.174\n#&gt;  5 brier_survival standard          150     0.164\n#&gt;  6 brier_survival standard          180     0.188\n#&gt;  7 brier_survival standard          210     0.147\n#&gt;  8 brier_survival standard          240     0.156\n#&gt;  9 brier_survival standard          270     0.161\n#&gt; 10 brier_survival standard          300     0.125"
+    "section": "Brier scores",
+    "text": "Brier scores\n\ndemo_brier &lt;- brier_survival(demo_cat_preds, truth = event_time, .pred)\ndemo_brier\n#&gt; # A tibble: 10 × 4\n#&gt;    .metric        .estimator .eval_time .estimate\n#&gt;    &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;\n#&gt;  1 brier_survival standard           30     0.151\n#&gt;  2 brier_survival standard           60     0.174\n#&gt;  3 brier_survival standard           90     0.148\n#&gt;  4 brier_survival standard          120     0.170\n#&gt;  5 brier_survival standard          150     0.159\n#&gt;  6 brier_survival standard          180     0.185\n#&gt;  7 brier_survival standard          210     0.147\n#&gt;  8 brier_survival standard          240     0.156\n#&gt;  9 brier_survival standard          270     0.162\n#&gt; 10 brier_survival standard          300     0.129"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#brier-scores-over-evaluation-time",
     "href": "slides/intro-04-evaluating-models.html#brier-scores-over-evaluation-time",
     "title": "4 - Evaluating models",
-    "section": "Brier Scores Over Evaluation Time",
-    "text": "Brier Scores Over Evaluation Time"
+    "section": "Brier scores over evaluation time",
+    "text": "Brier scores over evaluation time"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#integrated-brier-score",
     "href": "slides/intro-04-evaluating-models.html#integrated-brier-score",
     "title": "4 - Evaluating models",
     "section": "Integrated Brier Score",
-    "text": "Integrated Brier Score\n\nbrier_survival_integrated(demo_cat_preds, truth = event_time, .pred)\n#&gt; # A tibble: 1 × 3\n#&gt;   .metric                   .estimator .estimate\n#&gt;   &lt;chr&gt;                     &lt;chr&gt;          &lt;dbl&gt;\n#&gt; 1 brier_survival_integrated standard       0.152"
+    "text": "Integrated Brier Score\n\nbrier_survival_integrated(demo_cat_preds, truth = event_time, .pred)\n#&gt; # A tibble: 1 × 3\n#&gt;   .metric                   .estimator .estimate\n#&gt;   &lt;chr&gt;                     &lt;chr&gt;          &lt;dbl&gt;\n#&gt; 1 brier_survival_integrated standard       0.144"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#area-under-the-roc-curve",
@@ -178,15 +178,15 @@
     "objectID": "slides/intro-04-evaluating-models.html#area-under-the-roc-curve-1",
     "href": "slides/intro-04-evaluating-models.html#area-under-the-roc-curve-1",
     "title": "4 - Evaluating models",
-    "section": "Area Under the ROC Curve",
-    "text": "Area Under the ROC Curve\n\ndemo_roc_auc &lt;- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)\ndemo_roc_auc %&gt;% filter(.eval_time %in% seq(30, 300, by = 30))\n#&gt; # A tibble: 10 × 4\n#&gt;    .metric          .estimator .eval_time .estimate\n#&gt;    &lt;chr&gt;            &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;\n#&gt;  1 roc_auc_survival standard           30     0.660\n#&gt;  2 roc_auc_survival standard           60     0.679\n#&gt;  3 roc_auc_survival standard           90     0.582\n#&gt;  4 roc_auc_survival standard          120     0.582\n#&gt;  5 roc_auc_survival standard          150     0.515\n#&gt;  6 roc_auc_survival standard          180     0.515\n#&gt;  7 roc_auc_survival standard          210     0.490\n#&gt;  8 roc_auc_survival standard          240     0.490\n#&gt;  9 roc_auc_survival standard          270     0.490\n#&gt; 10 roc_auc_survival standard          300     0.679"
+    "section": "Area under the ROC curve",
+    "text": "Area under the ROC curve\n\ndemo_roc_auc &lt;- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)\ndemo_roc_auc\n#&gt; # A tibble: 10 × 4\n#&gt;    .metric          .estimator .eval_time .estimate\n#&gt;    &lt;chr&gt;            &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;\n#&gt;  1 roc_auc_survival standard           30     0.704\n#&gt;  2 roc_auc_survival standard           60     0.615\n#&gt;  3 roc_auc_survival standard           90     0.556\n#&gt;  4 roc_auc_survival standard          120     0.556\n#&gt;  5 roc_auc_survival standard          150     0.552\n#&gt;  6 roc_auc_survival standard          180     0.552\n#&gt;  7 roc_auc_survival standard          210     0.481\n#&gt;  8 roc_auc_survival standard          240     0.481\n#&gt;  9 roc_auc_survival standard          270     0.481\n#&gt; 10 roc_auc_survival standard          300     0.483"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#roc-auc-over-evaluation-time",
     "href": "slides/intro-04-evaluating-models.html#roc-auc-over-evaluation-time",
     "title": "4 - Evaluating models",
-    "section": "ROC AUC Over Evaluation Time",
-    "text": "ROC AUC Over Evaluation Time"
+    "section": "ROC AUC over evaluation time",
+    "text": "ROC AUC over evaluation time"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#using-evaluation-times",
@@ -200,21 +200,21 @@
     "href": "slides/intro-04-evaluating-models.html#your-turn",
     "title": "4 - Evaluating models",
     "section": "Your turn",
-    "text": "Your turn\n\nWhy haven’t we done this?\n\ncph_spline_fit %&gt;%\n  augment(cat_train, eval_time = 8:320) %&gt;%\n  brier_survival(truth = event_time, .pred)\n\n\n\n\n−+\n05:00\n\n\n\n\n\nrepredicting the training set is overly optimistic\noptimising that leads to overfitting"
+    "text": "Your turn\n\nWhy haven’t we done this?\n\ntree_fit |&gt;\n  augment(cat_train, eval_time = ((1:10) * 30)) |&gt;\n  brier_survival(truth = event_time, .pred)\n\n\n\n\n−+\n05:00\n\n\n\n\n\nrepredicting the training set is overly optimistic\noptimising that leads to overfitting"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#cross-validation",
     "href": "slides/intro-04-evaluating-models.html#cross-validation",
     "title": "4 - Evaluating models",
     "section": "Cross-validation ",
-    "text": "Cross-validation \n\nset.seed(123)\ncat_folds &lt;- vfold_cv(cat_train, v = 10)# v = 10 is default\ncat_folds\n#&gt; #  10-fold cross-validation \n#&gt; # A tibble: 10 × 2\n#&gt;    splits             id    \n#&gt;    &lt;list&gt;             &lt;chr&gt; \n#&gt;  1 &lt;split [1588/177]&gt; Fold01\n#&gt;  2 &lt;split [1588/177]&gt; Fold02\n#&gt;  3 &lt;split [1588/177]&gt; Fold03\n#&gt;  4 &lt;split [1588/177]&gt; Fold04\n#&gt;  5 &lt;split [1588/177]&gt; Fold05\n#&gt;  6 &lt;split [1589/176]&gt; Fold06\n#&gt;  7 &lt;split [1589/176]&gt; Fold07\n#&gt;  8 &lt;split [1589/176]&gt; Fold08\n#&gt;  9 &lt;split [1589/176]&gt; Fold09\n#&gt; 10 &lt;split [1589/176]&gt; Fold10"
+    "text": "Cross-validation \n\nset.seed(123)\ncat_folds &lt;- vfold_cv(cat_train, v = 10) # v = 10 is default\ncat_folds\n#&gt; #  10-fold cross-validation \n#&gt; # A tibble: 10 × 2\n#&gt;    splits             id    \n#&gt;    &lt;list&gt;             &lt;chr&gt; \n#&gt;  1 &lt;split [1588/177]&gt; Fold01\n#&gt;  2 &lt;split [1588/177]&gt; Fold02\n#&gt;  3 &lt;split [1588/177]&gt; Fold03\n#&gt;  4 &lt;split [1588/177]&gt; Fold04\n#&gt;  5 &lt;split [1588/177]&gt; Fold05\n#&gt;  6 &lt;split [1589/176]&gt; Fold06\n#&gt;  7 &lt;split [1589/176]&gt; Fold07\n#&gt;  8 &lt;split [1589/176]&gt; Fold08\n#&gt;  9 &lt;split [1589/176]&gt; Fold09\n#&gt; 10 &lt;split [1589/176]&gt; Fold10"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#cross-validation-1",
     "href": "slides/intro-04-evaluating-models.html#cross-validation-1",
     "title": "4 - Evaluating models",
     "section": "Cross-validation ",
-    "text": "Cross-validation \nWhat is in this?\n\ncat_folds &lt;- vfold_cv(cat_train)\ncat_folds$splits[1:3]\n#&gt; [[1]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n#&gt; \n#&gt; [[2]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n#&gt; \n#&gt; [[3]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n\n\nSet the seed when creating resamples\n\nTalk about a list column, storing non-atomic types in dataframe"
+    "text": "Cross-validation \nWhat is in this?\n\ncat_folds$splits[1:3]\n#&gt; [[1]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n#&gt; \n#&gt; [[2]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n#&gt; \n#&gt; [[3]]\n#&gt; &lt;Analysis/Assess/Total&gt;\n#&gt; &lt;1588/177/1765&gt;\n\n\nSet the seed when creating resamples\n\nTalk about a list column, storing non-atomic types in dataframe"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#bootstrapping",
@@ -235,35 +235,35 @@
     "href": "slides/intro-04-evaluating-models.html#fit-our-model-to-the-resamples",
     "title": "4 - Evaluating models",
     "section": "Fit our model to the resamples",
-    "text": "Fit our model to the resamples\n\ncat_res &lt;- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120))\ncat_res\n#&gt; # Resampling results\n#&gt; # 10-fold cross-validation \n#&gt; # A tibble: 10 × 4\n#&gt;    splits             id     .metrics         .notes          \n#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;          \n#&gt;  1 &lt;split [1588/177]&gt; Fold01 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  2 &lt;split [1588/177]&gt; Fold02 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  3 &lt;split [1588/177]&gt; Fold03 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  4 &lt;split [1588/177]&gt; Fold04 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  5 &lt;split [1588/177]&gt; Fold05 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  6 &lt;split [1589/176]&gt; Fold06 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  7 &lt;split [1589/176]&gt; Fold07 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  8 &lt;split [1589/176]&gt; Fold08 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  9 &lt;split [1589/176]&gt; Fold09 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt; 10 &lt;split [1589/176]&gt; Fold10 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;"
+    "text": "Fit our model to the resamples\n\ntree_wflow &lt;- workflow(event_time ~ ., tree_spec)\n\ntree_res &lt;- fit_resamples(tree_wflow, cat_folds, eval_time = c(90, 30, 60, 120))\ntree_res\n#&gt; # Resampling results\n#&gt; # 10-fold cross-validation \n#&gt; # A tibble: 10 × 4\n#&gt;    splits             id     .metrics         .notes          \n#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;          \n#&gt;  1 &lt;split [1588/177]&gt; Fold01 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  2 &lt;split [1588/177]&gt; Fold02 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  3 &lt;split [1588/177]&gt; Fold03 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  4 &lt;split [1588/177]&gt; Fold04 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  5 &lt;split [1588/177]&gt; Fold05 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  6 &lt;split [1589/176]&gt; Fold06 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  7 &lt;split [1589/176]&gt; Fold07 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  8 &lt;split [1589/176]&gt; Fold08 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  9 &lt;split [1589/176]&gt; Fold09 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt; 10 &lt;split [1589/176]&gt; Fold10 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#evaluating-model-performance",
     "href": "slides/intro-04-evaluating-models.html#evaluating-model-performance",
     "title": "4 - Evaluating models",
     "section": "Evaluating model performance ",
-    "text": "Evaluating model performance \n\ncat_res %&gt;%\n  collect_metrics()\n#&gt; # A tibble: 4 × 7\n#&gt;   .metric        .estimator .eval_time  mean     n std_err .config             \n#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 brier_survival standard           30 0.212    10 0.00413 Preprocessor1_Model1\n#&gt; 2 brier_survival standard           60 0.246    10 0.00555 Preprocessor1_Model1\n#&gt; 3 brier_survival standard           90 0.207    10 0.00677 Preprocessor1_Model1\n#&gt; 4 brier_survival standard          120 0.158    10 0.0105  Preprocessor1_Model1\n\n\ncollect_metrics() is one of a suite of collect_*() functions that can be used to work with columns of tuning results. Most columns in a tuning result prefixed with . have a corresponding collect_*() function with options for common summaries.\n\n\nWe can reliably measure performance using only the training data 🎉"
+    "text": "Evaluating model performance \n\ntree_res |&gt;\n  collect_metrics()\n#&gt; # A tibble: 4 × 7\n#&gt;   .metric        .estimator .eval_time  mean     n std_err .config             \n#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 brier_survival standard           30 0.266    10 0.00498 Preprocessor1_Model1\n#&gt; 2 brier_survival standard           60 0.264    10 0.00952 Preprocessor1_Model1\n#&gt; 3 brier_survival standard           90 0.330    10 0.00599 Preprocessor1_Model1\n#&gt; 4 brier_survival standard          120 0.155    10 0.00978 Preprocessor1_Model1\n\n\ncollect_metrics() is one of a suite of collect_*() functions that can be used to work with columns of tuning results. Most columns in a tuning result prefixed with . have a corresponding collect_*() function with options for common summaries.\n\n\nWe can reliably measure performance using only the training data 🎉"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#where-are-the-fitted-models",
     "href": "slides/intro-04-evaluating-models.html#where-are-the-fitted-models",
     "title": "4 - Evaluating models",
     "section": "Where are the fitted models? ",
-    "text": "Where are the fitted models? \n\ncat_res\n#&gt; # Resampling results\n#&gt; # 10-fold cross-validation \n#&gt; # A tibble: 10 × 4\n#&gt;    splits             id     .metrics         .notes          \n#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;          \n#&gt;  1 &lt;split [1588/177]&gt; Fold01 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  2 &lt;split [1588/177]&gt; Fold02 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  3 &lt;split [1588/177]&gt; Fold03 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  4 &lt;split [1588/177]&gt; Fold04 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  5 &lt;split [1588/177]&gt; Fold05 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  6 &lt;split [1589/176]&gt; Fold06 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  7 &lt;split [1589/176]&gt; Fold07 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  8 &lt;split [1589/176]&gt; Fold08 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  9 &lt;split [1589/176]&gt; Fold09 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt; 10 &lt;split [1589/176]&gt; Fold10 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n\n\n🗑️"
+    "text": "Where are the fitted models? \n\ntree_res\n#&gt; # Resampling results\n#&gt; # 10-fold cross-validation \n#&gt; # A tibble: 10 × 4\n#&gt;    splits             id     .metrics         .notes          \n#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;          \n#&gt;  1 &lt;split [1588/177]&gt; Fold01 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  2 &lt;split [1588/177]&gt; Fold02 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  3 &lt;split [1588/177]&gt; Fold03 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  4 &lt;split [1588/177]&gt; Fold04 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  5 &lt;split [1588/177]&gt; Fold05 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  6 &lt;split [1589/176]&gt; Fold06 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  7 &lt;split [1589/176]&gt; Fold07 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  8 &lt;split [1589/176]&gt; Fold08 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt;  9 &lt;split [1589/176]&gt; Fold09 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n#&gt; 10 &lt;split [1589/176]&gt; Fold10 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt;\n\n\n🗑️"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#but-its-easy-to-save-the-predictions",
     "href": "slides/intro-04-evaluating-models.html#but-its-easy-to-save-the-predictions",
     "title": "4 - Evaluating models",
     "section": "But it’s easy to save the predictions ",
-    "text": "But it’s easy to save the predictions \n\n# Save the assessment set results\nctrl_cat &lt;- control_resamples(save_pred = TRUE)\ncat_res &lt;- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120),\n                         control = ctrl_cat)\n\ncat_res\n#&gt; # Resampling results\n#&gt; # 10-fold cross-validation \n#&gt; # A tibble: 10 × 5\n#&gt;    splits             id     .metrics         .notes           .predictions\n#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;           &lt;list&gt;      \n#&gt;  1 &lt;split [1588/177]&gt; Fold01 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  2 &lt;split [1588/177]&gt; Fold02 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  3 &lt;split [1588/177]&gt; Fold03 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  4 &lt;split [1588/177]&gt; Fold04 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  5 &lt;split [1588/177]&gt; Fold05 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  6 &lt;split [1589/176]&gt; Fold06 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  7 &lt;split [1589/176]&gt; Fold07 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  8 &lt;split [1589/176]&gt; Fold08 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  9 &lt;split [1589/176]&gt; Fold09 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt; 10 &lt;split [1589/176]&gt; Fold10 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;"
+    "text": "But it’s easy to save the predictions \n\n# Save the assessment set results\nctrl_cat &lt;- control_resamples(save_pred = TRUE)\ntree_res &lt;- fit_resamples(tree_wflow, cat_folds, eval_time = c(90, 30, 60, 120),\n                          control = ctrl_cat)\n\ntree_res\n#&gt; # Resampling results\n#&gt; # 10-fold cross-validation \n#&gt; # A tibble: 10 × 5\n#&gt;    splits             id     .metrics         .notes           .predictions\n#&gt;    &lt;list&gt;             &lt;chr&gt;  &lt;list&gt;           &lt;list&gt;           &lt;list&gt;      \n#&gt;  1 &lt;split [1588/177]&gt; Fold01 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  2 &lt;split [1588/177]&gt; Fold02 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  3 &lt;split [1588/177]&gt; Fold03 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  4 &lt;split [1588/177]&gt; Fold04 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  5 &lt;split [1588/177]&gt; Fold05 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  6 &lt;split [1589/176]&gt; Fold06 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  7 &lt;split [1589/176]&gt; Fold07 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  8 &lt;split [1589/176]&gt; Fold08 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt;  9 &lt;split [1589/176]&gt; Fold09 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;    \n#&gt; 10 &lt;split [1589/176]&gt; Fold10 &lt;tibble [4 × 5]&gt; &lt;tibble [0 × 3]&gt; &lt;tibble&gt;"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#but-its-easy-to-collect-the-predictions",
     "href": "slides/intro-04-evaluating-models.html#but-its-easy-to-collect-the-predictions",
     "title": "4 - Evaluating models",
     "section": "But it’s easy to collect the predictions ",
-    "text": "But it’s easy to collect the predictions \n\ncat_preds &lt;- collect_predictions(cat_res)\ncat_preds\n#&gt; # A tibble: 1,765 × 5\n#&gt;    .pred            id      .row event_time .config             \n#&gt;    &lt;list&gt;           &lt;chr&gt;  &lt;int&gt;     &lt;Surv&gt; &lt;chr&gt;               \n#&gt;  1 &lt;tibble [4 × 3]&gt; Fold01    13       139  Preprocessor1_Model1\n#&gt;  2 &lt;tibble [4 × 3]&gt; Fold01    14        40  Preprocessor1_Model1\n#&gt;  3 &lt;tibble [4 × 3]&gt; Fold01    33        10+ Preprocessor1_Model1\n#&gt;  4 &lt;tibble [4 × 3]&gt; Fold01    52       121  Preprocessor1_Model1\n#&gt;  5 &lt;tibble [4 × 3]&gt; Fold01    55        39+ Preprocessor1_Model1\n#&gt;  6 &lt;tibble [4 × 3]&gt; Fold01    70        15+ Preprocessor1_Model1\n#&gt;  7 &lt;tibble [4 × 3]&gt; Fold01    84        35  Preprocessor1_Model1\n#&gt;  8 &lt;tibble [4 × 3]&gt; Fold01    91        18  Preprocessor1_Model1\n#&gt;  9 &lt;tibble [4 × 3]&gt; Fold01    93        82+ Preprocessor1_Model1\n#&gt; 10 &lt;tibble [4 × 3]&gt; Fold01   100        11+ Preprocessor1_Model1\n#&gt; # ℹ 1,755 more rows"
+    "text": "But it’s easy to collect the predictions \n\ntree_preds &lt;- collect_predictions(tree_res)\ntree_preds\n#&gt; # A tibble: 1,765 × 5\n#&gt;    .pred            id      .row event_time .config             \n#&gt;    &lt;list&gt;           &lt;chr&gt;  &lt;int&gt;     &lt;Surv&gt; &lt;chr&gt;               \n#&gt;  1 &lt;tibble [4 × 3]&gt; Fold01    17        35  Preprocessor1_Model1\n#&gt;  2 &lt;tibble [4 × 3]&gt; Fold01    29        60  Preprocessor1_Model1\n#&gt;  3 &lt;tibble [4 × 3]&gt; Fold01    51         8  Preprocessor1_Model1\n#&gt;  4 &lt;tibble [4 × 3]&gt; Fold01    55        39+ Preprocessor1_Model1\n#&gt;  5 &lt;tibble [4 × 3]&gt; Fold01    62        36+ Preprocessor1_Model1\n#&gt;  6 &lt;tibble [4 × 3]&gt; Fold01    63        14  Preprocessor1_Model1\n#&gt;  7 &lt;tibble [4 × 3]&gt; Fold01    92        14+ Preprocessor1_Model1\n#&gt;  8 &lt;tibble [4 × 3]&gt; Fold01    95        37  Preprocessor1_Model1\n#&gt;  9 &lt;tibble [4 × 3]&gt; Fold01    96        19+ Preprocessor1_Model1\n#&gt; 10 &lt;tibble [4 × 3]&gt; Fold01   101        83  Preprocessor1_Model1\n#&gt; # ℹ 1,755 more rows"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#random-forest-1",
@@ -277,7 +277,7 @@
     "href": "slides/intro-04-evaluating-models.html#create-a-random-forest-model",
     "title": "4 - Evaluating models",
     "section": "Create a random forest model ",
-    "text": "Create a random forest model \n\nrf_spec &lt;- rand_forest(trees = 1000) %&gt;% \n  set_engine(\"aorsf\") %&gt;% \n  set_mode(\"censored regression\")\nrf_spec\n#&gt; Random Forest Model Specification (censored regression)\n#&gt; \n#&gt; Main Arguments:\n#&gt;   trees = 1000\n#&gt; \n#&gt; Computational engine: aorsf"
+    "text": "Create a random forest model \n\nrf_spec &lt;- rand_forest(trees = 1000) |&gt; \n  set_engine(\"aorsf\") |&gt; \n  set_mode(\"censored regression\")\nrf_spec\n#&gt; Random Forest Model Specification (censored regression)\n#&gt; \n#&gt; Main Arguments:\n#&gt;   trees = 1000\n#&gt; \n#&gt; Computational engine: aorsf"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#create-a-random-forest-model-1",
@@ -298,7 +298,7 @@
     "href": "slides/intro-04-evaluating-models.html#evaluating-model-performance-1",
     "title": "4 - Evaluating models",
     "section": "Evaluating model performance ",
-    "text": "Evaluating model performance \n\nctrl_cat &lt;- control_resamples(save_pred = TRUE)\n\n# Random forest uses random numbers so set the seed first\nset.seed(2)\nrf_res &lt;- fit_resamples(rf_wflow, cat_folds, eval_time = c(90, 30, 60, 120), \n                        control = ctrl_cat)\n\ncollect_metrics(rf_res)\n#&gt; # A tibble: 4 × 7\n#&gt;   .metric        .estimator .eval_time  mean     n std_err .config             \n#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 brier_survival standard           30 0.210    10 0.00423 Preprocessor1_Model1\n#&gt; 2 brier_survival standard           60 0.243    10 0.00520 Preprocessor1_Model1\n#&gt; 3 brier_survival standard           90 0.200    10 0.00731 Preprocessor1_Model1\n#&gt; 4 brier_survival standard          120 0.151    10 0.0103  Preprocessor1_Model1"
+    "text": "Evaluating model performance \n\nctrl_cat &lt;- control_resamples(save_pred = TRUE)\n\n# Random forest uses random numbers so set the seed first\nset.seed(2)\nrf_res &lt;- fit_resamples(rf_wflow, cat_folds, eval_time = c(90, 30, 60, 120), \n                        control = ctrl_cat)\n\ncollect_metrics(rf_res)\n#&gt; # A tibble: 4 × 7\n#&gt;   .metric        .estimator .eval_time  mean     n std_err .config             \n#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               \n#&gt; 1 brier_survival standard           30 0.210    10 0.00455 Preprocessor1_Model1\n#&gt; 2 brier_survival standard           60 0.241    10 0.00796 Preprocessor1_Model1\n#&gt; 3 brier_survival standard           90 0.199    10 0.00960 Preprocessor1_Model1\n#&gt; 4 brier_survival standard          120 0.151    10 0.00840 Preprocessor1_Model1"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#the-whole-game---status-update-1",
@@ -368,7 +368,7 @@
     "href": "slides/intro-02-data-budget.html#make-the-outcome",
     "title": "2 - Your data budget",
     "section": "Make the outcome ",
-    "text": "Make the outcome \n\ncat_adoption &lt;- cat_adoption %&gt;% \n  mutate(event_time = Surv(time, event), .keep = \"unused\", .before = everything())"
+    "text": "Make the outcome \n\ncat_adoption &lt;- cat_adoption |&gt; \n  mutate(event_time = Surv(time, event), .keep = \"unused\", .before = everything())"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#data-splitting-and-spending",
@@ -382,7 +382,7 @@
     "href": "slides/intro-02-data-budget.html#data-splitting-and-spending-1",
     "title": "2 - Your data budget",
     "section": "Data splitting and spending",
-    "text": "Data splitting and spending\n\nSpending too much data in training prevents us from computing a good assessment of predictive performance.\n\n\n\nSpending too much data in testing prevents us from computing a good estimate of model parameters."
+    "text": "Data splitting and spending\n\nSpending too much data in training prevents us from computing a good assessment of predictive performance.\n\n. . .\n\nSpending too much data in testing prevents us from computing a good estimate of model parameters."
   },
   {
     "objectID": "slides/intro-02-data-budget.html#your-turn",
@@ -438,7 +438,7 @@
     "href": "slides/intro-02-data-budget.html#data-splitting-and-spending-3",
     "title": "2 - Your data budget",
     "section": "Data splitting and spending ",
-    "text": "Data splitting and spending \nWe’ll use this setup:\n\nset.seed(27)\nin_demo &lt;- sample.int(nrow(cat_adoption), 50)\ndemo_cats &lt;- cat_adoption %&gt;% slice(in_demo)\n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption %&gt;% slice(-in_demo), prop = 0.8)\ncat_train &lt;- training(cat_split)\ncat_test &lt;- testing(cat_split)"
+    "text": "Data splitting and spending \nWe’ll use this setup:\n\nset.seed(27)\nin_demo &lt;- sample.int(nrow(cat_adoption), 50)\ndemo_cats &lt;- cat_adoption |&gt; slice(in_demo)\n\nset.seed(123)\ncat_split &lt;- initial_split(cat_adoption |&gt; slice(-in_demo), prop = 0.8)\ncat_train &lt;- training(cat_split)\ncat_test &lt;- testing(cat_split)"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#your-turn-2",
@@ -452,28 +452,28 @@
     "href": "slides/intro-02-data-budget.html#time-to-adoption",
     "title": "2 - Your data budget",
     "section": "Time to adoption ",
-    "text": "Time to adoption \n\nlibrary(ggsurvfit)\nsurvfit(event_time ~ 1, data = cat_adoption) %&gt;% ggsurvfit()"
+    "text": "Time to adoption \n\nlibrary(ggsurvfit)\nsurvfit(event_time ~ 1, data = cat_adoption) |&gt; ggsurvfit()"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#section",
     "href": "slides/intro-02-data-budget.html#section",
     "title": "2 - Your data budget",
     "section": "",
-    "text": "survfit(event_time ~ neutered, data = cat_train) %&gt;% ggsurvfit()"
+    "text": "survfit(event_time ~ neutered, data = cat_train) |&gt; ggsurvfit()"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#section-1",
     "href": "slides/intro-02-data-budget.html#section-1",
     "title": "2 - Your data budget",
     "section": "",
-    "text": "survfit(event_time ~ brown_tabby, data = cat_train) %&gt;% ggsurvfit()"
+    "text": "survfit(event_time ~ brown_tabby, data = cat_train) |&gt; ggsurvfit()"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#section-2",
     "href": "slides/intro-02-data-budget.html#section-2",
     "title": "2 - Your data budget",
     "section": "",
-    "text": "survfit(event_time ~ gray, data = cat_train) %&gt;% ggsurvfit()"
+    "text": "survfit(event_time ~ gray, data = cat_train) |&gt; ggsurvfit()"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#section-3",
@@ -535,22 +535,22 @@
     "objectID": "slides/annotations.html#converting-to-events",
     "href": "slides/annotations.html#converting-to-events",
     "title": "Annotations",
-    "section": "Converting to Events",
-    "text": "Converting to Events\nThe predicted class probabilities are then:\n\\[\n\\begin{align}\nPr[y_{i\\tau} = 1] &= 1- \\hat{S}(\\tau; \\boldsymbol{x}_{i})\\notag \\\\\nPr[y_{i\\tau} = 0] &= \\hat{S}(\\tau; \\boldsymbol{x}_{i}) \\notag\n\\end{align}\n\\]"
+    "section": "Converting to events",
+    "text": "Converting to events\nThe predicted class probabilities are then:\n\\[\n\\begin{align}\nPr[y_{i\\tau} = 1] &= 1- \\hat{S}(\\tau; \\boldsymbol{x}_{i})\\notag \\\\\nPr[y_{i\\tau} = 0] &= \\hat{S}(\\tau; \\boldsymbol{x}_{i}) \\notag\n\\end{align}\n\\]"
   },
   {
     "objectID": "slides/annotations.html#dealing-with-missing-outcome-data",
     "href": "slides/annotations.html#dealing-with-missing-outcome-data",
     "title": "Annotations",
-    "section": "Dealing with Missing Outcome Data",
-    "text": "Dealing with Missing Outcome Data\nFor our causal inference approach, we need to compute \\(\\hat{C}(t^*;\\boldsymbol{x}_{i})\\), the probability that sample \\(i\\) is censored at some time \\(t^*\\).\nWe have to consider how to compute the time point \\(t^*\\). Let’s say we are predicting what will happen at \\(t^* = 17\\) days.\nFirst, we are predicting future events, so we can only assume that we have data prior to 17 days. For this reason, when we use the observed time to compute the probability of censoring, we do it just prior to \\(t^*\\), at \\(t_i - \\epsilon\\) for some very small \\(\\epsilon\\).\nSecond, following Graf et al. (1999), we calculate the censoring probability differently for each event class:\n\\[\nt_i^*=\n\\begin{cases}\nt_i  - \\epsilon &  \\text{if }t_i \\le \\tau \\\\ \\notag\n\\tau - \\epsilon &  \\text{if }t_i &gt; \\tau  \\notag\n\\end{cases}\n\\]\nHow exactly do we estimate \\(\\hat{C}(t^*;\\boldsymbol{x}_{i})\\)? We currently only estimate the probability of non-informative right censoring (i.e., the predictors \\(x_i\\) are ignored). We may expand this API in the future when you have informative censoring.\nOur estimator \\(\\hat{C}(T;x_i)\\) is the “reverse Kaplan-Meier” (RKM, Korn (1986)) curve that inverts the event indicator.\nThe RKM curve is attached to the parsnip model object. Its curve:\n\n\n\n\n\n\n\n\n\nNow let’s look at how the probabilities are computed for four specific cats:\n\n\n\n\n\n\n\n\n\nWe’ve truncated the x-axis for readability.\nFrom this:\n\nAt \\(\\tau = 10\\), all four cats are used to measure performance and \\(t^*_i = t_i - \\epsilon\\).\nAt \\(\\tau = 30\\), only two cats are used and \\(t^*_1 = 36 - \\epsilon\\) and \\(t^*_4 = 30 - \\epsilon\\).\n\nHow the censoring probability varies over time can greatly impact the metrics. For the demonstration set, there are very few usable outcomes in the late stages of the analysis, but these have large weights.\n\n\n\n\n\n\n\n\n\nCase weights \\(w_i(\\tau)\\) are the inverse of these probabilities and \\(W(\\tau)\\) is their sum."
+    "section": "Dealing with missing outcome data",
+    "text": "Dealing with missing outcome data\nFor our causal inference approach, we need to compute \\(\\hat{C}(t^*;\\boldsymbol{x}_{i})\\), the probability that sample \\(i\\) is censored at some time \\(t^*\\).\nWe have to consider how to compute the time point \\(t^*\\). Let’s say we are predicting what will happen at \\(t^* = 17\\) days.\nFirst, we are predicting future events, so we can only assume that we have data prior to 17 days. For this reason, when we use the observed time to compute the probability of censoring, we do it just prior to \\(t^*\\), at \\(t_i - \\epsilon\\) for some very small \\(\\epsilon\\).\nSecond, following Graf et al. (1999), we calculate the censoring probability differently for each event class:\n\\[\nt_i^*=\n\\begin{cases}\nt_i  - \\epsilon &  \\text{if }t_i \\le \\tau \\\\ \\notag\n\\tau - \\epsilon &  \\text{if }t_i &gt; \\tau  \\notag\n\\end{cases}\n\\]\nHow exactly do we estimate \\(\\hat{C}(t^*;\\boldsymbol{x}_{i})\\)? We currently only estimate the probability of non-informative right censoring (i.e., the predictors \\(x_i\\) are ignored). We may expand this API in the future when you have informative censoring.\nOur estimator \\(\\hat{C}(T;x_i)\\) is the “reverse Kaplan-Meier” (RKM, Korn (1986)) curve that inverts the event indicator.\nThe RKM curve is attached to the parsnip model object. Its curve:\n\n\n\n\n\n\n\n\n\nNow let’s look at how the probabilities are computed for four specific cats:\n\n\n\n\n\n\n\n\n\nWe’ve truncated the x-axis for readability.\nFrom this:\n\nAt \\(\\tau = 10\\), all four cats are used to measure performance and \\(t^*_i = t_i - \\epsilon\\).\nAt \\(\\tau = 30\\), only two cats are used and \\(t^*_1 = 36 - \\epsilon\\) and \\(t^*_4 = 30 - \\epsilon\\).\n\nHow the censoring probability varies over time can greatly impact the metrics. For the demonstration set, there are very few usable outcomes in the late stages of the analysis, but these have large weights.\n\n\n\n\n\n\n\n\n\nCase weights \\(w_i(\\tau)\\) are the inverse of these probabilities and \\(W(\\tau)\\) is their sum."
   },
   {
     "objectID": "slides/annotations.html#brier-scores-over-evaluation-time",
     "href": "slides/annotations.html#brier-scores-over-evaluation-time",
     "title": "Annotations",
-    "section": "Brier Scores Over Evaluation Time",
-    "text": "Brier Scores Over Evaluation Time\nIt’s reasonable to wonder about the uncertainty in these statistics, especially for a sample size of 50. When we get to resampling (in a bit), we will have standard errors of statistics that we can use to make confidence intervals.\nWe can use the bootstrap method to compute confidence intervals for a single data set (e.g., a validation set). A tidymodels function called int_pctl() is available for this purpose (more information). This will be able to work directly with objects resulting form resampling or tuning functions (again, in a bit) but for a single data set, we’ll need to create a wrapper that computes the statistic for different bootstrap samples.\n\nbrier_wrapper &lt;- function(split) {\n  dat &lt;- analysis(split)\n  brier_survival(dat, truth = event_time, .pred) %&gt;% \n    # Puts the data into a 'tidy' format:\n    dplyr::select(term = .eval_time, estimate = .estimate)\n}\n\nWe execute that on every bootstrap sample and then use int_pctl() on the results.\n\nset.seed(482)\nbrier_ci &lt;- \n  demo_cat_preds %&gt;% \n  bootstraps(times = 2000) %&gt;% \n  mutate(stats = map(splits, brier_wrapper)) %&gt;% \n  int_pctl(stats, alpha = 0.10) # 90% intervals\n\nYep, statistics from 50 cats has a lot of variation!\n\nbrier_ci %&gt;% \n  ggplot(aes(term, .estimate)) + \n  geom_line() + \n  geom_ribbon(\n    aes(ymin = .lower, ymax = .upper), \n    alpha = 1 / 10, \n    fill = \"blue\") +\n  labs(x = \"Evaluation time\", y = \"Brier score\")"
+    "section": "Brier scores over evaluation time",
+    "text": "Brier scores over evaluation time\nIt’s reasonable to wonder about the uncertainty in these statistics, especially for a sample size of 50. When we get to resampling (in a bit), we will have standard errors of statistics that we can use to make confidence intervals.\nWe can use the bootstrap method to compute confidence intervals for a single data set (e.g., a validation set). A tidymodels function called int_pctl() is available for this purpose (more information). This will be able to work directly with objects resulting form resampling or tuning functions (again, in a bit) but for a single data set, we’ll need to create a wrapper that computes the statistic for different bootstrap samples.\n\nbrier_wrapper &lt;- function(split) {\n  dat &lt;- analysis(split)\n  brier_survival(dat, truth = event_time, .pred) |&gt; \n    # Puts the data into a 'tidy' format:\n    dplyr::select(term = .eval_time, estimate = .estimate)\n}\n\nWe execute that on every bootstrap sample and then use int_pctl() on the results.\n\nset.seed(482)\nbrier_ci &lt;- \n  demo_cat_preds |&gt; \n  bootstraps(times = 2000) |&gt; \n  mutate(stats = map(splits, brier_wrapper)) |&gt; \n  int_pctl(stats, alpha = 0.10) # 90% intervals\n\nYep, statistics from 50 cats has a lot of variation!\n\nbrier_ci |&gt; \n  ggplot(aes(term, .estimate)) + \n  geom_line() + \n  geom_ribbon(\n    aes(ymin = .lower, ymax = .upper), \n    alpha = 1 / 10, \n    fill = \"blue\") +\n  labs(x = \"Evaluation time\", y = \"Brier score\")"
   },
   {
     "objectID": "slides/annotations.html#cross-validation",
@@ -606,7 +606,7 @@
     "href": "slides/intro-01-introduction.html#asking-for-help",
     "title": "1 - Introduction",
     "section": "Asking for help",
-    "text": "Asking for help\n\n🟪 “I’m stuck and need help!”\n\n\n🟩 “I finished the exercise”"
+    "text": "Asking for help\n. . .\n🟪 “I’m stuck and need help!”\n. . .\n🟩 “I finished the exercise”"
   },
   {
     "objectID": "slides/intro-01-introduction.html#section-2",
@@ -662,7 +662,7 @@
     "href": "slides/intro-01-introduction.html#what-is-tidymodels",
     "title": "1 - Introduction",
     "section": "What is tidymodels? ",
-    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.3.0 ──\n#&gt; ✔ broom        1.0.8     ✔ rsample      1.3.0\n#&gt; ✔ dials        1.4.0     ✔ tibble       3.2.1\n#&gt; ✔ dplyr        1.1.4     ✔ tidyr        1.3.1\n#&gt; ✔ infer        1.0.8     ✔ tune         1.3.0\n#&gt; ✔ modeldata    1.4.0     ✔ workflows    1.2.0\n#&gt; ✔ parsnip      1.3.1     ✔ workflowsets 1.1.0\n#&gt; ✔ purrr        1.0.4     ✔ yardstick    1.3.2\n#&gt; ✔ recipes      1.3.1\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()"
+    "text": "What is tidymodels? \n\nlibrary(tidymodels)\n#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.3.0 ──\n#&gt; ✔ broom        1.0.8     ✔ rsample      1.3.0\n#&gt; ✔ dials        1.4.0     ✔ tibble       3.2.1\n#&gt; ✔ dplyr        1.1.4     ✔ tidyr        1.3.1\n#&gt; ✔ infer        1.0.8     ✔ tune         1.3.0\n#&gt; ✔ modeldata    1.4.0     ✔ workflows    1.2.0\n#&gt; ✔ parsnip      1.3.2     ✔ workflowsets 1.1.0\n#&gt; ✔ purrr        1.0.4     ✔ yardstick    1.3.2\n#&gt; ✔ recipes      1.3.1\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()"
   },
   {
     "objectID": "slides/intro-01-introduction.html#the-whole-game",
@@ -725,14 +725,14 @@
     "href": "slides/intro-01-introduction.html#lets-install-some-packages",
     "title": "1 - Introduction",
     "section": "Let’s install some packages",
-    "text": "Let’s install some packages\nIf you are using your own laptop instead of Posit Cloud:\n\n# Install the packages for the workshop\npkgs &lt;- c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)"
+    "text": "Let’s install some packages\n\n\n# Install the packages for the workshop\npkgs &lt;- c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)"
   },
   {
     "objectID": "slides/intro-01-introduction.html#our-versions",
     "href": "slides/intro-01-introduction.html#our-versions",
     "title": "1 - Introduction",
     "section": "Our versions",
-    "text": "Our versions\nR version 4.5.0 (2025-04-11), Quarto (1.7.31)\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\naorsf\n0.1.5\n\n\nbroom\n1.0.8\n\n\ncensored\n0.3.3\n\n\ndials\n1.4.0\n\n\ndplyr\n1.1.4\n\n\nggplot2\n3.5.2\n\n\nglmnet\n4.1-8\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\nlibcoin\n1.0-10\n\n\nmodeldata\n1.4.0\n\n\nmvtnorm\n1.3-3\n\n\nparsnip\n1.3.1\n\n\npartykit\n1.2-24\n\n\npec\n2023.04.12\n\n\nprodlim\n2025.04.28\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\npurrr\n1.0.4\n\n\nrecipes\n1.3.1\n\n\nrpart\n4.1.24\n\n\nrsample\n1.3.0\n\n\nscales\n1.4.0\n\n\nsurvival\n3.8-3\n\n\ntibble\n3.2.1\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\ntidymodels\n1.3.0\n\n\ntidyr\n1.3.1\n\n\ntune\n1.3.0\n\n\nworkflows\n1.2.0\n\n\nworkflowsets\n1.1.0\n\n\nyardstick\n1.3.2"
+    "text": "Our versions\nR version 4.5.0 (2025-04-11), Quarto (1.7.31)\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\naorsf\n0.1.5\n\n\nbroom\n1.0.8\n\n\ncensored\n0.3.3\n\n\ndials\n1.4.0\n\n\ndplyr\n1.1.4\n\n\nggplot2\n3.5.2\n\n\nglmnet\n4.1-8\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\nlibcoin\n1.0-10\n\n\nmodeldata\n1.4.0\n\n\nmvtnorm\n1.3-3\n\n\nparsnip\n1.3.2\n\n\npartykit\n1.2-24\n\n\npec\n2023.04.12\n\n\nprodlim\n2025.04.28\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\npurrr\n1.0.4\n\n\nrecipes\n1.3.1\n\n\nrpart\n4.1.24\n\n\nrsample\n1.3.0\n\n\nscales\n1.4.0\n\n\nsurvival\n3.8-3\n\n\ntibble\n3.2.1\n\n\n\n\n\n\n\n\n\n\n\npackage\nversion\n\n\n\n\ntidymodels\n1.3.0\n\n\ntidyr\n1.3.1\n\n\ntune\n1.3.0\n\n\nworkflows\n1.2.0\n\n\nworkflowsets\n1.1.0\n\n\nyardstick\n1.3.2"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html",
@@ -767,7 +767,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#to-specify-a-model-2",
     "title": "3 - What makes a model?",
     "section": "To specify a model  ",
-    "text": "To specify a model  \n\nproportional_hazards() %&gt;%\n  set_engine(\"glmnet\")\n#&gt; Proportional Hazards Model Specification (censored regression)\n#&gt; \n#&gt; Computational engine: glmnet\n\n\nPH has only one mode, hence also a default mode"
+    "text": "To specify a model  \n\nproportional_hazards() |&gt;\n  set_engine(\"glmnet\")\n#&gt; Proportional Hazards Model Specification (censored regression)\n#&gt; \n#&gt; Computational engine: glmnet\n\n\nPH has only one mode, hence also a default mode"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#to-specify-a-model-3",
@@ -781,7 +781,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#to-specify-a-model-4",
     "title": "3 - What makes a model?",
     "section": "To specify a model  ",
-    "text": "To specify a model  \n\ndecision_tree() %&gt;% \n  set_mode(\"censored regression\")\n#&gt; Decision Tree Model Specification (censored regression)\n#&gt; \n#&gt; Computational engine: rpart\n\n\n\n\nAll available models are listed at https://www.tidymodels.org/find/parsnip/"
+    "text": "To specify a model  \n\ndecision_tree() |&gt; \n  set_mode(\"censored regression\")\n#&gt; Decision Tree Model Specification (censored regression)\n#&gt; \n#&gt; Computational engine: rpart\n\n\n\n\nAll available models are listed at https://www.tidymodels.org/find/parsnip/"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#to-specify-a-model-5",
@@ -886,7 +886,7 @@
     "href": "slides/intro-03-what-makes-a-model.html#why-a-workflow",
     "title": "3 - What makes a model?",
     "section": "Why a workflow()? ",
-    "text": "Why a workflow()? \n\n\nMost importantly, a workflow captures the entire modeling process: fit() and predict() apply to the preprocessing steps in addition to the actual model fit\n\n\n\n\nYou can use other preprocessors besides formulas (more on feature engineering if time permits!)\n\n\n\n\nThey can help organize your work when working with multiple models\n\n\n\n\nWorkflows handle new data better than base R tools in terms of new factor levels\n\n\nTwo ways workflows handle levels better than base R:\n\nEnforces that new levels are not allowed at prediction time (this is an optional check that can be turned off)\nRestores missing levels that were present at fit time, but happen to be missing at prediction time (like, if your “new” data just doesn’t have an instance of that level)"
+    "text": "Why a workflow()? \n. . .\n\nMost importantly, a workflow captures the entire modeling process: fit() and predict() apply to the preprocessing steps in addition to the actual model fit\n\n. . .\n\nYou can use other preprocessors besides formulas (more on feature engineering if time permits!)\n\n. . .\n\nThey can help organize your work when working with multiple models\n\n. . .\n\nWorkflows handle new data better than base R tools in terms of new factor levels\n\n\nTwo ways workflows handle levels better than base R:\n\nEnforces that new levels are not allowed at prediction time (this is an optional check that can be turned off)\nRestores missing levels that were present at fit time, but happen to be missing at prediction time (like, if your “new” data just doesn’t have an instance of that level)"
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#a-model-workflow-1",
@@ -977,7 +977,7 @@
     "href": "slides/intro-05-tuning-models.html",
     "title": "5 - Tuning models",
     "section": "",
-    "text": "#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.2.0 ──\n#&gt; ✔ broom        1.0.6      ✔ rsample      1.2.1 \n#&gt; ✔ dials        1.2.1      ✔ tibble       3.2.1 \n#&gt; ✔ dplyr        1.1.4      ✔ tidyr        1.3.1 \n#&gt; ✔ infer        1.0.7      ✔ tune         1.2.1 \n#&gt; ✔ modeldata    1.4.0      ✔ workflows    1.1.4 \n#&gt; ✔ parsnip      1.2.1      ✔ workflowsets 1.1.0 \n#&gt; ✔ purrr        1.0.2      ✔ yardstick    1.3.1 \n#&gt; ✔ recipes      1.0.10\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; • Search for functions across packages at https://www.tidymodels.org/find/\n#&gt; Loading required package: survival"
+    "text": "#&gt; ── Attaching packages ──────────────────────────── tidymodels 1.3.0 ──\n#&gt; ✔ broom        1.0.8     ✔ rsample      1.3.0\n#&gt; ✔ dials        1.4.0     ✔ tibble       3.2.1\n#&gt; ✔ dplyr        1.1.4     ✔ tidyr        1.3.1\n#&gt; ✔ infer        1.0.8     ✔ tune         1.3.0\n#&gt; ✔ modeldata    1.4.0     ✔ workflows    1.2.0\n#&gt; ✔ parsnip      1.3.2     ✔ workflowsets 1.1.0\n#&gt; ✔ purrr        1.0.4     ✔ yardstick    1.3.2\n#&gt; ✔ recipes      1.3.1\n#&gt; ── Conflicts ─────────────────────────────── tidymodels_conflicts() ──\n#&gt; ✖ purrr::discard() masks scales::discard()\n#&gt; ✖ dplyr::filter()  masks stats::filter()\n#&gt; ✖ dplyr::lag()     masks stats::lag()\n#&gt; ✖ recipes::step()  masks stats::step()\n#&gt; Loading required package: survival"
   },
   {
     "objectID": "slides/intro-05-tuning-models.html#tuning-parameters",
@@ -1005,7 +1005,7 @@
     "href": "slides/intro-05-tuning-models.html#specifying-tuning-parameters",
     "title": "5 - Tuning models",
     "section": "Specifying tuning parameters",
-    "text": "Specifying tuning parameters\nLet’s take our previous random forest workflow and tag for tuning the minimum number of data points in each node:\n\nrf_spec &lt;- rand_forest(min_n = tune()) %&gt;% \n  set_engine(\"aorsf\") %&gt;% \n  set_mode(\"censored regression\")\n\nrf_wflow &lt;- workflow(event_time ~ ., rf_spec)\nrf_wflow\n#&gt; ══ Workflow ══════════════════════════════════════════════════════════\n#&gt; Preprocessor: Formula\n#&gt; Model: rand_forest()\n#&gt; \n#&gt; ── Preprocessor ──────────────────────────────────────────────────────\n#&gt; event_time ~ .\n#&gt; \n#&gt; ── Model ─────────────────────────────────────────────────────────────\n#&gt; Random Forest Model Specification (censored regression)\n#&gt; \n#&gt; Main Arguments:\n#&gt;   min_n = tune()\n#&gt; \n#&gt; Computational engine: aorsf"
+    "text": "Specifying tuning parameters\nLet’s take our previous random forest workflow and tag for tuning the minimum number of data points in each node:\n\nrf_spec &lt;- rand_forest(min_n = tune()) |&gt; \n  set_engine(\"aorsf\") |&gt; \n  set_mode(\"censored regression\")\n\nrf_wflow &lt;- workflow(event_time ~ ., rf_spec)\nrf_wflow\n#&gt; ══ Workflow ══════════════════════════════════════════════════════════\n#&gt; Preprocessor: Formula\n#&gt; Model: rand_forest()\n#&gt; \n#&gt; ── Preprocessor ──────────────────────────────────────────────────────\n#&gt; event_time ~ .\n#&gt; \n#&gt; ── Model ─────────────────────────────────────────────────────────────\n#&gt; Random Forest Model Specification (censored regression)\n#&gt; \n#&gt; Main Arguments:\n#&gt;   min_n = tune()\n#&gt; \n#&gt; Computational engine: aorsf"
   },
   {
     "objectID": "slides/intro-05-tuning-models.html#try-out-multiple-values",
@@ -1047,7 +1047,7 @@
     "href": "slides/intro-02-data-budget.html#location",
     "title": "2 - Your data budget",
     "section": "Location",
-    "text": "Location\n\n\nlibrary(leaflet)\n\ncat_train %&gt;% \n  leaflet() %&gt;%\n  addProviderTiles(\"CartoDB.Positron\") %&gt;%  \n  addCircles(lng = ~ longitude, \n             lat = ~ latitude)"
+    "text": "Location\n\n\nlibrary(leaflet)\n\ncat_train |&gt; \n  leaflet() |&gt;\n  addProviderTiles(\"CartoDB.Positron\") |&gt;  \n  addCircles(lng = ~ longitude, \n             lat = ~ latitude)"
   },
   {
     "objectID": "slides/intro-02-data-budget.html#location-output",
@@ -1068,28 +1068,28 @@
     "href": "slides/intro-03-what-makes-a-model.html#fit-a-model-spec",
     "title": "3 - What makes a model?",
     "section": "Fit a model spec  ",
-    "text": "Fit a model spec  \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\ntree_spec %&gt;% \n  fit(event_time ~ ., data = cat_train) \n#&gt; parsnip model object\n#&gt; \n#&gt; $rpart\n#&gt; n= 1765 \n#&gt; \n#&gt; node), split, n, deviance, yval\n#&gt;       * denotes terminal node\n#&gt; \n#&gt; 1) root 1765 1981.0090 1.0000000  \n#&gt;   2) neutered=no,unknown 696  576.4117 0.5937228 *\n#&gt;   3) neutered=yes 1069 1318.2450 1.1714650  \n#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 921 1063.5830 1.0808970 *\n#&gt;     7) intake_condition=feral,fractious 148  195.7649 2.3866130 *\n#&gt; \n#&gt; $survfit\n#&gt; \n#&gt; Call: prodlim::prodlim(formula = form, data = data)\n#&gt; \n#&gt; Right-censored response of a survival model\n#&gt; \n#&gt; No.Observations: 1765 \n#&gt; \n#&gt; Pattern:\n#&gt;                 Freq\n#&gt;  event          1116\n#&gt;  right.censored 649 \n#&gt; \n#&gt; $levels\n#&gt; [1] \"0.593722848021764\" \"1.08089686322063\"  \"2.38661313111009\" \n#&gt; \n#&gt; attr(,\"class\")\n#&gt; [1] \"pecRpart\""
+    "text": "Fit a model spec  \n\ntree_spec &lt;-\n  decision_tree() |&gt; \n  set_mode(\"censored regression\")\n\ntree_spec |&gt; \n  fit(event_time ~ ., data = cat_train) \n#&gt; parsnip model object\n#&gt; \n#&gt; $rpart\n#&gt; n= 1765 \n#&gt; \n#&gt; node), split, n, deviance, yval\n#&gt;       * denotes terminal node\n#&gt; \n#&gt; 1) root 1765 1981.0090 1.0000000  \n#&gt;   2) neutered=no,unknown 696  576.4117 0.5937228 *\n#&gt;   3) neutered=yes 1069 1318.2450 1.1714650  \n#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 921 1063.5830 1.0808970 *\n#&gt;     7) intake_condition=feral,fractious 148  195.7649 2.3866130 *\n#&gt; \n#&gt; $survfit\n#&gt; \n#&gt; Call: prodlim::prodlim(formula = form, data = data)\n#&gt; \n#&gt; Right-censored response of a survival model\n#&gt; \n#&gt; No.Observations: 1765 \n#&gt; \n#&gt; Pattern:\n#&gt;                 Freq\n#&gt;  event          1116\n#&gt;  right.censored 649 \n#&gt; \n#&gt; $levels\n#&gt; [1] \"0.593722848021764\" \"1.08089686322063\"  \"2.38661313111009\" \n#&gt; \n#&gt; attr(,\"class\")\n#&gt; [1] \"pecRpart\""
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#fit-a-model-workflow",
     "href": "slides/intro-03-what-makes-a-model.html#fit-a-model-workflow",
     "title": "3 - What makes a model?",
     "section": "Fit a model workflow   ",
-    "text": "Fit a model workflow   \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\nworkflow() %&gt;%\n  add_formula(event_time ~ .) %&gt;%\n  add_model(tree_spec) %&gt;%\n  fit(data = cat_train) \n#&gt; ══ Workflow [trained] ════════════════════════════════════════════════\n#&gt; Preprocessor: Formula\n#&gt; Model: decision_tree()\n#&gt; \n#&gt; ── Preprocessor ──────────────────────────────────────────────────────\n#&gt; event_time ~ .\n#&gt; \n#&gt; ── Model ─────────────────────────────────────────────────────────────\n#&gt; $rpart\n#&gt; n= 1765 \n#&gt; \n#&gt; node), split, n, deviance, yval\n#&gt;       * denotes terminal node\n#&gt; \n#&gt; 1) root 1765 1981.0090 1.0000000  \n#&gt;   2) neutered=no,unknown 696  576.4117 0.5937228 *\n#&gt;   3) neutered=yes 1069 1318.2450 1.1714650  \n#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 921 1063.5830 1.0808970 *\n#&gt;     7) intake_condition=feral,fractious 148  195.7649 2.3866130 *\n#&gt; \n#&gt; $survfit\n#&gt; \n#&gt; Call: prodlim::prodlim(formula = form, data = data)\n#&gt; \n#&gt; Right-censored response of a survival model\n#&gt; \n#&gt; No.Observations: 1765 \n#&gt; \n#&gt; Pattern:\n#&gt;                 Freq\n#&gt;  event          1116\n#&gt;  right.censored 649 \n#&gt; \n#&gt; $levels\n#&gt; [1] \"0.593722848021763\" \"1.08089686322063\"  \"2.38661313111009\" \n#&gt; \n#&gt; attr(,\"class\")\n#&gt; [1] \"pecRpart\""
+    "text": "Fit a model workflow   \n\ntree_spec &lt;-\n  decision_tree() |&gt; \n  set_mode(\"censored regression\")\n\nworkflow() |&gt;\n  add_formula(event_time ~ .) |&gt;\n  add_model(tree_spec) |&gt;\n  fit(data = cat_train) \n#&gt; ══ Workflow [trained] ════════════════════════════════════════════════\n#&gt; Preprocessor: Formula\n#&gt; Model: decision_tree()\n#&gt; \n#&gt; ── Preprocessor ──────────────────────────────────────────────────────\n#&gt; event_time ~ .\n#&gt; \n#&gt; ── Model ─────────────────────────────────────────────────────────────\n#&gt; $rpart\n#&gt; n= 1765 \n#&gt; \n#&gt; node), split, n, deviance, yval\n#&gt;       * denotes terminal node\n#&gt; \n#&gt; 1) root 1765 1981.0090 1.0000000  \n#&gt;   2) neutered=no,unknown 696  576.4117 0.5937228 *\n#&gt;   3) neutered=yes 1069 1318.2450 1.1714650  \n#&gt;     6) intake_condition=ill_mild,ill_moderatete,normal,under_age_or_weight,other 921 1063.5830 1.0808970 *\n#&gt;     7) intake_condition=feral,fractious 148  195.7649 2.3866130 *\n#&gt; \n#&gt; $survfit\n#&gt; \n#&gt; Call: prodlim::prodlim(formula = form, data = data)\n#&gt; \n#&gt; Right-censored response of a survival model\n#&gt; \n#&gt; No.Observations: 1765 \n#&gt; \n#&gt; Pattern:\n#&gt;                 Freq\n#&gt;  event          1116\n#&gt;  right.censored 649 \n#&gt; \n#&gt; $levels\n#&gt; [1] \"0.593722848021763\" \"1.08089686322063\"  \"2.38661313111009\" \n#&gt; \n#&gt; attr(,\"class\")\n#&gt; [1] \"pecRpart\""
   },
   {
     "objectID": "slides/intro-03-what-makes-a-model.html#fit-a-model-workflow-1",
     "href": "slides/intro-03-what-makes-a-model.html#fit-a-model-workflow-1",
     "title": "3 - What makes a model?",
     "section": "Fit a model workflow   ",
-    "text": "Fit a model workflow   \n\ntree_spec &lt;-\n  decision_tree() %&gt;% \n  set_mode(\"censored regression\")\n\ntree_fit &lt;-\n  workflow(event_time ~ ., tree_spec) %&gt;% \n  fit(data = cat_train)"
+    "text": "Fit a model workflow   \n\ntree_spec &lt;-\n  decision_tree() |&gt; \n  set_mode(\"censored regression\")\n\ntree_fit &lt;-\n  workflow(event_time ~ ., tree_spec) |&gt; \n  fit(data = cat_train)"
   },
   {
     "objectID": "slides/intro-01-introduction.html#section-4",
     "href": "slides/intro-01-introduction.html#section-4",
     "title": "1 - Introduction",
     "section": "",
-    "text": "Introduce yourself to your neighbors 👋\n\n Log in to Posit Cloud (free): TODO-ADD-LATER"
+    "text": "Introduce yourself to your neighbors 👋\n\n\n\n Log in to Posit Cloud (free): TODO-ADD-LATER"
   },
   {
     "objectID": "slides/intro-04-evaluating-models.html#time-dependent-metrics-1",
@@ -1102,7 +1102,42 @@
     "objectID": "slides/intro-04-evaluating-models.html#brier-score-1",
     "href": "slides/intro-04-evaluating-models.html#brier-score-1",
     "title": "4 - Evaluating models",
-    "section": "Brier Score",
-    "text": "Brier Score\nFor our application, we have two classes and case weights \\(w_{it}\\)\n\\[\nBrier(t) = \\frac{1}{N}\\sum_{i=1}^N w_{it}\n\\left[\n\\begin{aligned}\n    &\\underbrace{I(y_{it} = 0)((1 - y_{it}) - \\hat{p}_{it})^2}_\\text{non-events} \\\\\n    &+ \\underbrace{I(y_{it} = 1)(y_{it} - (1 - \\hat{p}_{it}))^2}_\\text{events}\n\\end{aligned}\n\\right]\n\\]\nwhere \\(N\\) is the number of non-missing rows in the data."
+    "section": "Brier score",
+    "text": "Brier score\nFor our application, we have two classes and case weights \\(w_{it}\\)\n\\[\nBrier(t) = \\frac{1}{N}\\sum_{i=1}^N w_{it}\n\\left[\n\\begin{aligned}\n    &\\underbrace{I(y_{it} = 0)((1 - y_{it}) - \\hat{p}_{it})^2}_\\text{non-events} \\\\\n    &+ \\underbrace{I(y_{it} = 1)(y_{it} - (1 - \\hat{p}_{it}))^2}_\\text{events}\n\\end{aligned}\n\\right]\n\\]\nwhere \\(N\\) is the number of non-missing rows in the data."
+  },
+  {
+    "objectID": "slides/intro-04-evaluating-models.html#setting-evaluation-times",
+    "href": "slides/intro-04-evaluating-models.html#setting-evaluation-times",
+    "title": "4 - Evaluating models",
+    "section": "Setting evaluation times",
+    "text": "Setting evaluation times\n\nYou can get predictions at any values of \\(\\tau\\).\nDuring model development, we suggest picking a more focused set of evaluation times (for computational time).\nYou should also pick a single time to perform your optimizations/comparisons with and list that value first in the vector. If 90 days was of particular interest over a 30-to-120-day span, you’d use\n\n\neval_times &lt;- c(90, 30, 60, 120)"
+  },
+  {
+    "objectID": "slides/annotations.html#predictions",
+    "href": "slides/annotations.html#predictions",
+    "title": "Annotations",
+    "section": "Predictions",
+    "text": "Predictions\nAlternatively, we could also fit a PH model and add some nonlinear terms via splines:\n\n# First add all of the predictors...\nf &lt;- event_time ~ . -\n  # Then remove geocoded columns\n  longitude - latitude +\n  # Then add them back as spline terms\n  ns(longitude, df = 5) + ns(latitude, df = 5)\n\ncat_wflow &lt;- workflow(f, proportional_hazards())\n\ncph_spline_fit &lt;- cat_wflow |&gt;\n  fit(data = cat_train)\n\nFirst, in regards to the weird formula assembly: this is a lot easier if we use a recipe.\nSecondly, a popular feature of the proportional hazards model is that it can use stratification; in this case, a different baseline hazard is created for each level of some factor variable. When using the survival package, you can use a “special” function to add this to the model:\ncph_strata_fit &lt;- \n  proportional_hazards() |&gt;\n  fit(event_time ~ latitude + longitude + strata(sex), data = cat_train)\nThe glmnet package can also use stratification, but its syntax is unconventional. tidymodels allows you to use the same syntax from the survival package to compute this model:\nglmn_strata_fit &lt;- \n  proportional_hazards(penalty = 0.01) |&gt;\n  set_engine(\"glmnet\") |&gt; \n  fit(event_time ~ latitude + longitude + strata(sex), data = cat_train)\nThis is a little model complex when using a workflow.\nIn R, the model formula does various things: it specifies statistical details (e.g., random effects), data transformations (via in-line functions), encodes data as dummy variables, and so on.\nWhen using add_formula() with a workflow, that formula exclusively encodes data and is not directly executed by the model function. This means that if you have a formula with special inline functions, you must add the formula another way. This can affect adding a strata variable for a censored regression model, a smooth for a generalized additive model, random effects for the lme4 package, etc.\nSuppose we have a factor to use as strata (such as sex in our cat data). Since that is a factor, and survival::cph() needs numeric data, add_formula() will convert sex to a dummy variable. That would prevent you from using it in strata().\nFor workflows with special formulas, we suggest using add_variables() instead of add_formula(). To use the formula intended for the underlying model, there is an option to add_model() to do so. For example:\nworkflow() |&gt; \n  add_variables(\n    # Adds raw variables with tidyr-like specifications. These will\n    # remain in the data as-is.\n    outcomes = c(event_time), \n    predictors = c(latitude, longitude, sex)\n  ) |&gt; \n  add_model(\n    proportional_hazards(),\n    # Your model-specific formula goes here: \n    formula = event_time ~ latitude + longitude + strata(sex)\n  ) \nThere are more examples in Section 7.4.1 of Tidy Models with R."
+  },
+  {
+    "objectID": "slides/intro-03-what-makes-a-model.html#what-is-wrong-with-this-.annotation",
+    "href": "slides/intro-03-what-makes-a-model.html#what-is-wrong-with-this-.annotation",
+    "title": "3 - What makes a model?",
+    "section": "What is wrong with this? {.annotation}",
+    "text": "What is wrong with this? {.annotation}"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#section",
+    "href": "slides/intro-01-introduction.html#section",
+    "title": "1 - Introduction",
+    "section": "",
+    "text": "Welcome!\n\n\n\n\n\n\nWi-Fi network name\nTODO-ADD-LATER"
+  },
+  {
+    "objectID": "slides/intro-01-introduction.html#lets-install-some-packages-1",
+    "href": "slides/intro-01-introduction.html#lets-install-some-packages-1",
+    "title": "1 - Introduction",
+    "section": "Let’s install some packages",
+    "text": "Let’s install some packages\nIf you are using your own laptop instead of Posit Cloud:\n\n# Install the packages for the workshop\npkgs &lt;- c(\"aorsf\", \"censored\", \"glmnet\", \"partykit\", \"pec\", \"rpart\", \"tidymodels\")\n\ninstall.packages(pkgs)\n\n\n\n Or log in to Posit Cloud:\nTODO-ADD-LATER"
   }
 ]
