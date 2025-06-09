@@ -198,6 +198,19 @@ knitr::include_graphics("images/whole-game-final-performance.jpg")
 
 ## Let's install some packages
 
+<br>
+
+```{r load-pkgs-0}
+#| eval: false
+
+# Install the packages for the workshop
+pkgs <- c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels")
+
+install.packages(pkgs)
+```
+
+## Let's install some packages {visibility="hidden"}
+
 If you are using your own laptop instead of Posit Cloud:
 
 ```{r load-pkgs}
@@ -209,14 +222,12 @@ pkgs <- c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels
 install.packages(pkgs)
 ```
 
-<!-- 
+
 <br></br>
 
 ### <i class="fa fa-cloud"></i> Or log in to Posit Cloud:
 
 TODO-ADD-LATER
--->
-
 
 ## Our versions
 
