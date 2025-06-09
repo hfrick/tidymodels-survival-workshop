@@ -16,15 +16,15 @@ library(tidymodels)
 library(censored)
 library(modeldata)
 
-cat_adoption <- cat_adoption %>% 
+cat_adoption <- cat_adoption |> 
   mutate(event_time = Surv(time, event), .keep = "unused", .before = everything())
 
 set.seed(27)
 in_demo <- sample.int(nrow(cat_adoption), 50)
-demo_cats <- cat_adoption %>% slice(in_demo)
+demo_cats <- cat_adoption |> slice(in_demo)
 
 set.seed(123)
-cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_split <- initial_split(cat_adoption |> slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- testing(cat_split)
 ```
@@ -44,11 +44,11 @@ Discuss with your neighbor!
 proportional_hazards()
 
 # Engine
-proportional_hazards() %>%
+proportional_hazards() |>
   set_engine("glmnet")
 
 # Mode - Some models have a default mode, others don't
-decision_tree() %>% 
+decision_tree() |> 
   set_mode("censored regression")
 ```
 
@@ -69,23 +69,23 @@ All available models are listed at <https://www.tidymodels.org/find/parsnip/>
 
 ```{r}
 tree_spec <-
-  decision_tree() %>% 
+  decision_tree() |> 
   set_mode("censored regression")
 ```
 
 Fit parsnip specification:
 
 ```{r}
-tree_spec %>% 
+tree_spec |> 
   fit(event_time ~ ., data = cat_train) 
 ```
 
 Fit with a workflow:
 
 ```{r}
-workflow() %>%
-  add_formula(event_time ~ .) %>%
-  add_model(tree_spec) %>%
+workflow() |>
+  add_formula(event_time ~ .) |>
+  add_model(tree_spec) |>
   fit(data = cat_train) 
 ```
 
@@ -93,7 +93,7 @@ workflow() %>%
 
 ```{r}
 tree_fit <-
-  workflow(event_time ~ ., tree_spec) %>% 
+  workflow(event_time ~ ., tree_spec) |> 
   fit(data = cat_train) 
 ```
 

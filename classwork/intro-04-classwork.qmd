@@ -19,15 +19,15 @@ library(splines)
 data(cat_adoption)
 
 cat_adoption <- 
-  cat_adoption %>% 
+  cat_adoption |> 
   mutate(event_time = Surv(time, event), .keep = "unused", .before = everything()) 
 
 set.seed(27)
 in_demo <- sample.int(nrow(cat_adoption), 50)
-demo_cats <- cat_adoption %>% slice(in_demo)
+demo_cats <- cat_adoption |> slice(in_demo)
 
 set.seed(123)
-cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_split <- initial_split(cat_adoption |> slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- testing(cat_split)
 ```
@@ -45,7 +45,7 @@ f <- event_time ~ . -
 
 cat_wflow <- workflow(f, proportional_hazards())
 
-cph_spline_fit <- cat_wflow %>%
+cph_spline_fit <- cat_wflow |>
   fit(data = cat_train)
 ```
 
@@ -56,7 +56,7 @@ demo_cat_preds <- augment(cph_spline_fit, demo_cats, eval_time = 8:320)
 ## Concordance
 
 ```{r}
-demo_cat_preds %>% 
+demo_cat_preds |> 
   concordance_survival(event_time, estimate = .pred_time)
 ```
 
@@ -64,7 +64,7 @@ demo_cat_preds %>%
 
 ```{r}
 demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
-demo_brier %>% filter(.eval_time %in% seq(30, 300, by = 30))
+demo_brier |> filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
 ## Integrated Brier Score
@@ -77,7 +77,7 @@ brier_survival_integrated(demo_cat_preds, truth = event_time, .pred)
 
 ```{r}
 demo_roc_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
-demo_roc_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
+demo_roc_auc |> filter(.eval_time %in% seq(30, 300, by = 30))
 ```
 
 ## Your turn
@@ -98,8 +98,8 @@ What data are being used for this ROC curve plot?
 Why haven't we done this?
 
 ```
-cph_spline_fit %>%
-  augment(cat_train, eval_time = 8:320) %>%
+cph_spline_fit |>
+  augment(cat_train, eval_time = 8:320) |>
   brier_survival(truth = event_time, .pred)
 ```
 
@@ -146,7 +146,7 @@ cat_res
 Aggregate metrics
 
 ```{r}
-cat_res %>%
+cat_res |>
   collect_metrics()
 ```
 
@@ -166,8 +166,8 @@ cat_preds
 ## Create a random forest model
 
 ```{r}
-rf_spec <- rand_forest(trees = 1000) %>% 
-  set_engine("aorsf") %>% 
+rf_spec <- rand_forest(trees = 1000) |> 
+  set_engine("aorsf") |> 
   set_mode("censored regression")
 rf_spec
 ```

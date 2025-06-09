@@ -18,15 +18,15 @@ library(censored)
 data(cat_adoption)
 
 cat_adoption <- 
-  cat_adoption %>% 
+  cat_adoption |> 
   mutate(event_time = Surv(time, event), .keep = "unused", .before = everything()) 
 
 set.seed(27)
 in_demo <- sample.int(nrow(cat_adoption), 50)
-demo_cats <- cat_adoption %>% slice(in_demo)
+demo_cats <- cat_adoption |> slice(in_demo)
 
 set.seed(123)
-cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_split <- initial_split(cat_adoption |> slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- testing(cat_split)
 
@@ -37,8 +37,8 @@ cat_folds <- vfold_cv(cat_train, v = 10)
 ## Tag parameters for tuning
 
 ```{r}
-rf_spec <- rand_forest(min_n = tune()) %>% 
-  set_engine("aorsf") %>% 
+rf_spec <- rand_forest(min_n = tune()) |> 
+  set_engine("aorsf") |> 
   set_mode("censored regression")
 
 rf_wflow <- workflow(event_time ~ ., rf_spec)
