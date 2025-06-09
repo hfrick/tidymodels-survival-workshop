@@ -97,7 +97,7 @@ demo_cat_preds %>%
 ```
 
 
-## Classification(ish) Metrics
+## Classification(ish) metrics
 
 Most dynamic metrics convert the survival probabilities to events and non-events based on some probability threshold. 
 
@@ -108,7 +108,7 @@ From there, we can apply existing classification metrics, such as
 
 More details on dynamics metrics at [tidymodels.org](https://www.tidymodels.org/learn/#category=survival%20analysis) 
 
-## Converting to Events
+## Converting to events
 
 ```{r}
 #| label: plot-graf-categories
@@ -172,7 +172,7 @@ df %>%
   facet_grid(~ eval_time) 
 ```
 
-## Converting to Events {.annotation} 
+## Converting to events {.annotation} 
 
 For a specific evaluation time point $\tau$, we convert the observed event time to a binary event/non-event version, if possible. 
 
@@ -185,7 +185,7 @@ missing & \text{if } \tau \geq t_{i} \text{ and censored }
 \end{cases}
 $$
 
-## Dealing with Missing Outcome Data {.annotation} 
+## Dealing with missing outcome data {.annotation} 
 
 Without censored data points, this conversion would yield appropriate performance estimates since no event outcomes would be missing. 
 
@@ -199,7 +199,7 @@ We'll use tools from causal inference to compensate by creating a propensity sco
 
 Case weights use the inverse of this probability. See [Graf _et al_ (1999)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=graf+1999+%22Assessment+and+comparison+of+prognostic+classification+schemes+for+survival+data%22&btnG=).
 
-## Brier Score
+## Brier score
 
 The Brier score is calibration metric originally meant for classification models:
 
@@ -207,7 +207,7 @@ $$
 Brier = \frac{1}{N}\sum_{i=1}^N\sum_{k=1}^C (y_{ik} - \hat{\pi}_{ik})^2
 $$
 
-## Brier Score
+## Brier score
 
 For our application, we have two classes and case weights $w_{it}$
 
@@ -223,7 +223,7 @@ $$
 
 where $N$ is the number of non-missing rows in the data.
 
-## Brier Scores 
+## Brier scores
 
 ```{r}
 #| label: brier-ex
@@ -231,7 +231,7 @@ demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
 demo_brier
 ```
 
-## Brier Scores Over Evaluation Time {.annotation} 
+## Brier scores over evaluation time {.annotation} 
 
 ```{r}
 #| label: brier-time
@@ -264,14 +264,14 @@ See [Hung and Chiang (2010)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2
 ROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are.  
 
 
-## Area Under the ROC Curve 
+## Area under the ROC curve 
 
 ```{r auc-survival}
 demo_roc_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
 demo_roc_auc
 ```
 
-## ROC AUC Over Evaluation Time
+## ROC AUC over evaluation time
 
 ```{r}
 #| label: auc-time
@@ -288,7 +288,7 @@ demo_roc_auc %>%
   labs(x = "Evaluation time", y = "ROC AUC")
 ```
 
-## Using Evaluation Times
+## Setting evaluation times
 
 - You can get predictions at any values of $\tau$. 
 - During model development, we suggest picking a more focused set of evaluation times (for computational time). 

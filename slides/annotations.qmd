@@ -204,7 +204,7 @@ tidymodels does not treat different models differently when computing performanc
 
 This behavior can be changed by using the `increasing` argument when calling `predict()` on a parsnip model object. 
 
-## Converting to Events
+## Converting to events
 
 The predicted class probabilities are then: 
 
@@ -216,7 +216,7 @@ Pr[y_{i\tau} = 0] &= \hat{S}(\tau; \boldsymbol{x}_{i}) \notag
 $$
 
 
-## Dealing with Missing Outcome Data
+## Dealing with missing outcome data
 
 For our causal inference approach, we need to compute $\hat{C}(t^*;\boldsymbol{x}_{i})$,  the probability that sample $i$ is censored at some time $t^*$. 
 
@@ -330,7 +330,7 @@ demo_cat_preds %>%
 
 Case weights $w_i(\tau)$ are the inverse of these probabilities and $W(\tau)$ is their sum.
 
-## Brier Scores Over Evaluation Time
+## Brier scores over evaluation time
 
 It’s reasonable to wonder about the uncertainty in these statistics, especially for a sample size of 50. When we get to resampling (in a bit), we will have standard errors of statistics that we can use to make confidence intervals. 
 
