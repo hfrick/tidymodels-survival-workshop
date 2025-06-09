@@ -13,6 +13,7 @@ knitr:
 
 library(tidymodels)
 library(censored)
+library(splines)
 library(modeldata)
 tidymodels_prefer()
 
@@ -20,15 +21,15 @@ tidymodels_prefer()
 source("setup.R")
 
 # for plots on event_time ~ location
-cat_adoption <- cat_adoption %>% 
+cat_adoption <- cat_adoption |> 
   mutate(event_time = Surv(time, event), .keep = "unused", .before = everything())
 
 set.seed(27)
 in_demo <- sample.int(nrow(cat_adoption), 50)
-demo_cats <- cat_adoption %>% slice(in_demo)
+demo_cats <- cat_adoption |> slice(in_demo)
 
 set.seed(123)
-cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_split <- initial_split(cat_adoption |> slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 ```
 
@@ -129,7 +130,24 @@ Generally speaking, this problem is referred to as [data leakage](https://en.wik
 
 # 04 - Evaluating Models
 
-## An Example Model Fit
+## Predictions
+
+Alternatively, we could also fit a PH model and add some nonlinear terms via [splines](https://aml4td.org/chapters/interactions-nonlinear.html#sec-splines):
+
+```{r}
+#| label: example-fit
+# First add all of the predictors...
+f <- event_time ~ . -
+  # Then remove geocoded columns
+  longitude - latitude +
+  # Then add them back as spline terms
+  ns(longitude, df = 5) + ns(latitude, df = 5)
+
+cat_wflow <- workflow(f, proportional_hazards())
+
+cph_spline_fit <- cat_wflow |>
+  fit(data = cat_train)
+```
 
 First, in regards to the weird formula assembly: this is a lot easier if we use a [recipe](https://workshops.tidymodels.org/slides/advanced-02-feature-engineering.html). 
 
@@ -137,7 +155,7 @@ Secondly, a popular feature of the proportional hazards model is that it can use
 
 ```r
 cph_strata_fit <- 
-  proportional_hazards() %>%
+  proportional_hazards() |>
   fit(event_time ~ latitude + longitude + strata(sex), data = cat_train)
 ```
 
@@ -145,8 +163,8 @@ The glmnet package can also use stratification, but its syntax is unconventional
 
 ```r
 glmn_strata_fit <- 
-  proportional_hazards(penalty = 0.01) %>%
-  set_engine("glmnet") %>% 
+  proportional_hazards(penalty = 0.01) |>
+  set_engine("glmnet") |> 
   fit(event_time ~ latitude + longitude + strata(sex), data = cat_train)
 ```
 
@@ -161,13 +179,13 @@ Suppose we have a factor to use as strata (such as `sex` in our cat data). Since
 For workflows with special formulas, [we suggest](https://www.tmwr.org/workflows#adding-raw-variables-to-the-workflow) using `add_variables()` instead of `add_formula()`. To use the formula intended for the underlying model, there is an option to  `add_model()` to do so. For example: 
 
 ```r
-workflow() %>% 
+workflow() |> 
   add_variables(
     # Adds raw variables with tidyr-like specifications. These will
     # remain in the data as-is.
     outcomes = c(event_time), 
     predictors = c(latitude, longitude, sex)
-  ) %>% 
+  ) |> 
   add_model(
     proportional_hazards(),
     # Your model-specific formula goes here: 
@@ -187,7 +205,7 @@ tidymodels does not treat different models differently when computing performanc
 
 This behavior can be changed by using the `increasing` argument when calling `predict()` on a parsnip model object. 
 
-## Converting to Events
+## Converting to events
 
 The predicted class probabilities are then: 
 
@@ -199,7 +217,7 @@ Pr[y_{i\tau} = 0] &= \hat{S}(\tau; \boldsymbol{x}_{i}) \notag
 $$
 
 
-## Dealing with Missing Outcome Data
+## Dealing with missing outcome data
 
 For our causal inference approach, we need to compute $\hat{C}(t^*;\boldsymbol{x}_{i})$,  the probability that sample $i$ is censored at some time $t^*$. 
 
@@ -231,18 +249,23 @@ The RKM curve is attached to the parsnip model object. Its curve:
 #| fig-height: 4
 #| out-width: 80%
 #| fig-align: center
-load(file = "RData/demo_cat_preds.RData")
-load(file = "RData/rkm_data.RData")
+demo_cat_preds <- augment(cph_spline_fit, demo_cats, eval_time = 8:320)
+
+cph_spline_fit_parsnip <- extract_fit_parsnip(cph_spline_fit)
+rkm_data <- 
+  cph_spline_fit_parsnip$censor_probs$fit[c("time", "surv")] |> 
+  as_tibble() |> 
+  set_names(c(".eval_time", ".pred_censored"))
 
 max_wt_time <- 
-  demo_cat_preds %>% 
-  slice(1:4) %>% 
-  add_rowindex() %>% 
-  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
-  unnest(.pred) %>% 
+  demo_cat_preds |> 
+  slice(1:4) |> 
+  add_rowindex() |> 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) |> 
+  unnest(.pred) |> 
   summarize(max_weight_time = max(.weight_time, na.rm = TRUE), .by = c(cat))
 
-rkm_data %>% 
+rkm_data |> 
   ggplot(aes(.eval_time, .pred_censored)) +
   geom_line(alpha = 1 / 5, linewidth = 2) +
   labs(x = "Evaluation Time", y = "Prob Censored") + 
@@ -260,12 +283,12 @@ Now let's look at how the probabilities are computed for four specific cats:
 #| out-width: 80%
 #| fig-align: center
 
-demo_cat_preds %>% 
-  slice(1:4) %>% 
-  add_rowindex() %>% 
-  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
-  unnest(.pred) %>% 
-  filter(.eval_time <= 50) %>% 
+demo_cat_preds |> 
+  slice(1:4) |> 
+  add_rowindex() |> 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) |> 
+  unnest(.pred) |> 
+  filter(.eval_time <= 50) |> 
   ggplot(aes(.eval_time, .pred_censored)) + 
   geom_line(aes(group = cat, col = cat), show.legend = FALSE) +
   geom_vline(xintercept = 10, col = "black", lty = 2) +
@@ -294,12 +317,12 @@ How the censoring probability varies over time can greatly impact the metrics. F
 #| fig-align: center
 
 
-demo_cat_preds %>% 
-  unnest(.pred) %>% 
+demo_cat_preds |> 
+  unnest(.pred) |> 
   summarize(
     weight_sum = sum(.weight_censored, na.rm = TRUE),
     `# Samples Available` = sum(!is.na(.weight_censored)),
-    .by = c(.eval_time)) %>% 
+    .by = c(.eval_time)) |> 
   ggplot(aes(.eval_time, weight_sum, size = `# Samples Available`)) + 
   geom_point(alpha = 1 / 4) +
   labs(x = "Evaluation Time", y = "Sum of Weights") +
@@ -308,7 +331,7 @@ demo_cat_preds %>%
 
 Case weights $w_i(\tau)$ are the inverse of these probabilities and $W(\tau)$ is their sum.
 
-## Brier Scores Over Evaluation Time
+## Brier scores over evaluation time
 
 It’s reasonable to wonder about the uncertainty in these statistics, especially for a sample size of 50. When we get to resampling (in a bit), we will have standard errors of statistics that we can use to make confidence intervals. 
 
@@ -318,7 +341,7 @@ We can use the [bootstrap method to compute confidence intervals](https://schola
 #| label: brier-wrapper
 brier_wrapper <- function(split) {
   dat <- analysis(split)
-  brier_survival(dat, truth = event_time, .pred) %>% 
+  brier_survival(dat, truth = event_time, .pred) |> 
     # Puts the data into a 'tidy' format:
     dplyr::select(term = .eval_time, estimate = .estimate)
 }
@@ -332,9 +355,9 @@ We execute that on every bootstrap sample and then use `int_pctl()` on the resul
 
 set.seed(482)
 brier_ci <- 
-  demo_cat_preds %>% 
-  bootstraps(times = 2000) %>% 
-  mutate(stats = map(splits, brier_wrapper)) %>% 
+  demo_cat_preds |> 
+  bootstraps(times = 2000) |> 
+  mutate(stats = map(splits, brier_wrapper)) |> 
   int_pctl(stats, alpha = 0.10) # 90% intervals
 ```
 
@@ -347,7 +370,7 @@ Yep, statistics from 50 cats has a lot of variation!
 #| out-width: 80%
 #| fig-align: center
 
-brier_ci %>% 
+brier_ci |> 
   ggplot(aes(term, .estimate)) + 
   geom_line() + 
   geom_ribbon(

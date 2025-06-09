@@ -34,8 +34,7 @@ The process to set up your computer for either workshop will look the same. Plea
 #| echo: true
 
 # Install the packages for the workshop
-pkgs <- 
-  c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels")
+pkgs <- c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels")
 
 install.packages(pkgs)
 ```

@@ -26,6 +26,13 @@ knitr:
 Welcome!
 :::
 
+## {visibility="hidden"}
+
+::: r-fit-text
+Welcome!
+:::
+
+
 ::: columns
 ::: {.column width="50%"}
 
@@ -58,7 +65,7 @@ Wi-Fi password
 
 ## Workshop policies
 
--   Please review the code of conduct: <https://events.linuxfoundation.org/user/attend/code-of-conduct/>
+-   Please review the code of conduct: <https://rconsortium.github.io/RMedicine_website/Attend.html>
 
 ## Who are you?
 
@@ -83,7 +90,7 @@ Wi-Fi password
 
 Many thanks to Davis Vaughan, Julia Silge, David Robinson, Julie Jung, Alison Hill, and Desirée De Leon for their role in creating these materials!
 
-## Asking for help
+## Asking for help {visibility="hidden"}
 
 . . .
 
@@ -106,7 +113,7 @@ Many thanks to Davis Vaughan, Julia Silge, David Robinson, Julie Jung, Alison Hi
 - Tuning models
 
 
-##  {.center}
+##  {.center visibility="hidden"}
 
 ### Introduce yourself to your neighbors 👋
 
@@ -191,6 +198,19 @@ knitr::include_graphics("images/whole-game-final-performance.jpg")
 
 ## Let's install some packages
 
+<br>
+
+```{r load-pkgs-0}
+#| eval: false
+
+# Install the packages for the workshop
+pkgs <- c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels")
+
+install.packages(pkgs)
+```
+
+## Let's install some packages {visibility="hidden"}
+
 If you are using your own laptop instead of Posit Cloud:
 
 ```{r load-pkgs}
@@ -202,12 +222,12 @@ pkgs <- c("aorsf", "censored", "glmnet", "partykit", "pec", "rpart", "tidymodels
 install.packages(pkgs)
 ```
 
+
 <br></br>
 
 ### <i class="fa fa-cloud"></i> Or log in to Posit Cloud:
 
 TODO-ADD-LATER
-
 
 ## Our versions
 
@@ -222,7 +242,7 @@ excl <- c("iterators", "emo", "countdown", "stats", "graphics",
 loaded <- loaded[[length(loaded)]]
 loaded <- loaded[!(loaded %in% excl)]
 pkgs <- 
-  sessioninfo::package_info(loaded, dependencies = FALSE) %>% 
+  sessioninfo::package_info(loaded, dependencies = FALSE) |> 
   select(-date)
 df <- tibble::tibble(
   package = pkgs$package,
@@ -234,16 +254,16 @@ ids <- split(
   ceiling(seq_len(nrow(df)) / ceiling(nrow(df) / 4))
 )
 
-column1 <- df %>%
+column1 <- df |>
   dplyr::slice(ids[[1]])
 
-column2 <- df %>%
+column2 <- df |>
   dplyr::slice(ids[[2]])
 
-column3 <- df %>%
+column3 <- df |>
   dplyr::slice(ids[[3]])
 
-column4 <- df %>%
+column4 <- df |>
   dplyr::slice(ids[[4]])
 
 quarto_info <- paste0("Quarto (", system("quarto --version", intern = TRUE), ")")

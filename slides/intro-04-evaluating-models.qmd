@@ -33,79 +33,50 @@ library(splines)
 data(cat_adoption)
 
 cat_adoption <- 
-  cat_adoption %>% 
+  cat_adoption |> 
   mutate(event_time = Surv(time, event), .keep = "unused", .before = everything()) 
 
 set.seed(27)
 in_demo <- sample.int(nrow(cat_adoption), 50)
-demo_cats <- cat_adoption %>% slice(in_demo)
+demo_cats <- cat_adoption |> slice(in_demo)
 
 set.seed(123)
-cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_split <- initial_split(cat_adoption |> slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- testing(cat_split)
+
+tree_spec <- decision_tree() |> 
+  set_mode("censored regression")
+
+tree_wflow <- workflow(event_time ~ ., tree_spec)
+
+tree_fit <- tree_wflow |> 
+  fit(data = cat_train) 
 ```
 
-## An Example Model Fit {.annotation} 
+## Predictions {.annotation} 
 
-Let's fit another PH and add some nonlinear terms via [splines](https://aml4td.org/chapters/interactions-nonlinear.html#sec-splines):
-
-```{r}
-#| label: example-fit
-# First add all of the predictors...
-f <- event_time ~ . -
-  # Then remove geocoded columns
-  longitude - latitude +
-  # Then add them back as spline terms
-  ns(longitude, df = 5) + ns(latitude, df = 5)
-
-cat_wflow <- workflow(f, proportional_hazards())
-
-cph_spline_fit <- cat_wflow %>%
-  fit(data = cat_train)
-```
-
-## Predictions
-
-For our demo data set of n = `r nrow(demo_cats)` cats, the largest event time was `r max(demo_cats$event_time[,1][demo_cats$event_time[,2] ==1])`. 
-
-We'll make predictions from 8 days to 320 days: 
+For our demo data set of n = `r nrow(demo_cats)` cats, we'll make predictions every 30 days for roughly the first 10 months:
 
 ```{r}
 #| label: demo-cat-preds
-demo_cat_preds <- augment(cph_spline_fit, demo_cats, eval_time = 8:320)
-demo_cat_preds %>% select(1:3)
-```
-```{r}
-#| label: save-pred-for-annotations
-#| include: false
-cph_spline_fit_parsnip <- extract_fit_parsnip(cph_spline_fit)
-rkm_data <- 
-  cph_spline_fit_parsnip$censor_probs$fit[c("time", "surv")] %>% 
-  as_tibble() %>% 
-  set_names(c(".eval_time", ".pred_censored"))
-
-save(demo_cat_preds, file = "RData/demo_cat_preds.RData")
-save(rkm_data, file = "RData/rkm_data.RData")
+demo_cat_preds <- augment(tree_fit, demo_cats, eval_time = ((1:10) * 30))
+demo_cat_preds |> select(1:3)
 ```
 
 ## Concordance {.annotation} 
 
-The concordance statistic (“c-index”, [Harrell _et al_ (1996)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22multivariable+prognostic+models%3A+issues+in+developing+models%2C+evaluating+assumptions+and+adequacy%2C+and+measuring+and+reducing+errors%22&btnG=)) is a metric that quantifies that the rank order of the times is consistent with some model score (e.g., a survival probability). 
-
-<br> 
+The concordance statistic (“c-index”, [Harrell _et al_ (1996)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22multivariable+prognostic+models%3A+issues+in+developing+models%2C+evaluating+assumptions+and+adequacy%2C+and+measuring+and+reducing+errors%22&btnG=)) is a metric that quantifies that the rank order of the times is consistent with the model score. 
 
 It takes into account censoring and does not depend on a specific evaluation time. The range of values is $[-1, 1]$. 
 
 ```{r}
 #| label: concordance
-demo_cat_preds %>% 
+demo_cat_preds |> 
   concordance_survival(event_time, estimate = .pred_time)
 ```
 
 ## Time-dependent metrics
-
-We pick specific time points to evaluate the model (depending on our problem) such as every 30 days: 
 
 ```{r}
 #| label: demo-probs-again
@@ -114,19 +85,19 @@ We pick specific time points to evaluate the model (depending on our problem) su
 #| fig-height: 4
 #| out-width: 80%
 #| fig-align: center
-demo_cat_preds %>% 
-  slice(1:4) %>% 
-  add_rowindex() %>% 
-  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) %>% 
-  unnest(.pred) %>% 
+demo_cat_preds |> 
+  slice(1:2) |> 
+  add_rowindex() |> 
+  mutate(cat = paste0("#", .row, " (", format(event_time), ")")) |> 
+  unnest(.pred) |> 
   ggplot(aes(.eval_time, .pred_survival, group = cat, col = cat)) + 
-  geom_line() +
-  geom_vline(xintercept = (1:12) * 30, col = "black", lty = 3, alpha = 7 / 10) +
+  geom_point() +
+  lims(x = c(0, 300), y = c(0, 1)) +
   labs(x = "Evaluation time", y = "Probability of not adopted")
 ```
 
 
-## Classification(ish) Metrics
+## Classification(ish) metrics
 
 Most dynamic metrics convert the survival probabilities to events and non-events based on some probability threshold. 
 
@@ -135,24 +106,9 @@ From there, we can apply existing classification metrics, such as
 - Brier Score (for calibration)
 - Area under the ROC curve (for separation)
 
-We’ll talk about both of these. 
+More details on dynamics metrics at [tidymodels.org](https://www.tidymodels.org/learn/#category=survival%20analysis) 
 
-There are more details on dynamics metrics at [tidymodels.org](https://www.tidymodels.org/learn/#category=survival%20analysis). 
-
-## Converting to Events {.annotation} 
-
-For a specific evaluation time point $\tau$, we convert the observed event time to a binary event/non-event version (if possible) ($y_{i\tau} \in \{0, 1\}$). 
-
-$$
-y_{i\tau} = 
-\begin{cases}
-1 & \text{if } t_{i} \leq \tau\text{ and  event} \notag \\ 
-0 & \text{if } t_{i} \gt \tau \text{ and } either \notag \\ 
-missing & \text{if } t_{i} \leq \tau\text{ and censored }
-\end{cases}
-$$
-
-## Converting to Events
+## Converting to events
 
 ```{r}
 #| label: plot-graf-categories
@@ -193,11 +149,11 @@ pch_dot_solid <- 19
 pch_triangle_empty <- 2
 pch_triangle_solid <- 17
 
-df %>% 
+df |> 
   dplyr::mutate(
     obs_status = dplyr::if_else(obs_status == "censored", pch_dot_empty, pch_dot_solid),
     eval_status = dplyr::if_else(eval_status == "censored", pch_triangle_empty, pch_triangle_solid)
-  ) %>% 
+  ) |> 
   ggplot() +
   geom_point(aes(obs_time, obs_id, shape = obs_status, size = I(5))) +
   geom_segment(aes(x = rep(0, 6), y = obs_id, xend = obs_time, yend = obs_id)) +
@@ -216,7 +172,20 @@ df %>%
   facet_grid(~ eval_time) 
 ```
 
-## Dealing with Missing Outcome Data {.annotation} 
+## Converting to events {.annotation} 
+
+For a specific evaluation time point $\tau$, we convert the observed event time to a binary event/non-event version, if possible. 
+
+$$
+y_{i\tau} = 
+\begin{cases}
+0 & \text{if } \tau \lt t_{i} \text{ and } either \notag \\ 
+1 & \text{if } \tau \geq t_{i} \text{ and  event} \notag \\ 
+missing & \text{if } \tau \geq t_{i} \text{ and censored }
+\end{cases}
+$$
+
+## Dealing with missing outcome data {.annotation} 
 
 Without censored data points, this conversion would yield appropriate performance estimates since no event outcomes would be missing. 
 
@@ -230,7 +199,7 @@ We'll use tools from causal inference to compensate by creating a propensity sco
 
 Case weights use the inverse of this probability. See [Graf _et al_ (1999)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=graf+1999+%22Assessment+and+comparison+of+prognostic+classification+schemes+for+survival+data%22&btnG=).
 
-## Brier Score
+## Brier score
 
 The Brier score is calibration metric originally meant for classification models:
 
@@ -238,26 +207,31 @@ $$
 Brier = \frac{1}{N}\sum_{i=1}^N\sum_{k=1}^C (y_{ik} - \hat{\pi}_{ik})^2
 $$
 
-For our application, we have two classes and case weights
+## Brier score
 
-:::{style="overflow-x:auto;overflow-y:hidden;"}
+For our application, we have two classes and case weights $w_{it}$
 
 $$
-Brier(t) = \frac{1}{W}\sum_{i=1}^N w_{it}\left[\underbrace{I(y_{it} = 0)(y_{it} - \hat{p}_{it})^2}_\text{non-events} +  \underbrace{I(y_{it} = 1)(y_{it} - (1 - \hat{p}_{it}))^2}_\text{events}\right]
+Brier(t) = \frac{1}{N}\sum_{i=1}^N w_{it} 
+\left[
+\begin{aligned}
+    &\underbrace{I(y_{it} = 0)((1 - y_{it}) - \hat{p}_{it})^2}_\text{non-events} \\
+    &+ \underbrace{I(y_{it} = 1)(y_{it} - (1 - \hat{p}_{it}))^2}_\text{events} 
+\end{aligned}
+\right]
 $$
 
-:::
+where $N$ is the number of non-missing rows in the data.
 
-
-## Brier Scores 
+## Brier scores
 
 ```{r}
 #| label: brier-ex
 demo_brier <- brier_survival(demo_cat_preds, truth = event_time, .pred)
-demo_brier %>% filter(.eval_time %in% seq(30, 300, by = 30))
+demo_brier
 ```
 
-## Brier Scores Over Evaluation Time {.annotation} 
+## Brier scores over evaluation time {.annotation} 
 
 ```{r}
 #| label: brier-time
@@ -266,10 +240,10 @@ demo_brier %>% filter(.eval_time %in% seq(30, 300, by = 30))
 #| fig-height: 4.25
 #| out-width: 60%
 #| fig-align: center
-demo_brier %>% 
+demo_brier  |> 
   ggplot(aes(.eval_time, .estimate)) + 
-  geom_line() + 
-  geom_hline(yintercept = 0, col = "green") +
+  geom_line() + geom_point() +
+  geom_hline(yintercept = 0, col = "lightgreen") +
   labs(x = "Evaluation time", y = "Brier score")
 ```
 
@@ -282,25 +256,22 @@ brier_survival_integrated(demo_cat_preds, truth = event_time, .pred)
 
 ## Area Under the ROC Curve
 
-This is more straightforward. 
-
-<br>
-
-We can use the standard ROC curve machinery once we have the indicators, probabilities, and censoring weights at evaluation time $\tau$ ([Hung and Chiang (2010)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Optimal+Composite+Markers+for+Time-Dependent+Receiver+Operating+Characteristic+Curves+with+Censored+Survival+Data%22&btnG=)). 
+We can use the standard ROC curve machinery on the indicators, probabilities, and censoring weights at evaluation time $\tau$.  
+See [Hung and Chiang (2010)](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=%22Optimal+Composite+Markers+for+Time-Dependent+Receiver+Operating+Characteristic+Curves+with+Censored+Survival+Data%22&btnG=).
 
 <br>
 
 ROC curves measure the separation between events and non-events and are ignorant of how well-calibrated the probabilities are.  
 
 
-## Area Under the ROC Curve 
+## Area under the ROC curve 
 
 ```{r auc-survival}
 demo_roc_auc <- roc_auc_survival(demo_cat_preds, truth = event_time, .pred)
-demo_roc_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
+demo_roc_auc
 ```
 
-## ROC AUC Over Evaluation Time
+## ROC AUC over evaluation time
 
 ```{r}
 #| label: auc-time
@@ -309,31 +280,24 @@ demo_roc_auc %>% filter(.eval_time %in% seq(30, 300, by = 30))
 #| fig-height: 4.25
 #| out-width: 60%
 #| fig-align: center
-demo_roc_auc %>% 
+demo_roc_auc |> 
   ggplot(aes(.eval_time, .estimate)) + 
-  geom_line() + 
-  geom_hline(yintercept = 1, col = "green")+
-  geom_hline(yintercept = 1/2, col = "red")+
+  geom_line() + geom_point() +
+  geom_hline(yintercept = 1, col = "lightgreen")+
+  geom_hline(yintercept = 1/2, col = "indianred3")+
   labs(x = "Evaluation time", y = "ROC AUC")
 ```
 
-## Using Evaluation Times
+## Setting evaluation times
 
-When predicting, you can get predictions at any values of $\tau$. 
-
-<br>
-
-During model development, we suggest picking a more focused set of evaluation times (for computational time). 
-
-<br>
-
-You should also pick a time to perform your optimizations/comparisons and list that value first in the vector. If 90 days was of interest, you might use
+- You can get predictions at any values of $\tau$. 
+- During model development, we suggest picking a more focused set of evaluation times (for computational time). 
+- You should also pick a single time to perform your optimizations/comparisons with and list that value first in the vector. If 90 days was of particular interest over a 30-to-120-day span, you'd use
 
 ```{r}
 #| label: time-example
-times <- c(90, 30, 60, 120)
+eval_times <- c(90, 30, 60, 120)
 ```
-
 
 
 # ⚠️ DANGERS OF OVERFITTING ⚠️
@@ -346,8 +310,8 @@ times <- c(90, 30, 60, 120)
 
 ```{r augment-acc-2}
 #| eval: false
-cph_spline_fit %>%
-  augment(cat_train, eval_time = 8:320) %>%
+tree_fit |>
+  augment(cat_train, eval_time = ((1:10) * 30)) |>
   brier_survival(truth = event_time, .pred)
 ```
 
@@ -371,7 +335,7 @@ countdown::countdown(minutes = 5, id = "overfitting")
 
 ```{r vfold-cv}
 set.seed(123)
-cat_folds <- vfold_cv(cat_train, v = 10)# v = 10 is default
+cat_folds <- vfold_cv(cat_train, v = 10) # v = 10 is default
 cat_folds
 ```
 
@@ -380,7 +344,6 @@ cat_folds
 What is in this?
 
 ```{r cat-splits}
-cat_folds <- vfold_cv(cat_train)
 cat_folds$splits[1:3]
 ```
 
@@ -417,14 +380,16 @@ knitr::include_graphics("images/whole-game-transparent-resamples.jpg")
 ## Fit our model to the resamples
 
 ```{r fit-resamples}
-cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120))
-cat_res
+tree_wflow <- workflow(event_time ~ ., tree_spec)
+
+tree_res <- fit_resamples(tree_wflow, cat_folds, eval_time = c(90, 30, 60, 120))
+tree_res
 ```
 
 ## Evaluating model performance `r hexes("tune")` {.annotation} 
 
 ```{r collect-metrics}
-cat_res %>%
+tree_res |>
   collect_metrics()
 ```
 
@@ -439,7 +404,7 @@ We can reliably measure performance using only the **training** data 🎉
 ## Where are the fitted models? `r hexes("tune")`  {.annotation}
 
 ```{r cat-res}
-cat_res
+tree_res
 ```
 
 . . .
@@ -451,17 +416,17 @@ cat_res
 ```{r save-predictions}
 # Save the assessment set results
 ctrl_cat <- control_resamples(save_pred = TRUE)
-cat_res <- fit_resamples(cat_wflow, cat_folds, eval_time = c(90, 30, 60, 120),
-                         control = ctrl_cat)
+tree_res <- fit_resamples(tree_wflow, cat_folds, eval_time = c(90, 30, 60, 120),
+                          control = ctrl_cat)
 
-cat_res
+tree_res
 ```
 
 ## But it's easy to collect the predictions `r hexes("tune")`
 
 ```{r collect-predictions}
-cat_preds <- collect_predictions(cat_res)
-cat_preds
+tree_preds <- collect_predictions(tree_res)
+tree_preds
 ```
 
 # Decision tree 🌳
@@ -483,8 +448,8 @@ cat_preds
 ## Create a random forest model `r hexes("parsnip")`
 
 ```{r rf-spec}
-rf_spec <- rand_forest(trees = 1000) %>% 
-  set_engine("aorsf") %>% 
+rf_spec <- rand_forest(trees = 1000) |> 
+  set_engine("aorsf") |> 
   set_mode("censored regression")
 rf_spec
 ```

@@ -69,7 +69,7 @@ cat_adoption
 ## Make the outcome `r hexes("survival")`
 
 ```{r cats-surv-outcome}
-cat_adoption <- cat_adoption %>% 
+cat_adoption <- cat_adoption |> 
   mutate(event_time = Surv(time, event), .keep = "unused", .before = everything()) 
 ```
 
@@ -168,10 +168,10 @@ We'll use this setup:
 ```{r cat-split-demo}
 set.seed(27)
 in_demo <- sample.int(nrow(cat_adoption), 50)
-demo_cats <- cat_adoption %>% slice(in_demo)
+demo_cats <- cat_adoption |> slice(in_demo)
 
 set.seed(123)
-cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_split <- initial_split(cat_adoption |> slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- testing(cat_split)
 ```
@@ -208,28 +208,28 @@ Make a plot or summary and then share with neighbor
 ```{r cat-event-time}
 #| fig-align: 'center'
 library(ggsurvfit)
-survfit(event_time ~ 1, data = cat_adoption) %>% ggsurvfit()
+survfit(event_time ~ 1, data = cat_adoption) |> ggsurvfit()
 ```
 
 ## 
 
 ```{r cat-event-time-by-neutered}
 #| fig-align: 'center'
-survfit(event_time ~ neutered, data = cat_train) %>% ggsurvfit()
+survfit(event_time ~ neutered, data = cat_train) |> ggsurvfit()
 ```
 
 ## 
 
 ```{r cat-event-time-by-brown-tabby}
 #| fig-align: 'center'
-survfit(event_time ~ brown_tabby, data = cat_train) %>% ggsurvfit()
+survfit(event_time ~ brown_tabby, data = cat_train) |> ggsurvfit()
 ```
 
 ## 
 
 ```{r cat-event-time-by-gray}
 #| fig-align: 'center'
-survfit(event_time ~ gray, data = cat_train) %>% ggsurvfit()
+survfit(event_time ~ gray, data = cat_train) |> ggsurvfit()
 ```
 
 ## Location {.annotation}
@@ -239,9 +239,9 @@ survfit(event_time ~ gray, data = cat_train) %>% ggsurvfit()
 #| output-location: column
 library(leaflet)
 
-cat_train %>% 
-  leaflet() %>%
-  addProviderTiles("CartoDB.Positron") %>%  
+cat_train |> 
+  leaflet() |>
+  addProviderTiles("CartoDB.Positron") |>  
   addCircles(lng = ~ longitude, 
              lat = ~ latitude)
 ```

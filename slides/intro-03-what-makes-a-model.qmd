@@ -79,15 +79,15 @@ library(tidymodels)
 library(censored)
 library(modeldata)
 
-cat_adoption <- cat_adoption %>% 
+cat_adoption <- cat_adoption |> 
   mutate(event_time = Surv(time, event), .keep = "unused", .before = everything())
 
 set.seed(27)
 in_demo <- sample.int(nrow(cat_adoption), 50)
-demo_cats <- cat_adoption %>% slice(in_demo)
+demo_cats <- cat_adoption |> slice(in_demo)
 
 set.seed(123)
-cat_split <- initial_split(cat_adoption %>% slice(-in_demo), prop = 0.8)
+cat_split <- initial_split(cat_adoption |> slice(-in_demo), prop = 0.8)
 cat_train <- training(cat_split)
 cat_test <- testing(cat_split)
 ```
@@ -103,7 +103,7 @@ Models have default engines
 ## To specify a model `r hexes("censored", "parsnip")`
 
 ```{r proportional-hazards-glmnet}
-proportional_hazards() %>%
+proportional_hazards() |>
   set_engine("glmnet")
 ```
 
@@ -124,7 +124,7 @@ Some models have a default mode but not all
 ## To specify a model `r hexes("censored", "parsnip")`
 
 ```{r decision-tree-censored-reg}
-decision_tree() %>% 
+decision_tree() |> 
   set_mode("censored regression")
 ```
 
@@ -186,9 +186,9 @@ cat_new <- tibble(
   intake_condition = factor(c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))
 )
 
-fit(proportional_hazards(), event_time ~ 1, data = cat_train) %>% 
-  augment(new_data = cat_new[1,], eval_time = seq(0, 360, 1)) %>% 
-  tidyr::unnest(cols = .pred) %>% 
+fit(proportional_hazards(), event_time ~ 1, data = cat_train) |> 
+  augment(new_data = cat_new[1,], eval_time = seq(0, 360, 1)) |> 
+  tidyr::unnest(cols = .pred) |> 
   ggplot() +
   geom_step(aes(.eval_time, .pred_survival)) +
   labs(x = "Time", y = "Probability of not adopted") +
@@ -209,9 +209,9 @@ fit(proportional_hazards(), event_time ~ 1, data = cat_train) %>%
 #| fig.width: 8
 #| fig.height: 7
 
-fit(proportional_hazards(), event_time ~ 1, data = cat_train) %>% 
-  augment(new_data = cat_new[1,], eval_time = seq(0, 360, 1)) %>% 
-  tidyr::unnest(cols = .pred) %>% 
+fit(proportional_hazards(), event_time ~ 1, data = cat_train) |> 
+  augment(new_data = cat_new[1,], eval_time = seq(0, 360, 1)) |> 
+  tidyr::unnest(cols = .pred) |> 
   ggplot() +
   geom_step(aes(.eval_time, .pred_survival)) +
   labs(x = "Time", y = "Probability of not adopted") +
@@ -236,10 +236,10 @@ $\lambda(t | x_i) = \lambda_0(t) \cdot \exp (x_i^T \beta)$
 #| echo: false
 #| fig.width: 8
 #| fig.height: 7
-p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_train) %>% 
-  augment(new_data = cat_new, eval_time = seq(0, 360, 1)) %>% 
-  mutate(intake_condition = factor(intake_condition, levels = c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))) %>% 
-  tidyr::unnest(cols = .pred) %>% 
+p_ph <- fit(proportional_hazards(), event_time ~ intake_condition, data = cat_train) |> 
+  augment(new_data = cat_new, eval_time = seq(0, 360, 1)) |> 
+  mutate(intake_condition = factor(intake_condition, levels = c("normal", "fractious", "feral", "other", "under_age_or_weight", "ill_moderatete", "ill_mild"))) |> 
+  tidyr::unnest(cols = .pred) |> 
   ggplot() +
   geom_line(aes(.eval_time, .pred_survival, col = intake_condition)) +
   scale_color_discrete(guide = guide_legend(nrow = 3)) + 
@@ -268,8 +268,8 @@ $\lambda(t | x_i) = \lambda_0(t) \cdot \exp (x_i^T \beta)$
 ```{r tree-fit}
 #| echo: false
 
-fit_dt <- decision_tree(cost_complexity = 0.008) %>%
-  set_mode("censored regression") %>% 
+fit_dt <- decision_tree(cost_complexity = 0.008) |>
+  set_mode("censored regression") |> 
   fit(event_time ~ intake_condition, data = cat_train) 
 ```
 
@@ -280,10 +280,10 @@ fit_dt <- decision_tree(cost_complexity = 0.008) %>%
 #| fig-align: center
 
 library(partykit)
-fit_pec <- fit_dt %>% extract_fit_engine()
+fit_pec <- fit_dt |> extract_fit_engine()
 fit_rpart <- fit_pec$rpart
-fit_rpart %>% 
-  as.party() %>% 
+fit_rpart |> 
+  as.party() |> 
   plot(ep_args = list(justmin = 15, abbreviate = TRUE))
 ```
 
@@ -309,10 +309,10 @@ fit_rpart %>%
 #| fig-align: center
 
 library(partykit)
-fit_pec <- fit_dt %>% extract_fit_engine()
+fit_pec <- fit_dt |> extract_fit_engine()
 fit_rpart <- fit_pec$rpart
-fit_rpart %>% 
-  as.party() %>% 
+fit_rpart |> 
+  as.party() |> 
   plot(ep_args = list(justmin = 15, abbreviate = TRUE))
 ```
 :::
@@ -326,10 +326,10 @@ fit_rpart %>%
 cat_new_3 <- tibble(
   intake_condition = factor(c("normal", "feral", "ill_mild"))
 )
-p_dt <- fit_dt %>% 
-  augment(new_data = cat_new_3, eval_time = seq(0, 360, 1)) %>% 
-  mutate(intake_condition = factor(intake_condition, levels = c("feral", "normal", "ill_mild"))) %>% 
-  tidyr::unnest(cols = .pred) %>% 
+p_dt <- fit_dt |> 
+  augment(new_data = cat_new_3, eval_time = seq(0, 360, 1)) |> 
+  mutate(intake_condition = factor(intake_condition, levels = c("feral", "normal", "ill_mild"))) |> 
+  tidyr::unnest(cols = .pred) |> 
   ggplot() +
   geom_step(aes(.eval_time, .pred_survival, color = intake_condition)) +
   scale_color_discrete(
@@ -425,10 +425,10 @@ Two ways workflows handle levels better than base R:
 
 ```{r tree-spec}
 tree_spec <-
-  decision_tree() %>% 
+  decision_tree() |> 
   set_mode("censored regression")
 
-tree_spec %>% 
+tree_spec |> 
   fit(event_time ~ ., data = cat_train) 
 ```
 
@@ -436,12 +436,12 @@ tree_spec %>%
 
 ```{r tree-wflow}
 tree_spec <-
-  decision_tree() %>% 
+  decision_tree() |> 
   set_mode("censored regression")
 
-workflow() %>%
-  add_formula(event_time ~ .) %>%
-  add_model(tree_spec) %>%
+workflow() |>
+  add_formula(event_time ~ .) |>
+  add_model(tree_spec) |>
   fit(data = cat_train) 
 ```
 
@@ -449,11 +449,11 @@ workflow() %>%
 
 ```{r tree-wflow-fit}
 tree_spec <-
-  decision_tree() %>% 
+  decision_tree() |> 
   set_mode("censored regression")
 
 tree_fit <-
-  workflow(event_time ~ ., tree_spec) %>% 
+  workflow(event_time ~ ., tree_spec) |> 
   fit(data = cat_train) 
 ```
 
@@ -509,11 +509,11 @@ preds$.pred[[1]]
 #| fig.width: 8
 #| fig.height: 6
 #| fig.align: "center"
-preds %>% 
-  slice(c(1,2,5)) %>% 
-  add_rowindex() %>% 
-  mutate(cat = paste0("#", .row)) %>% 
-  unnest(.pred) %>% 
+preds |> 
+  slice(c(1,2,5)) |> 
+  add_rowindex() |> 
+  mutate(cat = paste0("#", .row)) |> 
+  unnest(.pred) |> 
   ggplot(aes(.eval_time, .pred_survival, col = cat)) +
   geom_step() +
   labs(x = "Time", y = "Probability of not adopted") +
