@@ -56,7 +56,7 @@ tree_fit <- tree_wflow |>
 
 ## Predictions {.annotation} 
 
-For our demo data set of n = `r nrow(demo_cats)` cats. We'll make predictions every 30 days for roughly the first 10 months:
+For our demo data set of n = `r nrow(demo_cats)` cats, we'll make predictions every 30 days for roughly the first 10 months:
 
 ```{r}
 #| label: demo-cat-preds
